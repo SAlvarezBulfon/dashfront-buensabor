@@ -1,29 +1,25 @@
-import React from 'react';
-import './select.css'
+import React, { ChangeEvent } from 'react';
 
 interface SelectListProps {
-    title: string;
-    items: string[];
-    handleChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
+  title: string;
+  items: string[];
+  handleChange: (event: ChangeEvent<HTMLSelectElement>) => void;
+  selectedValue: string;
 }
 
-const SelectList: React.FC<SelectListProps> = ({ title, items, handleChange }) => {
-
-    return (
-        <div className="select-list-container">
-            <label htmlFor={`${title}-select`} className="select-label"><b>{title}</b></label>
-            <select
-                id={`${title}-select`}
-                className="select-list"
-                onChange={handleChange}
-            >
-                <option value="" disabled selected>Seleccione una opción</option>
-                {items.map((item, index) => (
-                    <option key={index} value={item}>{item}</option>
-                ))}
-            </select>
-        </div>
-    );
+const SelectList: React.FC<SelectListProps> = ({ title, items, handleChange, selectedValue }) => {
+  return (
+    <div>
+      <label>{title}</label>
+      <select onChange={handleChange} value={selectedValue}>
+        {items.map((item, index) => (
+          <option key={index} value={item}>
+            {item}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
 };
 
 export default SelectList;
