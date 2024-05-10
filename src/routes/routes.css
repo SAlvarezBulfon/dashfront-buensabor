@@ -1,0 +1,25 @@
+/* Estilos para el navbar */
+.navbar {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    padding: 0;
+}
+
+/* Estilos para el sidebar */
+.sidebar {
+    position: fixed;
+    top: 64px;
+    background-color: #f8f9fa;
+    z-index: 900;
+}
+
+/* Estilos para el área de contenido */
+.content {
+    overflow-y: auto;
+    margin-left: 250px;
+    height: 100vh;
+    margin: 0 0 0 250px;
+}

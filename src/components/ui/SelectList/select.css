@@ -1,0 +1,21 @@
+.select-list-container {
+    margin-bottom: 15px;
+}
+
+.select-label {
+    margin-right: 10px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.select-list {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+}
