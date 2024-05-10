@@ -3,11 +3,10 @@ import { Table, TableHead, TableBody, TableRow, TableCell, TableSortLabel, Table
 import DeleteButton from './DeleteButton'; 
 import EditButton from './EditButton';
 import Row from '../../../types/Row';
-import Column from '../../../types/Column';
 
 interface Props{
   data: any[]; // Utiliza la interfaz genérica DataModel<T>
-  columns: Column[];
+  columns: any[];
   onEdit: (item: any) => void; // Utiliza la interfaz genérica DataModel<T>
   onDelete: (item:any ) => void; // Utiliza la interfaz genérica DataModel<T>
 }

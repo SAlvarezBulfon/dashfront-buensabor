@@ -25,27 +25,27 @@ const EmpresaComponent = () => {
   );
 
   const [filteredData, setFilteredData] = useState<Empresa[]>([]);
-  const [isEditing, setIsEditing] = useState(false); 
-  const [empresaEditar, setEmpresaEditar] = useState<Empresa>();
+  const [isEditing, setIsEditing] = useState(false);
+  const [empresaEditar, setEmpresaEditar] = useState<Empresa | undefined>();
 
   const fetchEmpresas = async () => {
     try {
       const empresas = await empresaService.getAll(url + '/empresa');
-      dispatch(setEmpresa(empresas)); 
-      setFilteredData(empresas); 
+      dispatch(setEmpresa(empresas));
+      setFilteredData(empresas);
     } catch (error) {
       console.error("Error al obtener las empresas:", error);
     }
-  }; 
+  };
 
   useEffect(() => {
-    fetchEmpresas(); 
-  }, [dispatch]); 
+    fetchEmpresas();
+  }, [dispatch]);
 
   const onSearch = (query: string) => {
     handleSearch(query, globalEmpresas, 'nombre', setFilteredData);
   };
-  
+
   const onDeleteEmpresa = async (empresa: Empresa) => {
     try {
       await onDelete(
@@ -64,64 +64,59 @@ const EmpresaComponent = () => {
       console.error("Error al eliminar empresa:", error);
     }
   };
-  
+
   const handleEdit = (empresa: Empresa) => {
-    setIsEditing(true); 
+    setIsEditing(true);
     setEmpresaEditar(empresa)
     dispatch(toggleModal({ modalName: "modal" }));
   };
-  
+
   const handleAddEmpresa = () => {
-    setIsEditing(false); 
+    setIsEditing(false);
     dispatch(toggleModal({ modalName: "modal" }));
   };
 
-  const handleAddSucursal = () => {
-    dispatch(toggleModal({ modalName: "modalSucursal" })); // Abre el modal de sucursales
+  const handleAddSucursal = (empresa: Empresa) => {
+    dispatch(toggleModal({ modalName: "modalSucursal" }));
+    setEmpresaEditar(empresa);
+    console.log(empresa)
   };
 
-  const generateInitialSucursal = (): ISucursal => {
+  const generateInitialSucursal = (empresa: Empresa): ISucursal => {
     return {
+      id: 0,
+      eliminado: false,
+      nombre: '',
+      horarioApertura: '',
+      horarioCierre: '',
+      domicilio: {
         id: 0,
         eliminado: false,
-        nombre: '',
-        horarioApertura: '',
-        horarioCierre: '',
-        domicilio: {
-            id: 0,
-            eliminado: false,
-            calle: '',
-            numero: 0,
-            cp: 0,
-            piso: 0,
-            nroDpto: 0,
-            localidad: {
-                id: 0,
-                eliminado: false,
-                nombre: '',
-                provincia: {
-                    id: 0,
-                    eliminado: false,
-                    nombre: '',
-                    pais: {
-                        id: 0,
-                        eliminado: false,
-                        nombre: ''
-                    }
-                }
-            }
-        },
-        empresa: {
+        calle: '',
+        numero: 0,
+        cp: 0,
+        piso: 0,
+        nroDpto: 0,
+        localidad: {
+          id: 0,
+          eliminado: false,
+          nombre: '',
+          provincia: {
             id: 0,
             eliminado: false,
             nombre: '',
-            razonSocial: '',
-            cuil: 0,
-            sucursales: []
+            pais: {
+              id: 0,
+              eliminado: false,
+              nombre: ''
+            }
+          }
         }
+      },
+      empresa: empresa
     };
-};
-  
+  };
+
   const columns: Column[] = [
     { id: "nombre", label: "Nombre", renderCell: (empresa) => <>{empresa.nombre}</> },
     { id: "razonSocial", label: "Razón Social", renderCell: (empresa) => <>{empresa.razonSocial}</> },
@@ -131,14 +126,13 @@ const EmpresaComponent = () => {
       label: "Sucursales",
       renderCell: (empresa) => (
         <>
-        <Tooltip title="Ver Sucursales">    
+          <Tooltip title="Ver Sucursales">
             <IconButton component={Link} to={`/empresas/${empresa.id}`} aria-label="Ver Sucursales">
               <Visibility />
             </IconButton>
-        </Tooltip>
-        <Tooltip title="Agregar Sucursal">
-            {/* Cambia el evento onClick para llamar a handleAddSucursal con el ID de la empresa */}
-            <IconButton onClick={handleAddSucursal} aria-label="Agregar Sucursal">
+          </Tooltip>
+          <Tooltip title="Agregar Sucursal">
+            <IconButton onClick={() => handleAddSucursal(empresa as Empresa)} aria-label="Agregar Sucursal">
               <AddCircle />
             </IconButton>
           </Tooltip>
@@ -148,7 +142,7 @@ const EmpresaComponent = () => {
   ];
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, my: 10}}>
+    <Box component="main" sx={{ flexGrow: 1, my: 10 }}>
       <Container>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", my: 1 }}>
           <Typography variant="h5" gutterBottom>
@@ -168,18 +162,21 @@ const EmpresaComponent = () => {
             Empresa
           </Button>
         </Box>
-        <Box sx={{mt:2 }}>
+        <Box sx={{ mt: 2 }}>
           <SearchBar onSearch={onSearch} />
         </Box>
         <TableComponent data={filteredData} columns={columns} onDelete={onDeleteEmpresa} onEdit={handleEdit} />
-        <ModalEmpresa modalName="modal" initialValues={empresaEditar || {id: 0, eliminado: false, nombre: "", razonSocial: "", cuil: 0, sucursales: [] }} isEditMode={isEditing} getEmpresas={fetchEmpresas} />
-        <ModalSucursal modalName="modalSucursal" initialValues={generateInitialSucursal()} isEditMode={false} getSucursales={fetchEmpresas}/>
+        <ModalEmpresa modalName="modal" initialValues={empresaEditar || { id: 0, eliminado: false, nombre: "", razonSocial: "", cuil: 0, sucursales: [] }} isEditMode={isEditing} getEmpresas={fetchEmpresas} />
+        <ModalSucursal
+          modalName="modalSucursal"
+          initialValues={empresaEditar ? generateInitialSucursal(empresaEditar) : generateInitialSucursal({} as Empresa)}
+          isEditMode={false}
+          getSucursales={fetchEmpresas}
+          empresa={empresaEditar || {} as Empresa}
+        />
       </Container>
-
     </Box>
   );
 };
 
 export default EmpresaComponent;
-
-

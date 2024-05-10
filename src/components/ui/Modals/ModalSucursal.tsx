@@ -8,8 +8,9 @@ import PaisService from '../../../services/PaisService';
 import ProvinciaService from '../../../services/ProvinciaService';
 import LocalidadService from '../../../services/LocalidadService';
 import SelectList from '../SelectList/SelectList';
-import ILocalidad from '../../../types/ILocalidad'; // Importamos el tipo de Localidad
-import DomicilioService from '../../../services/DomicilioService';
+import ILocalidad from '../../../types/ILocalidad'; 
+
+import IEmpresa from '../../../types/IEmpresa';
 
 interface ModalSucursalProps {
   modalName: string;
@@ -17,6 +18,7 @@ interface ModalSucursalProps {
   isEditMode: boolean;
   getSucursales: Function;
   sucursalAEditar?: Sucursal;
+  empresa: IEmpresa,
 }
 
 const ModalSucursal: React.FC<ModalSucursalProps> = ({
@@ -25,6 +27,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   isEditMode,
   getSucursales,
   sucursalAEditar,
+  empresa,
 }) => {
   const sucursalService = new SucursalService();
   const URL: string = import.meta.env.VITE_API_URL as string;
@@ -38,7 +41,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
 
   const [selectedPais, setSelectedPais] = useState<string>('');
   const [selectedProvincia, setSelectedProvincia] = useState<string>('');
-  const [, setSelectedLocalidad] = useState<string>('');
+  const [selectedLocalidad, setSelectedLocalidad] = useState<string>('');
 
 
   const validationSchema = Yup.object().shape({
@@ -114,19 +117,49 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     setSelectedLocalidad(localidadId);
   };
 
-  const domicilioService = new DomicilioService();
+
+if(!isEditMode){
+    initialValues =  {
+      id: 0,
+      eliminado: false,
+      nombre: '',
+      horarioApertura: '',
+      horarioCierre: '',
+      domicilio: {
+          id: 0,
+          eliminado: false,
+          calle: '',
+          numero: 0,
+          cp: 0,
+          piso: 0,
+          nroDpto: 0,
+          localidad: {
+              id: 0,
+              eliminado: false,
+              nombre: '',
+              provincia: {
+                  id: 0,
+                  eliminado: false,
+                  nombre: '',
+                  pais: {
+                      id: 0,
+                      eliminado: false,
+                      nombre: ''
+                  }
+              }
+          }
+      },
+      empresa: empresa
+  };
+}
+
   const handleSubmit = async (values: Sucursal) => {
     try {
-      // Primero, guardamos el domicilio
-      const domicilioGuardado = await domicilioService.post(URL+ '/domicilio', values.domicilio);
-      
-      // Luego, actualizamos la sucursal con el ID del domicilio guardado
-      values.domicilio = domicilioGuardado;
-      
       // Por último, guardamos la sucursal
       if (isEditMode) {
         await sucursalService.put(`${URL}/sucursal`, values.id, values);
       } else {
+        // Añadir la nueva sucursal
         await sucursalService.post(`${URL}/sucursal`, values);
       }
       getSucursales(); 
@@ -155,23 +188,26 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
       <TextFieldValue label="Número de Departamento" name="domicilio.nroDpto" type="number" placeholder="Número de Departamento" />
       <SelectList
         title="Países"
-        items={paises.map((pais: any) => pais.nombre)} // Mapea solo los nombres de los países
+        items={paises.map((pais: any) => pais.nombre)}
         handleChange={handlePaisChange}
+        selectedValue={selectedPais} // Proporcionar el valor seleccionado
       />
       {selectedPais && (
         <SelectList
           title="Provincias"
-          items={provincias.map((provincia: any) => provincia.nombre)} // Mapea solo los nombres de las provincias
+          items={provincias.map((provincia: any) => provincia.nombre)}
           handleChange={handleProvinciaChange}
+          selectedValue={selectedProvincia} // Proporcionar el valor seleccionado
         />
       )}
       {selectedProvincia && (
         <SelectList
           title="Localidades"
-          items={localidades.map((localidad: ILocalidad) => localidad.nombre)} // Mapea solo los nombres de las localidades
+          items={localidades.map((localidad: ILocalidad) => localidad.nombre)}
           handleChange={handleLocalidadChange}
-        />
-      )}
+          selectedValue={selectedLocalidad} // Proporcionar el valor seleccionado
+        />)}
+        
     </GenericModal>
   );
 };
