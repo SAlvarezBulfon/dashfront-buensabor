@@ -9,7 +9,6 @@ import ProvinciaService from '../../../services/ProvinciaService';
 import LocalidadService from '../../../services/LocalidadService';
 import SelectList from '../SelectList/SelectList';
 import ILocalidad from '../../../types/ILocalidad'; 
-
 import IEmpresa from '../../../types/IEmpresa';
 
 interface ModalSucursalProps {
@@ -37,12 +36,12 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
 
   const [paises, setPaises] = useState<any[]>([]);
   const [provincias, setProvincias] = useState<any[]>([]);
-  const [localidades, setLocalidades] = useState<ILocalidad[]>([]); // Cambiamos el tipo de estado para localidades
+  const [localidades, setLocalidades] = useState<ILocalidad[]>([]); 
 
   const [selectedPais, setSelectedPais] = useState<string>('');
   const [selectedProvincia, setSelectedProvincia] = useState<string>('');
   const [selectedLocalidad, setSelectedLocalidad] = useState<string>('');
-
+  const [casaMatriz, setCasaMatriz] = useState<boolean>(false); // Estado para casa matriz
 
   const validationSchema = Yup.object().shape({
     nombre: Yup.string().required('Campo requerido'),
@@ -113,61 +112,63 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   };
 
   const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const localidadId = event.target.value; // Obtener el ID de la localidad
+    const localidadId = event.target.value; 
     setSelectedLocalidad(localidadId);
   };
 
-
-if(!isEditMode){
-    initialValues =  {
+  if (!isEditMode) {
+    initialValues = {
       id: 0,
       eliminado: false,
       nombre: '',
       horarioApertura: '',
       horarioCierre: '',
       domicilio: {
+        id: 0,
+        eliminado: false,
+        calle: '',
+        numero: 0,
+        cp: 0,
+        piso: 0,
+        nroDpto: 0,
+        localidad: {
           id: 0,
           eliminado: false,
-          calle: '',
-          numero: 0,
-          cp: 0,
-          piso: 0,
-          nroDpto: 0,
-          localidad: {
+          nombre: '',
+          provincia: {
+            id: 0,
+            eliminado: false,
+            nombre: '',
+            pais: {
               id: 0,
               eliminado: false,
-              nombre: '',
-              provincia: {
-                  id: 0,
-                  eliminado: false,
-                  nombre: '',
-                  pais: {
-                      id: 0,
-                      eliminado: false,
-                      nombre: ''
-                  }
-              }
+              nombre: ''
+            }
           }
+        }
       },
-      empresa: empresa
-  };
-}
+      empresa: empresa,
+      casaMatriz: false, // Agregar casa matriz con valor predeterminado
+    };
+  }
 
   const handleSubmit = async (values: Sucursal) => {
     try {
-      // Por último, guardamos la sucursal
+      const dataToSend = {
+        ...values,
+        casaMatriz: casaMatriz // Dejar casaMatriz como booleano
+      };
+
       if (isEditMode) {
-        await sucursalService.put(`${URL}/sucursal`, values.id, values);
+        await sucursalService.put(`${URL}/sucursal`, values.id, dataToSend);
       } else {
-        // Añadir la nueva sucursal
-        await sucursalService.post(`${URL}/sucursal`, values);
+        await sucursalService.post(`${URL}/sucursal`, dataToSend);
       }
-      getSucursales(); 
+      getSucursales();
     } catch (error) {
       console.error('Error al enviar los datos:', error);
     }
   };
-
 
   return (
     <GenericModal
@@ -190,14 +191,14 @@ if(!isEditMode){
         title="Países"
         items={paises.map((pais: any) => pais.nombre)}
         handleChange={handlePaisChange}
-        selectedValue={selectedPais} // Proporcionar el valor seleccionado
+        selectedValue={selectedPais}
       />
       {selectedPais && (
         <SelectList
           title="Provincias"
           items={provincias.map((provincia: any) => provincia.nombre)}
           handleChange={handleProvinciaChange}
-          selectedValue={selectedProvincia} // Proporcionar el valor seleccionado
+          selectedValue={selectedProvincia}
         />
       )}
       {selectedProvincia && (
@@ -205,9 +206,18 @@ if(!isEditMode){
           title="Localidades"
           items={localidades.map((localidad: ILocalidad) => localidad.nombre)}
           handleChange={handleLocalidadChange}
-          selectedValue={selectedLocalidad} // Proporcionar el valor seleccionado
-        />)}
-        
+          selectedValue={selectedLocalidad}
+        />
+      )}
+      {/* Checkbox para indicar si es la casa matriz */}
+      <label>
+        <input
+          type="checkbox"
+          checked={casaMatriz}
+          onChange={() => setCasaMatriz(!casaMatriz)}
+        />
+        Casa Matriz
+      </label>
     </GenericModal>
   );
 };

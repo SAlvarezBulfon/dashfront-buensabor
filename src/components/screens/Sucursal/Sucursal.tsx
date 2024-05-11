@@ -143,6 +143,16 @@ const SucursalesEmpresa = () => {
     { id: 'localidad', label: 'Localidad', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.nombre}</> },
     { id: 'provincia', label: 'Provincia', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.provincia.nombre}</> },
     { id: 'pais', label: 'País', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.provincia.pais.nombre}</> },
+     // Agregar una columna condicional para la clase de casa matriz
+  {
+    id: 'casaMatriz',
+    label: 'Casa Matriz',
+    renderCell: (sucursal) => (
+      <div className={sucursal.casaMatriz ? 'casa-matriz' : ''}>
+        {sucursal.casaMatriz ? 'Casa Matriz' : ''}
+      </div>
+    ),
+  },
   ];
 
   const generateInitialSucursal = (empresa: IEmpresa): Sucursal => {
@@ -176,7 +186,8 @@ const SucursalesEmpresa = () => {
           }
         }
       },
-      empresa: empresa
+      empresa: empresa,
+      casaMatriz:false
     };
   };
 

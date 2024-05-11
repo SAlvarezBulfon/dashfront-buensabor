@@ -8,4 +8,5 @@ export default interface ISucursal extends DataModel<ISucursal>{
     horarioCierre: string;
     domicilio: IDomicilio;
     empresa: IEmpresa;
+    casaMatriz: boolean; // Nuevo campo para indicar si es la casa matriz
 }
