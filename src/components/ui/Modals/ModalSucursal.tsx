@@ -113,11 +113,16 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
       setSelectedLocalidad('');
     }
   };
-
   const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const localidadId = event.target.value; 
-    setSelectedLocalidad(localidadId);
+    const localidadNombre = event.target.value; 
+    // Buscar la localidad por su nombre en el array de localidades
+    const localidadSeleccionada = localidades.find(localidad => localidad.nombre === localidadNombre);
+    if (localidadSeleccionada) {
+      // Asignar el ID de la localidad seleccionada
+      setSelectedLocalidad(localidadSeleccionada.id.toString());
+    }
   };
+  
 
   if (!isEditMode) {
     initialValues = {
@@ -146,7 +151,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
         cp: values.domicilio.cp,
         piso: values.domicilio.piso,
         nroDpto: values.domicilio.nroDpto,
-        idLocalidad: parseInt(selectedLocalidad), // Utilizar la localidad seleccionada
+        idLocalidad: parseInt(selectedLocalidad), // Convertir a número entero
       };
   
       let sucursalData: SucursalPost | Sucursal;
@@ -179,6 +184,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
       console.error('Error al enviar los datos:', error);
     }
   };
+  
   
 
   
