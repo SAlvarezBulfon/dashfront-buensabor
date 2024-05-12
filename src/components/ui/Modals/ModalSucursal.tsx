@@ -9,15 +9,18 @@ import ProvinciaService from '../../../services/ProvinciaService';
 import LocalidadService from '../../../services/LocalidadService';
 import SelectList from '../SelectList/SelectList';
 import ILocalidad from '../../../types/ILocalidad'; 
-import IEmpresa from '../../../types/IEmpresa';
+import IProvincia from '../../../types/IProvincia';
+import IPais from '../../../types/IPais';
+import SucursalPost from '../../../types/post/SucursalPost';
+import ISucursal from '../../../types/ISucursal';
 
 interface ModalSucursalProps {
   modalName: string;
-  initialValues: Sucursal;
+  initialValues: SucursalPost | ISucursal;
   isEditMode: boolean;
   getSucursales: Function;
   sucursalAEditar?: Sucursal;
-  empresa: IEmpresa,
+  idEmpresa: number,
 }
 
 const ModalSucursal: React.FC<ModalSucursalProps> = ({
@@ -26,7 +29,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   isEditMode,
   getSucursales,
   sucursalAEditar,
-  empresa,
+  idEmpresa,
 }) => {
   const sucursalService = new SucursalService();
   const URL: string = import.meta.env.VITE_API_URL as string;
@@ -118,57 +121,68 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
 
   if (!isEditMode) {
     initialValues = {
-      id: 0,
-      eliminado: false,
       nombre: '',
       horarioApertura: '',
       horarioCierre: '',
       domicilio: {
-        id: 0,
-        eliminado: false,
         calle: '',
         numero: 0,
         cp: 0,
         piso: 0,
         nroDpto: 0,
-        localidad: {
-          id: 0,
-          eliminado: false,
-          nombre: '',
-          provincia: {
-            id: 0,
-            eliminado: false,
-            nombre: '',
-            pais: {
-              id: 0,
-              eliminado: false,
-              nombre: ''
-            }
-          }
-        }
+        idLocalidad: 0
       },
-      empresa: empresa,
-      casaMatriz: false, // Agregar casa matriz con valor predeterminado
+      idEmpresa: idEmpresa,
+      esCasaMatriz: false, // Agregar casa matriz con valor predeterminado
     };
   }
 
-  const handleSubmit = async (values: Sucursal) => {
+  const handleSubmit = async (values: SucursalPost | Sucursal) => {
     try {
-      const dataToSend = {
-        ...values,
-        casaMatriz: casaMatriz // Dejar casaMatriz como booleano
+      // Crear el objeto de domicilio
+      const domicilio = {
+        calle: values.domicilio.calle,
+        numero: values.domicilio.numero,
+        cp: values.domicilio.cp,
+        piso: values.domicilio.piso,
+        nroDpto: values.domicilio.nroDpto,
+        idLocalidad: parseInt(selectedLocalidad), // Utilizar la localidad seleccionada
       };
-
+  
+      let sucursalData: SucursalPost | Sucursal;
+  
       if (isEditMode) {
-        await sucursalService.put(`${URL}/sucursal`, values.id, dataToSend);
+        // Si estamos en modo de edición, es un objeto Sucursal, así que eliminamos el id del objeto
+        const { id, ...rest } = values as Sucursal;
+        sucursalData = {
+          ...rest,
+          domicilio: domicilio,
+          esCasaMatriz: casaMatriz,
+          idEmpresa: idEmpresa,
+        };
+        console.log('Data a enviar en modo edición:', sucursalData);
+        await sucursalService.put(`${URL}/sucursal`, id, sucursalData);
       } else {
-        await sucursalService.post(`${URL}/sucursal`, dataToSend);
+        // Si no estamos en modo de edición, es un objeto SucursalPost y agregamos el id de la empresa
+        sucursalData = {
+          ...values,
+          domicilio: domicilio,
+          esCasaMatriz: casaMatriz,
+          idEmpresa: idEmpresa,
+        };
+        console.log('Data a enviar en modo creación:', sucursalData);
+        await sucursalService.post(`${URL}/sucursal`, sucursalData);
       }
+  
       getSucursales();
     } catch (error) {
       console.error('Error al enviar los datos:', error);
     }
   };
+  
+
+  
+  
 
   return (
     <GenericModal
@@ -189,14 +203,14 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
       <TextFieldValue label="Número de Departamento" name="domicilio.nroDpto" type="number" placeholder="Número de Departamento" />
       <SelectList
         title="Países"
-        items={paises.map((pais: any) => pais.nombre)}
+        items={paises.map((pais: IPais) => pais.nombre)}
         handleChange={handlePaisChange}
         selectedValue={selectedPais}
       />
       {selectedPais && (
         <SelectList
           title="Provincias"
-          items={provincias.map((provincia: any) => provincia.nombre)}
+          items={provincias.map((provincia: IProvincia) => provincia.nombre)}
           handleChange={handleProvinciaChange}
           selectedValue={selectedProvincia}
         />

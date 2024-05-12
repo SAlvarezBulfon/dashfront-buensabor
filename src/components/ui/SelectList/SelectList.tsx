@@ -19,7 +19,7 @@ const SelectList: React.FC<SelectListProps> = ({ title, items, handleChange , se
                 onChange={handleChange}
                 value={selectedValue}
             >
-                <option value="" disabled selected>Seleccione una opción</option>
+                <option value="" disabled>Seleccione una opción</option>
                 {items.map((item, index) => (
                     <option key={index} value={item}>{item}</option>
                 ))}

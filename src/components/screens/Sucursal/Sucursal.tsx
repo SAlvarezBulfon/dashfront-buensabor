@@ -14,6 +14,8 @@ import { setSucursal } from '../../../redux/slices/SucursalReducer';
 import ModalSucursal from '../../ui/Modals/ModalSucursal';
 import SucursalService from '../../../services/SucursalService';
 import IEmpresa from "../../../types/IEmpresa";
+import SucursalPost from "../../../types/post/SucursalPost";
+import ISucursal from "../../../types/ISucursal";
 
 
 
@@ -42,13 +44,16 @@ const SucursalesEmpresa = () => {
   const sucursalesEmpresa = useAppSelector((state) => state.sucursal.data);
 
   // Estado para almacenar las sucursales filtradas
-  const [filteredData, setFilteredData] = useState<Sucursal[]>([]);
+// Estado para almacenar las sucursales filtradas
+const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([]);
+
 
   // Estado para controlar si se está editando una sucursal
   const [isEditing, setIsEditing] = useState(false);
 
   // Estado para almacenar la sucursal que se está editando
-  const [sucursalEditar, setSucursalEditar] = useState<Sucursal>();
+  const [sucursalEditar, setSucursalEditar] = useState<Sucursal | SucursalPost>();
+
 
 
   // Función para obtener las sucursales de la API
@@ -73,7 +78,7 @@ const SucursalesEmpresa = () => {
           const idEmpresa: number = parseInt(empresaId);
 
           // Obtener la empresa utilizando empresaId
-          const empresa = await empresaService.get(`${url}/empresa/empresa/sucursales`, idEmpresa);
+          const empresa = await empresaService.get(`${url}/empresa/sucursales`, idEmpresa);
           // Actualizar el estado global de Redux con las sucursales
           dispatch(setSucursal(empresa.sucursales));
           // Actualizar las sucursales filtradas
@@ -155,39 +160,21 @@ const SucursalesEmpresa = () => {
   },
   ];
 
-  const generateInitialSucursal = (empresa: IEmpresa): Sucursal => {
+  const generateInitialSucursal = (idEmpresa: number): SucursalPost  => {
     return {
-      id: 0,
-      eliminado: false,
       nombre: '',
       horarioApertura: '',
       horarioCierre: '',
       domicilio: {
-        id: 0,
-        eliminado: false,
         calle: '',
         numero: 0,
         cp: 0,
         piso: 0,
         nroDpto: 0,
-        localidad: {
-          id: 0,
-          eliminado: false,
-          nombre: '',
-          provincia: {
-            id: 0,
-            eliminado: false,
-            nombre: '',
-            pais: {
-              id: 0,
-              eliminado: false,
-              nombre: ''
-            }
-          }
-        }
+        idLocalidad: 0,
       },
-      empresa: empresa,
-      casaMatriz:false
+      idEmpresa: idEmpresa,
+      esCasaMatriz:false
     };
   };
 
@@ -222,10 +209,10 @@ const SucursalesEmpresa = () => {
         {/* Modal para editar/agregar sucursal */}
         <ModalSucursal
           modalName="modal"
-          initialValues={sucursalEditar || generateInitialSucursal(empresa || {} as IEmpresa)}
+          initialValues={sucursalEditar || generateInitialSucursal(empresa?.id || 0)}
           isEditMode={isEditing}
           getSucursales={fetchSucursal}
-          empresa={empresa || {} as IEmpresa}
+          idEmpresa={empresa?.id || 0}
         />
 
       </Container>

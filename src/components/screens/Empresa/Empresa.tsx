@@ -14,7 +14,7 @@ import SearchBar from "../../ui/common/SearchBar/SearchBar";
 import TableComponent from "../../ui/Table/Table";
 import ModalEmpresa from "../../ui/Modals/ModalEmpresa";
 import ModalSucursal from "../../ui/Modals/ModalSucursal";
-import ISucursal from "../../../types/ISucursal";
+import SucursalPost from "../../../types/post/SucursalPost";
 
 const EmpresaComponent = () => {
   const url = import.meta.env.VITE_API_URL;
@@ -82,38 +82,21 @@ const EmpresaComponent = () => {
     console.log(empresa)
   };
 
-  const generateInitialSucursal = (empresa: Empresa): ISucursal => {
+  const generateInitialSucursal = (idEmpresa: number): SucursalPost  => {
     return {
-      id: 0,
-      eliminado: false,
       nombre: '',
       horarioApertura: '',
       horarioCierre: '',
       domicilio: {
-        id: 0,
-        eliminado: false,
         calle: '',
         numero: 0,
         cp: 0,
         piso: 0,
         nroDpto: 0,
-        localidad: {
-          id: 0,
-          eliminado: false,
-          nombre: '',
-          provincia: {
-            id: 0,
-            eliminado: false,
-            nombre: '',
-            pais: {
-              id: 0,
-              eliminado: false,
-              nombre: ''
-            }
-          }
-        }
+        idLocalidad: 0,
       },
-      empresa: empresa
+      idEmpresa: idEmpresa,
+      esCasaMatriz:false
     };
   };
 
@@ -169,10 +152,10 @@ const EmpresaComponent = () => {
         <ModalEmpresa modalName="modal" initialValues={empresaEditar || { id: 0, eliminado: false, nombre: "", razonSocial: "", cuil: 0, sucursales: [] }} isEditMode={isEditing} getEmpresas={fetchEmpresas} />
         <ModalSucursal
           modalName="modalSucursal"
-          initialValues={empresaEditar ? generateInitialSucursal(empresaEditar) : generateInitialSucursal({} as Empresa)}
+          initialValues={empresaEditar ? generateInitialSucursal(empresaEditar.id) : generateInitialSucursal(0)}
           isEditMode={false}
           getSucursales={fetchEmpresas}
-          empresa={empresaEditar || {} as Empresa}
+          idEmpresa={empresaEditar?.id|| 0}
         />
       </Container>
     </Box>
