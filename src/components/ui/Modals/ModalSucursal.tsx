@@ -45,7 +45,9 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   const [selectedProvincia, setSelectedProvincia] = useState<string>('');
   const [selectedLocalidad, setSelectedLocalidad] = useState<string>('');
   const [casaMatriz, setCasaMatriz] = useState<boolean>(false); // Estado para casa matriz
-
+  const [provinciaNombre, setProvinciaNombre] = useState<string>('');
+  const [localidadNombre, setLocalidadNombre] = useState<string>('');
+  
   const validationSchema = Yup.object().shape({
     nombre: Yup.string().required('Campo requerido'),
     horarioCierre: Yup.string().required('Campo requerido'),
@@ -105,24 +107,28 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     }
   };
 
-  const handleProvinciaChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const provNombre = event.target.value;
-    const provSeleccionada = provincias.find((provincia) => provincia.nombre === provNombre);
-    if (provSeleccionada) {
-      setSelectedProvincia(provSeleccionada.id);
-      setSelectedLocalidad('');
-    }
-  };
-  const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    const localidadNombre = event.target.value; 
-    // Buscar la localidad por su nombre en el array de localidades
-    const localidadSeleccionada = localidades.find(localidad => localidad.nombre === localidadNombre);
-    if (localidadSeleccionada) {
-      // Asignar el ID de la localidad seleccionada
-      setSelectedLocalidad(localidadSeleccionada.id.toString());
-    }
-  };
-  
+ // Función para manejar el cambio de provincia
+const handleProvinciaChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const provNombre = event.target.value;
+  const provSeleccionada = provincias.find((provincia) => provincia.nombre === provNombre);
+  if (provSeleccionada) {
+    setSelectedProvincia(provSeleccionada.id);
+    setSelectedLocalidad('');
+    setProvinciaNombre(provSeleccionada.nombre); // Actualizar el nombre de la provincia seleccionada
+  }
+};
+
+// Función para manejar el cambio de localidad
+const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
+  const localidadNombre = event.target.value; 
+  // Buscar la localidad por su nombre en el array de localidades
+  const localidadSeleccionada = localidades.find(localidad => localidad.nombre === localidadNombre);
+  if (localidadSeleccionada) {
+    // Asignar el ID de la localidad seleccionada
+    setSelectedLocalidad(localidadSeleccionada.id.toString());
+    setLocalidadNombre(localidadSeleccionada.nombre); // Actualizar el nombre de la localidad seleccionada
+  }
+};
 
   if (!isEditMode) {
     initialValues = {
@@ -218,7 +224,8 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
           title="Provincias"
           items={provincias.map((provincia: IProvincia) => provincia.nombre)}
           handleChange={handleProvinciaChange}
-          selectedValue={selectedProvincia}
+          //selectedValue={selectedProvincia}
+          selectedValue={provinciaNombre}
         />
       )}
       {selectedProvincia && (
@@ -226,7 +233,8 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
           title="Localidades"
           items={localidades.map((localidad: ILocalidad) => localidad.nombre)}
           handleChange={handleLocalidadChange}
-          selectedValue={selectedLocalidad}
+          //selectedValue={selectedLocalidad}
+          selectedValue={localidadNombre}
         />
       )}
       {/* Checkbox para indicar si es la casa matriz */}
