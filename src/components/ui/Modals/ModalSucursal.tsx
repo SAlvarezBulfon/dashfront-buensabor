@@ -8,12 +8,14 @@ import PaisService from '../../../services/PaisService';
 import ProvinciaService from '../../../services/ProvinciaService';
 import LocalidadService from '../../../services/LocalidadService';
 import SelectList from '../SelectList/SelectList';
-import ILocalidad from '../../../types/ILocalidad'; 
+import ILocalidad from '../../../types/ILocalidad';
 import IProvincia from '../../../types/IProvincia';
 import IPais from '../../../types/IPais';
 import SucursalPost from '../../../types/post/SucursalPost';
 import ISucursal from '../../../types/ISucursal';
-import { CheckCircleOutline, HighlightOff, Title } from '@mui/icons-material';
+import { CheckCircleOutline, HighlightOff } from '@mui/icons-material';
+import EmpresaService from '../../../services/EmpresaService';
+import IEmpresa from '../../../types/IEmpresa';
 
 interface ModalSucursalProps {
   modalName: string;
@@ -34,15 +36,18 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   idEmpresa,
   casaMatrizDisabled, // Nuevo prop para deshabilitar el checkbox de casa matriz
 }) => {
+  
   const sucursalService = new SucursalService();
   const URL: string = import.meta.env.VITE_API_URL as string;
   const paisService = new PaisService();
   const provinciaService = new ProvinciaService();
   const localidadService = new LocalidadService();
+  const empresaService = new EmpresaService();
 
+  const [empresa, setEmpresa] = useState<IEmpresa>()
   const [paises, setPaises] = useState<any[]>([]);
   const [provincias, setProvincias] = useState<any[]>([]);
-  const [localidades, setLocalidades] = useState<ILocalidad[]>([]); 
+  const [localidades, setLocalidades] = useState<ILocalidad[]>([]);
 
   const [selectedPais, setSelectedPais] = useState<string>('');
   const [selectedProvincia, setSelectedProvincia] = useState<string>('');
@@ -51,29 +56,26 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   const [provinciaNombre, setProvinciaNombre] = useState<string>('');
   const [localidadNombre, setLocalidadNombre] = useState<string>('');
   const [tooltipMessage, setTooltipMessage] = useState<string>(''); // Mensaje para el tooltip
-  
-  const validationSchema = Yup.object().shape({
-    nombre: Yup.string().required('Campo requerido'),
-    horarioCierre: Yup.string().required('Campo requerido'),
-    horarioApertura: Yup.string().required('Campo requerido'),
-  });
-  
-  
 
-  useEffect(() => {
-    const fetchPaises = async () => {
-      try {
-        const paises = await paisService.getAll(`${URL}/pais`);
-        setPaises(paises);
-      } catch (error) {
-        console.error('Error al obtener los países:', error);
-      }
-    };
+  const fetchEmpresa = async () => {
+    try {
+      const empre = await empresaService.get(`${URL}/empresa`, idEmpresa);
+      setEmpresa(empre);
+    } catch (error) {
+      console.error('Error al obtener la empresa:', error);
+    }
+  };
 
-    fetchPaises();
-  }, [URL]);
+  
+  const fetchPaises = async () => {
+    try {
+      const paises = await paisService.getAll(`${URL}/pais`);
+      setPaises(paises);
+    } catch (error) {
+      console.error('Error al obtener los países:', error);
+    }
+  }
 
-  useEffect(() => {
     const fetchProvincias = async () => {
       try {
         if (selectedPais) {
@@ -85,10 +87,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
       }
     };
 
-    fetchProvincias();
-  }, [URL, selectedPais]);
-
-  useEffect(() => {
     const fetchLocalidades = async () => {
       try {
         if (selectedProvincia) {
@@ -100,8 +98,19 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
       }
     };
 
+  const validationSchema = Yup.object().shape({
+    nombre: Yup.string().required('Campo requerido'),
+    horarioCierre: Yup.string().required('Campo requerido'),
+    horarioApertura: Yup.string().required('Campo requerido'),
+  });
+
+
+  useEffect(() => {
+    fetchEmpresa();
+    fetchPaises();
+    fetchProvincias();
     fetchLocalidades();
-  }, [URL, selectedProvincia]);
+  }, [URL,idEmpresa, selectedPais, selectedProvincia]);
 
   const handlePaisChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const paisNombre = event.target.value;
@@ -113,28 +122,28 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     }
   };
 
- // Función para manejar el cambio de provincia
-const handleProvinciaChange = (event: ChangeEvent<HTMLSelectElement>) => {
-  const provNombre = event.target.value;
-  const provSeleccionada = provincias.find((provincia) => provincia.nombre === provNombre);
-  if (provSeleccionada) {
-    setSelectedProvincia(provSeleccionada.id);
-    setSelectedLocalidad('');
-    setProvinciaNombre(provSeleccionada.nombre); // Actualizar el nombre de la provincia seleccionada
-  }
-};
+  // Función para manejar el cambio de provincia
+  const handleProvinciaChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const provNombre = event.target.value;
+    const provSeleccionada = provincias.find((provincia) => provincia.nombre === provNombre);
+    if (provSeleccionada) {
+      setSelectedProvincia(provSeleccionada.id);
+      setSelectedLocalidad('');
+      setProvinciaNombre(provSeleccionada.nombre); // Actualizar el nombre de la provincia seleccionada
+    }
+  };
 
-// Función para manejar el cambio de localidad
-const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
-  const localidadNombre = event.target.value; 
-  // Buscar la localidad por su nombre en el array de localidades
-  const localidadSeleccionada = localidades.find(localidad => localidad.nombre === localidadNombre);
-  if (localidadSeleccionada) {
-    // Asignar el ID de la localidad seleccionada
-    setSelectedLocalidad(localidadSeleccionada.id.toString());
-    setLocalidadNombre(localidadSeleccionada.nombre); // Actualizar el nombre de la localidad seleccionada
-  }
-};
+  // Función para manejar el cambio de localidad
+  const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
+    const localidadNombre = event.target.value;
+    // Buscar la localidad por su nombre en el array de localidades
+    const localidadSeleccionada = localidades.find(localidad => localidad.nombre === localidadNombre);
+    if (localidadSeleccionada) {
+      // Asignar el ID de la localidad seleccionada
+      setSelectedLocalidad(localidadSeleccionada.id.toString());
+      setLocalidadNombre(localidadSeleccionada.nombre); // Actualizar el nombre de la localidad seleccionada
+    }
+  };
 
   // Función para manejar el cambio del checkbox de Casa Matriz
   const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -179,9 +188,9 @@ const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
         nroDpto: values.domicilio.nroDpto,
         idLocalidad: parseInt(selectedLocalidad), // Convertir a número entero
       };
-  
+
       let sucursalData: SucursalPost | Sucursal;
-  
+
       if (isEditMode) {
         // Si estamos en modo de edición, es un objeto Sucursal, así que eliminamos el id del objeto
         const { id, ...rest } = values as Sucursal;
@@ -205,80 +214,116 @@ const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
         await sucursalService.post(`${URL}/sucursal`, sucursalData);
         window.location.reload(); // Recargar la página después de eliminar la sucursal
       }
-  
+
       getSucursales();
     } catch (error) {
       console.error('Error al enviar los datos:', error);
     }
   };
-  
-  
 
-  
-  
+
+
+
+
 
   return (
     <GenericModal
       modalName={modalName}
-      title={isEditMode ? 'Editar Sucursal' : 'Añadir Sucursal'}
+      title={isEditMode ? 'Editar Sucursal' :  `Añadir Sucursal a ${empresa?.nombre}`}
       initialValues={sucursalAEditar || initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
       isEditMode={isEditMode}
     >
-      <TextFieldValue label="Nombre" name="nombre" type="text" placeholder="Nombre" />
-      <TextFieldValue label="Horario de Apertura" name="horarioApertura" type="time" placeholder="Horario de apertura" />
-      <TextFieldValue label="Horario de Cierre" name="horarioCierre" type="time" placeholder="Horario de cierre" />
-      <TextFieldValue label="Calle" name="domicilio.calle" type="text" placeholder="Calle" />
-      <TextFieldValue label="Número" name="domicilio.numero" type="number" placeholder="Número" />
-      <TextFieldValue label="Código Postal" name="domicilio.cp" type="number" placeholder="Código Postal" />
-      <TextFieldValue label="Piso" name="domicilio.piso" type="number" placeholder="Piso" />
-      <TextFieldValue label="Número de Departamento" name="domicilio.nroDpto" type="number" placeholder="Número de Departamento" />
-      <SelectList
-        title="Países"
-        items={paises.map((pais: IPais) => pais.nombre)}
-        handleChange={handlePaisChange}
-        selectedValue={selectedPais}
-      />
-      {selectedPais && (
-        <SelectList
-          title="Provincias"
-          items={provincias.map((provincia: IProvincia) => provincia.nombre)}
-          handleChange={handleProvinciaChange}
-          //selectedValue={selectedProvincia}
-          selectedValue={provinciaNombre}
-        />
-      )}
-      {selectedProvincia && (
-        <SelectList
-          title="Localidades"
-          items={localidades.map((localidad: ILocalidad) => localidad.nombre)}
-          handleChange={handleLocalidadChange}
-          //selectedValue={selectedLocalidad}
-          selectedValue={localidadNombre}
-        />
-      )}
-      {/* Checkbox para indicar si es la casa matriz */}
-      <label style={{ display: 'flex', alignItems: 'center' }} title={tooltipMessage}>
-        {casaMatriz ? (
-          <CheckCircleOutline color="primary" style={{ marginRight: '10px' }} />
-        ) : (
-          <HighlightOff color="error" style={{ marginRight: '10px' }} />
-        )}
-        <input
-          type="checkbox"
-          checked={casaMatriz}
-          onChange={handleCasaMatrizChange}
-          disabled={casaMatrizDisabled} // Deshabilitar el checkbox si es necesario
-          style={{ marginRight: '10px' }}
-        />
-       <h3 style={{ fontSize: '1.3rem' }}>Casa Matriz</h3>
-      </label>
-      {casaMatrizDisabled && tooltipMessage && (
-        <div style={{ fontSize: '1.2rem', marginTop: '10px', color: 'red' }}>
-          {tooltipMessage}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ flex: 1 }}>
+            <TextFieldValue label="Nombre" name="nombre" type="text" placeholder="Nombre" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <TextFieldValue label="Horario de Apertura" name="horarioApertura" type="time" placeholder="Horario de apertura" />
+          </div>
+          <div style={{ flex: 1 }}>
+            <TextFieldValue label="Horario de Cierre" name="horarioCierre" type="time" placeholder="Horario de cierre" />
+          </div>
         </div>
-      )}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ flex: 1 }}>
+            <TextFieldValue label="Calle" name="domicilio.calle" type="text" placeholder="Calle" disabled={isEditMode} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <TextFieldValue label="Número" name="domicilio.numero" type="number" placeholder="Número" disabled={isEditMode} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <TextFieldValue label="Código Postal" name="domicilio.cp" type="number" placeholder="Código Postal" disabled={isEditMode} />
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ flex: 1 }}>
+            <TextFieldValue label="Piso" name="domicilio.piso" type="number" placeholder="Piso" disabled={isEditMode} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <TextFieldValue label="Número de Departamento" name="domicilio.nroDpto" type="number" placeholder="Número de Departamento" disabled={isEditMode} />
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '20px' }}>
+        <div style={{ flex: 1 }}>
+          <SelectList
+            title="Países"
+            items={paises.map((pais: IPais) => pais.nombre)}
+            handleChange={handlePaisChange}
+            selectedValue={selectedPais}
+            disabled={isEditMode}
+          />
+          </div>
+          <div style={{ flex: 1 }}>
+          {selectedPais && (
+            <SelectList
+              title="Provincias"
+              items={provincias.map((provincia: IProvincia) => provincia.nombre)}
+              handleChange={handleProvinciaChange}
+              //selectedValue={selectedProvincia}
+              selectedValue={provinciaNombre}
+              disabled={isEditMode}
+            />
+          )}
+          </div>
+          <div style={{ flex: 1 }}>
+          {selectedProvincia && (
+            <SelectList
+              title="Localidades"
+              items={localidades.map((localidad: ILocalidad) => localidad.nombre)}
+              handleChange={handleLocalidadChange}
+              //selectedValue={selectedLocalidad}
+              selectedValue={localidadNombre}
+              disabled={isEditMode}
+            />
+          )}
+          </div>
+        </div>
+        {/* Checkbox para indicar si es la casa matriz */}
+        <label style={{ display: 'flex', alignItems: 'center' }} title={tooltipMessage}>
+          {casaMatriz ? (
+            <CheckCircleOutline color="primary" style={{ marginRight: '10px' }} />
+          ) : (
+            <HighlightOff color="error" style={{ marginRight: '10px' }} />
+          )}
+          <input
+            type="checkbox"
+            checked={casaMatriz}
+            onChange={handleCasaMatrizChange}
+            disabled={casaMatrizDisabled} // Deshabilitar el checkbox si es necesario
+            style={{ marginRight: '10px' }}
+          />
+          <h3 style={{ fontSize: '1.2rem' }}>Casa Matriz</h3>
+        </label>
+        {casaMatrizDisabled && tooltipMessage && (
+          <div style={{ fontSize: '1.1rem', color: 'red' }}>
+            {tooltipMessage}
+          </div>
+        )}
+      </div>
     </GenericModal>
   );
 };

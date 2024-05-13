@@ -6,9 +6,10 @@ interface SelectListProps {
     items: string[];
     handleChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
     selectedValue: string;
+    disabled?: boolean
 }
 
-const SelectList: React.FC<SelectListProps> = ({ title, items, handleChange, selectedValue }) => {
+const SelectList: React.FC<SelectListProps> = ({ title, items, handleChange, selectedValue, disabled }) => {
     const [currentSelectedValue, setCurrentSelectedValue] = useState(selectedValue);
 
     useEffect(() => {
@@ -32,6 +33,7 @@ const SelectList: React.FC<SelectListProps> = ({ title, items, handleChange, sel
                 className="select-list"
                 onChange={handleChange}
                 value={currentSelectedValue}
+                disabled={disabled}
             >
                 <option value="" disabled>Seleccione una opción</option>
                 {items.map((item, index) => (

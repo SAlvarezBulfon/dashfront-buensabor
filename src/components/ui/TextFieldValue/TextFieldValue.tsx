@@ -7,10 +7,11 @@ interface props {
   name: string; // Nombre del campo
   type: string; // Tipo de campo (text, number, etc.)
   placeholder: string; // Placeholder del campo
+  disabled?: boolean;
 }
 
 // Componente TextFieldValue
-const TextFieldValue = ({ label, name, type, placeholder }: props) => {
+const TextFieldValue = ({ label, name, type, placeholder, disabled }: props) => {
   // Componente para crear los input de un formulario con Formik
   return (
     <div className="mt-2" style={{ display: "flex", flexDirection: "column" }}>
@@ -43,6 +44,7 @@ const TextFieldValue = ({ label, name, type, placeholder }: props) => {
         name={name}
         type={type}
         autoComplete="off"
+        disabled={disabled}
       />
 
       {/* Mensaje de error para el campo */}

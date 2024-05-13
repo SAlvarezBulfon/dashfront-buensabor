@@ -141,22 +141,30 @@ const fetchSucursal = async () => {
   // Definir las columnas de la tabla de sucursales
   const columns: Column[] = [
     { id: 'nombre', label: 'Nombre', renderCell: (sucursal) => <>{sucursal.nombre}</> },
-    { id: 'calle', label: 'Calle', renderCell: (sucursal) => <>{sucursal.domicilio.calle}</> },
-    { id: 'numero', label: 'Número', renderCell: (sucursal) => <>{sucursal.domicilio.numero}</> },
-    { id: 'localidad', label: 'Localidad', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.nombre}</> },
-    { id: 'provincia', label: 'Provincia', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.provincia.nombre}</> },
-    { id: 'pais', label: 'País', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.provincia.pais.nombre}</> },
-     // columna condicional para la clase de casa matriz
-     {
+    { id: 'horarioApertura', label: 'Horario de Apertura', renderCell: (sucursal) => <>{sucursal.horarioApertura}</> },
+    { id: 'horarioCierre', label: 'Horario de Cierre', renderCell: (sucursal) => <>{sucursal.horarioCierre}</> },
+    {
+      id: 'direccion',
+      label: 'Dirección',
+      renderCell: (sucursal) => (
+        <div>
+          {/* Concatenar los campos de la dirección */}
+          <p>{sucursal.domicilio.calle}, {sucursal.domicilio.numero}</p>
+          <p>{sucursal.domicilio.localidad.nombre}, {sucursal.domicilio.localidad.provincia.nombre}, {sucursal.domicilio.localidad.provincia.pais.nombre}</p>
+        </div>
+      ),
+    },
+    {
       id: 'casaMatriz',
       label: 'Casa Matriz',
       renderCell: (sucursal) => (
         <div className={sucursal.esCasaMatriz ? 'casa-matriz' : ''}>
           {sucursal.esCasaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
-        </div>
-      ),
+        </div>
+      ),
     },
   ];
+  
 
   const generateInitialSucursal = (idEmpresa: number): SucursalPost  => {
     return {
