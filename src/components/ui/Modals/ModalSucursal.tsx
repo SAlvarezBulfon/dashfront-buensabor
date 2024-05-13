@@ -13,7 +13,7 @@ import IProvincia from '../../../types/IProvincia';
 import IPais from '../../../types/IPais';
 import SucursalPost from '../../../types/post/SucursalPost';
 import ISucursal from '../../../types/ISucursal';
-import { CheckCircleOutline, HighlightOff } from '@mui/icons-material';
+import { CheckCircleOutline, HighlightOff, Title } from '@mui/icons-material';
 
 interface ModalSucursalProps {
   modalName: string;
@@ -21,7 +21,8 @@ interface ModalSucursalProps {
   isEditMode: boolean;
   getSucursales: Function;
   sucursalAEditar?: Sucursal;
-  idEmpresa: number,
+  idEmpresa: number;
+  casaMatrizDisabled: boolean; // Nuevo prop para deshabilitar el checkbox de casa matriz
 }
 
 const ModalSucursal: React.FC<ModalSucursalProps> = ({
@@ -31,6 +32,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   getSucursales,
   sucursalAEditar,
   idEmpresa,
+  casaMatrizDisabled, // Nuevo prop para deshabilitar el checkbox de casa matriz
 }) => {
   const sucursalService = new SucursalService();
   const URL: string = import.meta.env.VITE_API_URL as string;
@@ -48,14 +50,15 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   const [casaMatriz, setCasaMatriz] = useState<boolean>(false); // Estado para casa matriz
   const [provinciaNombre, setProvinciaNombre] = useState<string>('');
   const [localidadNombre, setLocalidadNombre] = useState<string>('');
-  
+  const [tooltipMessage, setTooltipMessage] = useState<string>(''); // Mensaje para el tooltip
   
   const validationSchema = Yup.object().shape({
     nombre: Yup.string().required('Campo requerido'),
     horarioCierre: Yup.string().required('Campo requerido'),
     horarioApertura: Yup.string().required('Campo requerido'),
-    
   });
+  
+  
 
   useEffect(() => {
     const fetchPaises = async () => {
@@ -132,10 +135,20 @@ const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setLocalidadNombre(localidadSeleccionada.nombre); // Actualizar el nombre de la localidad seleccionada
   }
 };
-// Función para manejar el cambio del checkbox de Casa Matriz
-const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
-  setCasaMatriz(event.target.checked);
-};
+
+  // Función para manejar el cambio del checkbox de Casa Matriz
+  const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setCasaMatriz(event.target.checked);
+  };
+
+  // Mensaje para mostrar en el tooltip cuando se pase el mouse sobre el checkbox deshabilitado
+  useEffect(() => {
+    if (casaMatrizDisabled) {
+      setTooltipMessage('Ya hay una sucursal que es casa matriz');
+    } else {
+      setTooltipMessage('');
+    }
+  }, [casaMatrizDisabled]);
 
   if (!isEditMode) {
     initialValues = {
@@ -190,6 +203,7 @@ const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
         };
         console.log('Data a enviar en modo creación:', sucursalData);
         await sucursalService.post(`${URL}/sucursal`, sucursalData);
+        window.location.reload(); // Recargar la página después de eliminar la sucursal
       }
   
       getSucursales();
@@ -245,23 +259,29 @@ const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
         />
       )}
       {/* Checkbox para indicar si es la casa matriz */}
-      <label style={{ display: 'flex', alignItems: 'center' }}>
-  {casaMatriz ? (
-    <CheckCircleOutline color="primary" style={{ marginRight: '5px' }} />
-  ) : (
-    <HighlightOff color="error" style={{ marginRight: '5px' }} />
-  )}
-  <input
-    type="checkbox"
-    checked={casaMatriz}
-    onChange={handleCasaMatrizChange}
-    style={{ marginRight: '5px' }}
-  />
-  <span style={{ fontSize: '1rem' }}>Casa Matriz</span>
-</label>
-
+      <label style={{ display: 'flex', alignItems: 'center' }} title={tooltipMessage}>
+        {casaMatriz ? (
+          <CheckCircleOutline color="primary" style={{ marginRight: '10px' }} />
+        ) : (
+          <HighlightOff color="error" style={{ marginRight: '10px' }} />
+        )}
+        <input
+          type="checkbox"
+          checked={casaMatriz}
+          onChange={handleCasaMatrizChange}
+          disabled={casaMatrizDisabled} // Deshabilitar el checkbox si es necesario
+          style={{ marginRight: '10px' }}
+        />
+       <h3 style={{ fontSize: '1.3rem' }}>Casa Matriz</h3>
+      </label>
+      {casaMatrizDisabled && tooltipMessage && (
+        <div style={{ fontSize: '1.2rem', marginTop: '10px', color: 'red' }}>
+          {tooltipMessage}
+        </div>
+      )}
     </GenericModal>
   );
 };
 
 export default ModalSucursal;
+

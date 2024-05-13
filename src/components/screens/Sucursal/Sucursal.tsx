@@ -55,8 +55,9 @@ const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([
   // Estado para almacenar la sucursal que se está editando
   const [sucursalEditar, setSucursalEditar] = useState<Sucursal | SucursalPost>();
 
+  const [casaMatrizDisabled, setCasaMatrizDisabled] = useState<boolean>(false); // Nuevo estado para deshabilitar el checkbox de casa matriz
 
-
+<<<<<<< Updated upstream
 // Función para obtener las sucursales de la API
 const fetchSucursal = async () => {
   try {
@@ -68,6 +69,16 @@ const fetchSucursal = async () => {
       setFilteredData(empresa.sucursales);
     } else {
       console.error("Error: empresaId es undefined");
+=======
+  // Función para obtener las sucursales de la API
+  const fetchSucursal = async () => {
+    try {
+      const sucursales = await sucursalService.getAll(`${url}/sucursal`);
+      dispatch(setSucursal(sucursales));
+      setFilteredData(sucursales);
+    } catch (error) {
+      console.error("Error al obtener las sucursales:", error);
+>>>>>>> Stashed changes
     }
   } catch (error) {
     console.error("Error al obtener las sucursales:", error);
@@ -75,24 +86,20 @@ const fetchSucursal = async () => {
 };
 
 
-  // Efecto para cargar la empresa y las sucursales al montar el componente
   useEffect(() => {
     const fetchEmpresa = async () => {
       try {
         if (empresaId !== undefined) {
-          // Convertir empresaId a tipo number usando parseInt
           const idEmpresa: number = parseInt(empresaId);
-
-          // Obtener la empresa utilizando empresaId
           const empresa = await empresaService.get(`${url}/empresa/sucursales`, idEmpresa);
-          // Actualizar el estado global de Redux con las sucursales
           dispatch(setSucursal(empresa.sucursales));
-          // Actualizar las sucursales filtradas
           setFilteredData(empresa.sucursales);
-
           setNombreEmpresa(empresa.nombre);
+          setEmpresa(empresa);
 
-          setEmpresa(empresa)
+          // Verificar si alguna sucursal está marcada como casa matriz y deshabilitar el checkbox si es necesario
+          const hasCasaMatriz = await empresa.sucursales.some((sucursal: ISucursal) => sucursal.esCasaMatriz);
+          setCasaMatrizDisabled(hasCasaMatriz);
         }
       } catch (error) {
         console.error('Error al obtener la empresa:', error);
@@ -119,6 +126,7 @@ const fetchSucursal = async () => {
         },
         fetchSucursal,
         () => {
+          window.location.reload(); // Recargar la página después de eliminar la sucursal
         },
         (error: any) => {
           console.error("Error al eliminar sucursal:", error);
@@ -131,21 +139,16 @@ const fetchSucursal = async () => {
 
   // Función para manejar la edición de una sucursal
   const handleEdit = (sucursal: Sucursal) => {
-    // Establecer isEditing a true y almacenar la sucursal a editar
     setIsEditing(true);
-    setSucursalEditar(sucursal)
-    // Abrir el modal de edición
+    setSucursalEditar(sucursal);
     dispatch(toggleModal({ modalName: "modal" }));
   };
 
-  // Función para manejar la adición de una nueva sucursal
   const handleAddSucursal = () => {
-    // Restablecer isEditing a false
     setIsEditing(false);
-    // Abrir el modal de edición
+    setSucursalEditar(undefined); // Limpiar la sucursal a editar al agregar una nueva
     dispatch(toggleModal({ modalName: "modal" }));
   };
-
   // Definir las columnas de la tabla de sucursales
   const columns: Column[] = [
     { id: 'nombre', label: 'Nombre', renderCell: (sucursal) => <>{sucursal.nombre}</> },
@@ -191,7 +194,6 @@ const fetchSucursal = async () => {
           <Typography variant="h5" gutterBottom>
             Sucursales de {nombreEmpresa}
           </Typography>
-          {/* Botón para agregar una nueva sucursal */}
           <Button
             onClick={handleAddSucursal}
             sx={{
@@ -207,20 +209,17 @@ const fetchSucursal = async () => {
           </Button>
         </Box>
         <Box sx={{ mt: 2 }}>
-          {/* Barra de búsqueda */}
           <SearchBar onSearch={onSearch} />
         </Box>
-        {/* Tabla de sucursales */}
         <TableComponent data={filteredData} columns={columns} onDelete={onDeleteSucursal} onEdit={handleEdit} />
-        {/* Modal para editar/agregar sucursal */}
         <ModalSucursal
           modalName="modal"
           initialValues={sucursalEditar || generateInitialSucursal(empresa?.id || 0)}
           isEditMode={isEditing}
           getSucursales={fetchSucursal}
           idEmpresa={empresa?.id || 0}
+          casaMatrizDisabled={casaMatrizDisabled} // Pasar el prop para deshabilitar el checkbox de casa matriz
         />
-
       </Container>
     </Box>
   );
