@@ -45,8 +45,8 @@ const SucursalesEmpresa = () => {
   const sucursalesEmpresa = useAppSelector((state) => state.sucursal.data);
 
   // Estado para almacenar las sucursales filtradas
-// Estado para almacenar las sucursales filtradas
-const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([]);
+  // Estado para almacenar las sucursales filtradas
+  const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([]);
 
 
   // Estado para controlar si se está editando una sucursal
@@ -57,22 +57,22 @@ const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([
 
 
 
-// Función para obtener las sucursales de la API
-const fetchSucursal = async () => {
-  try {
-    if (empresaId !== undefined) { // Verificar que empresaId no sea undefined
-      const empresa = await empresaService.get(`${url}/empresa/sucursales`, parseInt(empresaId));
-      // Actualizar el estado global de Redux con las sucursales
-      dispatch(setSucursal(empresa.sucursales));
-      // Actualizar las sucursales filtradas
-      setFilteredData(empresa.sucursales);
-    } else {
-      console.error("Error: empresaId es undefined");
+  // Función para obtener las sucursales de la API
+  const fetchSucursal = async () => {
+    try {
+      if (empresaId !== undefined) { // Verificar que empresaId no sea undefined
+        const empresa = await empresaService.get(`${url}/empresa/sucursales`, parseInt(empresaId));
+        // Actualizar el estado global de Redux con las sucursales
+        dispatch(setSucursal(empresa.sucursales));
+        // Actualizar las sucursales filtradas
+        setFilteredData(empresa.sucursales);
+      } else {
+        console.error("Error: empresaId es undefined");
+      }
+    } catch (error) {
+      console.error("Error al obtener las sucursales:", error);
     }
-  } catch (error) {
-    console.error("Error al obtener las sucursales:", error);
-  }
-};
+  };
 
 
   // Efecto para cargar la empresa y las sucursales al montar el componente
@@ -154,19 +154,19 @@ const fetchSucursal = async () => {
     { id: 'localidad', label: 'Localidad', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.nombre}</> },
     { id: 'provincia', label: 'Provincia', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.provincia.nombre}</> },
     { id: 'pais', label: 'País', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.provincia.pais.nombre}</> },
-     // columna condicional para la clase de casa matriz
-     {
+    // columna condicional para la clase de casa matriz
+    {
       id: 'casaMatriz',
       label: 'Casa Matriz',
       renderCell: (sucursal) => (
         <div className={sucursal.esCasaMatriz ? 'casa-matriz' : ''}>
           {sucursal.esCasaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
-        </div>
-      ),
+        </div>
+      ),
     },
   ];
 
-  const generateInitialSucursal = (idEmpresa: number): SucursalPost  => {
+  const generateInitialSucursal = (idEmpresa: number): SucursalPost => {
     return {
       nombre: '',
       horarioApertura: '',
@@ -180,7 +180,7 @@ const fetchSucursal = async () => {
         idLocalidad: 0,
       },
       idEmpresa: idEmpresa,
-      esCasaMatriz:false
+      esCasaMatriz: false
     };
   };
 
@@ -213,13 +213,15 @@ const fetchSucursal = async () => {
         {/* Tabla de sucursales */}
         <TableComponent data={filteredData} columns={columns} onDelete={onDeleteSucursal} onEdit={handleEdit} />
         {/* Modal para editar/agregar sucursal */}
-        <ModalSucursal
-          modalName="modal"
-          initialValues={sucursalEditar || generateInitialSucursal(empresa?.id || 0)}
-          isEditMode={isEditing}
-          getSucursales={fetchSucursal}
-          idEmpresa={empresa?.id || 0}
-        />
+        {empresa &&
+          <ModalSucursal
+            modalName="modal"
+            initialValues={sucursalEditar || generateInitialSucursal(empresa?.id)}
+            isEditMode={isEditing}
+            getSucursales={fetchSucursal}
+            idEmpresa={empresa?.id}
+          />
+        }
 
       </Container>
     </Box>

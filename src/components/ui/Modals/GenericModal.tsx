@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store/store'; 
 import { toggleModal } from '../../../redux/slices/ModalReducer';
 import Swal from 'sweetalert2'; 
+import './genericModal.css'
 
 // Definición de las props del componente
 interface ModalProps {
@@ -50,7 +51,7 @@ const GenericModal: React.FC<ModalProps> = ({ modalName, title, initialValues, v
   };
 
   return (
-    <Modal show={showModal} onHide={handleClose}>
+    <Modal show={showModal} onHide={handleClose} dialogClassName="custom-modal">
       <Modal.Header closeButton>
         <Modal.Title>{title}</Modal.Title>
       </Modal.Header>

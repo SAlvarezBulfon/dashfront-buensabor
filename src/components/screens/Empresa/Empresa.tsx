@@ -15,6 +15,7 @@ import TableComponent from "../../ui/Table/Table";
 import ModalEmpresa from "../../ui/Modals/ModalEmpresa";
 import ModalSucursal from "../../ui/Modals/ModalSucursal";
 import SucursalPost from "../../../types/post/SucursalPost";
+import { setSucursal } from "../../../redux/slices/SucursalReducer";
 
 const EmpresaComponent = () => {
   const url = import.meta.env.VITE_API_URL;
@@ -33,6 +34,15 @@ const EmpresaComponent = () => {
       const empresas = await empresaService.getAll(url + '/empresa');
       dispatch(setEmpresa(empresas));
       setFilteredData(empresas);
+    } catch (error) {
+      console.error("Error al obtener las empresas:", error);
+    }
+  };
+
+    const fetchSucursales = async () => {
+    try {
+      const sucursales = await empresaService.getAll(url + '/sucursal');
+      dispatch(setSucursal(sucursales));
     } catch (error) {
       console.error("Error al obtener las empresas:", error);
     }
@@ -79,7 +89,6 @@ const EmpresaComponent = () => {
   const handleAddSucursal = (empresa: Empresa) => {
     dispatch(toggleModal({ modalName: "modalSucursal" }));
     setEmpresaEditar(empresa);
-    console.log(empresa)
   };
 
   const generateInitialSucursal = (idEmpresa: number): SucursalPost  => {
@@ -150,13 +159,14 @@ const EmpresaComponent = () => {
         </Box>
         <TableComponent data={filteredData} columns={columns} onDelete={onDeleteEmpresa} onEdit={handleEdit} />
         <ModalEmpresa modalName="modal" initialValues={empresaEditar || { id: 0, eliminado: false, nombre: "", razonSocial: "", cuil: 0, sucursales: [] }} isEditMode={isEditing} getEmpresas={fetchEmpresas} />
+        { empresaEditar &&         
         <ModalSucursal
           modalName="modalSucursal"
-          initialValues={empresaEditar ? generateInitialSucursal(empresaEditar.id) : generateInitialSucursal(0)}
+          initialValues={generateInitialSucursal(empresaEditar.id)}
           isEditMode={false}
-          getSucursales={fetchEmpresas}
-          idEmpresa={empresaEditar?.id|| 0}
-        />
+          getSucursales={fetchSucursales}
+          idEmpresa={empresaEditar?.id}
+        />}
       </Container>
     </Box>
   );
