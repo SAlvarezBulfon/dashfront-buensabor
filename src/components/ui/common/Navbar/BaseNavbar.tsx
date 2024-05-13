@@ -9,7 +9,6 @@ import Menu from '@mui/material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
-import LunchDiningOutlinedIcon from '@mui/icons-material/LunchDiningOutlined';
 import Divider from '@mui/material/Divider';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 
@@ -61,8 +60,7 @@ export default function PrimarySearchAppBar() {
             component="div"
             sx={{ justifyContent: 'center' }}
           >
-            <LunchDiningOutlinedIcon sx={{mr: 1}}/>
-            Buen Sabor
+            Administrador
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton
