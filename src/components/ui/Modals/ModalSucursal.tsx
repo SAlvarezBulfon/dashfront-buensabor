@@ -13,6 +13,7 @@ import IProvincia from '../../../types/IProvincia';
 import IPais from '../../../types/IPais';
 import SucursalPost from '../../../types/post/SucursalPost';
 import ISucursal from '../../../types/ISucursal';
+import { CheckCircleOutline, HighlightOff } from '@mui/icons-material';
 
 interface ModalSucursalProps {
   modalName: string;
@@ -47,6 +48,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   const [casaMatriz, setCasaMatriz] = useState<boolean>(false); // Estado para casa matriz
   const [provinciaNombre, setProvinciaNombre] = useState<string>('');
   const [localidadNombre, setLocalidadNombre] = useState<string>('');
+  
   
   const validationSchema = Yup.object().shape({
     nombre: Yup.string().required('Campo requerido'),
@@ -243,15 +245,21 @@ const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
         />
       )}
       {/* Checkbox para indicar si es la casa matriz */}
-      <label>
-        <input
-          type="checkbox"
-          checked={casaMatriz}
-          onChange={handleCasaMatrizChange}
-        />
-  
-        Casa Matriz
-      </label>
+      <label style={{ display: 'flex', alignItems: 'center' }}>
+  {casaMatriz ? (
+    <CheckCircleOutline color="primary" style={{ marginRight: '5px' }} />
+  ) : (
+    <HighlightOff color="error" style={{ marginRight: '5px' }} />
+  )}
+  <input
+    type="checkbox"
+    checked={casaMatriz}
+    onChange={handleCasaMatrizChange}
+    style={{ marginRight: '5px' }}
+  />
+  <span style={{ fontSize: '1rem' }}>Casa Matriz</span>
+</label>
+
     </GenericModal>
   );
 };

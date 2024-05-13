@@ -17,6 +17,7 @@ import IEmpresa from "../../../types/IEmpresa";
 import SucursalPost from "../../../types/post/SucursalPost";
 import ISucursal from "../../../types/ISucursal";
 import { CheckCircleOutline, HighlightOff } from '@mui/icons-material';
+import { boolean } from "yup";
 
 
 
@@ -154,10 +155,10 @@ const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([
       id: 'casaMatriz',
       label: 'Casa Matriz',
       renderCell: (sucursal) => (
-        <div className={sucursal.casaMatriz ? 'casa-matriz' : ''}>
-          {sucursal.casaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
-        </div>
-      ),
+        <div className={sucursal.esCasaMatriz ? 'casa-matriz' : ''}>
+          {sucursal.esCasaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
+        </div>
+      ),
     },
   ];
 
