@@ -57,7 +57,6 @@ const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([
 
   const [casaMatrizDisabled, setCasaMatrizDisabled] = useState<boolean>(false); // Nuevo estado para deshabilitar el checkbox de casa matriz
 
-<<<<<<< Updated upstream
 // Función para obtener las sucursales de la API
 const fetchSucursal = async () => {
   try {
@@ -69,16 +68,6 @@ const fetchSucursal = async () => {
       setFilteredData(empresa.sucursales);
     } else {
       console.error("Error: empresaId es undefined");
-=======
-  // Función para obtener las sucursales de la API
-  const fetchSucursal = async () => {
-    try {
-      const sucursales = await sucursalService.getAll(`${url}/sucursal`);
-      dispatch(setSucursal(sucursales));
-      setFilteredData(sucursales);
-    } catch (error) {
-      console.error("Error al obtener las sucursales:", error);
->>>>>>> Stashed changes
     }
   } catch (error) {
     console.error("Error al obtener las sucursales:", error);
