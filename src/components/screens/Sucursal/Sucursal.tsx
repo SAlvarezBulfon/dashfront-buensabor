@@ -16,6 +16,7 @@ import SucursalService from '../../../services/SucursalService';
 import IEmpresa from "../../../types/IEmpresa";
 import SucursalPost from "../../../types/post/SucursalPost";
 import ISucursal from "../../../types/ISucursal";
+import { CheckCircleOutline, HighlightOff } from '@mui/icons-material';
 
 
 
@@ -109,7 +110,7 @@ const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([
       await onDelete(
         sucursal,
         async (sucursalToDelete: Sucursal) => {
-          sucursalService.delete(url + '/sucursal', sucursalToDelete.id);
+          await sucursalService.delete(url + '/sucursal', sucursalToDelete.id);
         },
         fetchSucursal,
         () => {
@@ -148,16 +149,16 @@ const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([
     { id: 'localidad', label: 'Localidad', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.nombre}</> },
     { id: 'provincia', label: 'Provincia', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.provincia.nombre}</> },
     { id: 'pais', label: 'País', renderCell: (sucursal) => <>{sucursal.domicilio.localidad.provincia.pais.nombre}</> },
-     // Agregar una columna condicional para la clase de casa matriz
-  {
-    id: 'casaMatriz',
-    label: 'Casa Matriz',
-    renderCell: (sucursal) => (
-      <div className={sucursal.casaMatriz ? 'casa-matriz' : ''}>
-        {sucursal.casaMatriz ? 'Casa Matriz' : ''}
-      </div>
-    ),
-  },
+     // columna condicional para la clase de casa matriz
+     {
+      id: 'casaMatriz',
+      label: 'Casa Matriz',
+      renderCell: (sucursal) => (
+        <div className={sucursal.casaMatriz ? 'casa-matriz' : ''}>
+          {sucursal.casaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
+        </div>
+      ),
+    },
   ];
 
   const generateInitialSucursal = (idEmpresa: number): SucursalPost  => {

@@ -52,6 +52,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     nombre: Yup.string().required('Campo requerido'),
     horarioCierre: Yup.string().required('Campo requerido'),
     horarioApertura: Yup.string().required('Campo requerido'),
+    
   });
 
   useEffect(() => {
@@ -128,6 +129,10 @@ const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
     setSelectedLocalidad(localidadSeleccionada.id.toString());
     setLocalidadNombre(localidadSeleccionada.nombre); // Actualizar el nombre de la localidad seleccionada
   }
+};
+// Función para manejar el cambio del checkbox de Casa Matriz
+const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
+  setCasaMatriz(event.target.checked);
 };
 
   if (!isEditMode) {
@@ -242,8 +247,9 @@ const handleLocalidadChange = (event: ChangeEvent<HTMLSelectElement>) => {
         <input
           type="checkbox"
           checked={casaMatriz}
-          onChange={() => setCasaMatriz(!casaMatriz)}
+          onChange={handleCasaMatrizChange}
         />
+  
         Casa Matriz
       </label>
     </GenericModal>
