@@ -155,8 +155,9 @@ const EmpresaComponent = () => {
           initialValues={empresaEditar ? generateInitialSucursal(empresaEditar.id) : generateInitialSucursal(0)}
           isEditMode={false}
           getSucursales={fetchEmpresas}
-          idEmpresa={empresaEditar?.id|| 0}
-        />
+          idEmpresa={empresaEditar?.id || 0} 
+          casaMatrizDisabled={false}
+          />
       </Container>
     </Box>
   );
