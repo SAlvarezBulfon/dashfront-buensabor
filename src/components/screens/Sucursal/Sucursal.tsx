@@ -17,7 +17,6 @@ import IEmpresa from "../../../types/IEmpresa";
 import SucursalPost from "../../../types/post/SucursalPost";
 import ISucursal from "../../../types/ISucursal";
 import { CheckCircleOutline, HighlightOff } from '@mui/icons-material';
-import { boolean } from "yup";
 
 
 
@@ -58,18 +57,23 @@ const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([
 
 
 
-  // Función para obtener las sucursales de la API
-  const fetchSucursal = async () => {
-    try {
-      const sucursales = await sucursalService.getAll(`${url}/sucursal`);
+// Función para obtener las sucursales de la API
+const fetchSucursal = async () => {
+  try {
+    if (empresaId !== undefined) { // Verificar que empresaId no sea undefined
+      const empresa = await empresaService.get(`${url}/empresa/sucursales`, parseInt(empresaId));
       // Actualizar el estado global de Redux con las sucursales
-      dispatch(setSucursal(sucursales));
+      dispatch(setSucursal(empresa.sucursales));
       // Actualizar las sucursales filtradas
-      setFilteredData(sucursales);
-    } catch (error) {
-      console.error("Error al obtener las sucursales:", error);
+      setFilteredData(empresa.sucursales);
+    } else {
+      console.error("Error: empresaId es undefined");
     }
-  };
+  } catch (error) {
+    console.error("Error al obtener las sucursales:", error);
+  }
+};
+
 
   // Efecto para cargar la empresa y las sucursales al montar el componente
   useEffect(() => {
