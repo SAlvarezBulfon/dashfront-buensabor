@@ -155,14 +155,14 @@ const fetchSucursal = async () => {
       ),
     },
     {
-      id: 'casaMatriz',
-      label: 'Casa Matriz',
-      renderCell: (sucursal) => (
-        <div className={sucursal.esCasaMatriz ? 'casa-matriz' : ''}>
-          {sucursal.esCasaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
-        </div>
-      ),
-    },
+  id: 'casaMatriz',
+  label: 'Casa Matriz',
+  renderCell: (sucursal) => (
+    <div className={sucursal.esCasaMatriz ? 'casa-matriz' : ''}>
+      {sucursal.esCasaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
+    </div>
+  ),
+},
   ];
   
 

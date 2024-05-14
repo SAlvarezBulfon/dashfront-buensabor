@@ -102,6 +102,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     nombre: Yup.string().required('Campo requerido'),
     horarioCierre: Yup.string().required('Campo requerido'),
     horarioApertura: Yup.string().required('Campo requerido'),
+    //agregar calle, cp, numero, pais, provincia y localidad 
   });
 
 
