@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { cilBarChart, cilBuilding, cilCart, cilFastfood, cilPeople } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CNavGroup, CNavItem, CNavTitle, CSidebar, CSidebarNav } from "@coreui/react";
@@ -8,7 +8,7 @@ import { cilDollar } from "@coreui/icons";
 
 
 const BasicSidebar: React.FC = () => {
-
+    const { empresaId } = useParams<{ empresaId: string }>();
     return (
         <div>
             <CSidebar className="border-end d-flex flex-column" style={{ height: '100vh' }}>
@@ -16,17 +16,11 @@ const BasicSidebar: React.FC = () => {
                     <CNavTitle>
                         Dashboard
                     </CNavTitle>
-                    <CNavItem>
-                        <Link to="/" className="nav-link" >
-                            <CIcon customClassName="nav-icon" icon={cilBarChart} />
-                            Inicio
-                        </Link>
-                    </CNavItem>
 
                     <CNavItem>
-                        <Link to="/empresas" className="nav-link">
+                        <Link to={`/empresa/${empresaId}`} className="nav-link">
                             <CIcon customClassName="nav-icon" icon={cilBuilding} />
-                            Empresas
+                            Sucursales
                         </Link>
                     </CNavItem>
                     <CNavGroup
@@ -83,6 +77,12 @@ const BasicSidebar: React.FC = () => {
                         <Link to="/insumos" className="nav-link">
                             <CIcon customClassName="nav-icon" icon={cilCart} />
                             Insumos
+                        </Link>
+                    </CNavItem>
+                    <CNavItem>
+                        <Link to={`empresa/estadisticas/${empresaId}`} className="nav-link" >
+                            <CIcon customClassName="nav-icon" icon={cilBarChart} />
+                            Estadísticas
                         </Link>
                     </CNavItem>
                 </CSidebarNav>

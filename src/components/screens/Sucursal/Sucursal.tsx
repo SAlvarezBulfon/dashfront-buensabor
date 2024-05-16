@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, Container } from '@mui/material';
+import { Box, Typography, Button, Container, CircularProgress } from '@mui/material';
 import { Add } from '@mui/icons-material';
 import { useParams } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
@@ -17,6 +17,7 @@ import IEmpresa from "../../../types/IEmpresa";
 import SucursalPost from "../../../types/post/SucursalPost";
 import ISucursal from "../../../types/ISucursal";
 import { CheckCircleOutline, HighlightOff } from '@mui/icons-material';
+import EmptyState from "../../ui/Cards/EmptyState/EmptyState";
 
 
 
@@ -45,34 +46,38 @@ const SucursalesEmpresa = () => {
   const sucursalesEmpresa = useAppSelector((state) => state.sucursal.data);
 
   // Estado para almacenar las sucursales filtradas
-// Estado para almacenar las sucursales filtradas
-const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([]);
+  // Estado para almacenar las sucursales filtradas
+  const [filteredData, setFilteredData] = useState<(ISucursal | SucursalPost)[]>([]);
 
 
   // Estado para controlar si se está editando una sucursal
   const [isEditing, setIsEditing] = useState(false);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   // Estado para almacenar la sucursal que se está editando
   const [sucursalEditar, setSucursalEditar] = useState<Sucursal | SucursalPost>();
 
   const [casaMatrizDisabled, setCasaMatrizDisabled] = useState<boolean>(false); // Nuevo estado para deshabilitar el checkbox de casa matriz
 
-// Función para obtener las sucursales de la API
-const fetchSucursal = async () => {
-  try {
-    if (empresaId !== undefined) { // Verificar que empresaId no sea undefined
-      const empresa = await empresaService.get(`${url}/empresa/sucursales`, parseInt(empresaId));
-      // Actualizar el estado global de Redux con las sucursales
-      dispatch(setSucursal(empresa.sucursales));
-      // Actualizar las sucursales filtradas
-      setFilteredData(empresa.sucursales);
-    } else {
-      console.error("Error: empresaId es undefined");
+  // Función para obtener las sucursales de la API
+  const fetchSucursal = async () => {
+    try {
+      setIsLoading(true)
+      if (empresaId !== undefined) { // Verificar que empresaId no sea undefined
+        const empresa = await empresaService.get(`${url}/empresa/sucursales`, parseInt(empresaId));
+        // Actualizar el estado global de Redux con las sucursales
+        dispatch(setSucursal(empresa.sucursales));
+        // Actualizar las sucursales filtradas
+        setFilteredData(empresa.sucursales);
+        setIsLoading(false)
+      } else {
+        console.error("Error: empresaId es undefined");
+      }
+    } catch (error) {
+      console.error("Error al obtener las sucursales:", error);
     }
-  } catch (error) {
-    console.error("Error al obtener las sucursales:", error);
-  }
-};
+  };
 
 
   useEffect(() => {
@@ -155,18 +160,18 @@ const fetchSucursal = async () => {
       ),
     },
     {
-  id: 'casaMatriz',
-  label: 'Casa Matriz',
-  renderCell: (sucursal) => (
-    <div className={sucursal.esCasaMatriz ? 'casa-matriz' : ''}>
-      {sucursal.esCasaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
-    </div>
-  ),
-},
+      id: 'casaMatriz',
+      label: 'Casa Matriz',
+      renderCell: (sucursal) => (
+        <div className={sucursal.esCasaMatriz ? 'casa-matriz' : ''}>
+          {sucursal.esCasaMatriz ? <CheckCircleOutline color="primary" /> : <HighlightOff color="error" />}
+        </div>
+      ),
+    },
   ];
-  
 
-  const generateInitialSucursal = (idEmpresa: number): SucursalPost  => {
+
+  const generateInitialSucursal = (idEmpresa: number): SucursalPost => {
     return {
       nombre: '',
       horarioApertura: '',
@@ -180,12 +185,17 @@ const fetchSucursal = async () => {
         idLocalidad: 0,
       },
       idEmpresa: idEmpresa,
-      esCasaMatriz:false
+      esCasaMatriz: false
     };
   };
 
   return (
-    <Box component="main" sx={{ flexGrow: 1, my: 10 }}>
+    <Box
+      component="main"
+      sx={{
+        flexGrow: 1,
+        my: 12,
+      }}>
       <Container>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", my: 1 }}>
           <Typography variant="h5" gutterBottom>
@@ -205,20 +215,40 @@ const fetchSucursal = async () => {
             Sucursales
           </Button>
         </Box>
-        <Box sx={{ mt: 2 }}>
-          <SearchBar onSearch={onSearch} />
+        {!isLoading && filteredData.length > 0 && (
+          <Box>
+            <Box sx={{ mt: 2 }}>
+              <SearchBar onSearch={onSearch} />
+            </Box>
+            <TableComponent data={filteredData} columns={columns} onDelete={onDeleteSucursal} onEdit={handleEdit} />
+          </Box>
+        )}
+
+<Box sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '80vh',
+        }}>
+            {isLoading && <CircularProgress sx={{ color: '#fb6376' }} />}
+        {!isLoading && filteredData.length === 0 &&
+          <EmptyState
+            title="No hay sucursales disponibles"
+            description={`Parece que aún no has creado ninguna sucursal en ${empresa?.nombre} . ¿Por qué no crear una ahora?`}
+          />
+        }
         </Box>
-        <TableComponent data={filteredData} columns={columns} onDelete={onDeleteSucursal} onEdit={handleEdit} />
         <ModalSucursal
           modalName="modal"
           initialValues={sucursalEditar || generateInitialSucursal(empresa?.id || 0)}
           isEditMode={isEditing}
           getSucursales={fetchSucursal}
           idEmpresa={empresa?.id || 0}
-          casaMatrizDisabled={casaMatrizDisabled} // Pasar el prop para deshabilitar el checkbox de casa matriz
+          casaMatrizDisabled={casaMatrizDisabled}
         />
       </Container>
     </Box>
+
   );
 };
 

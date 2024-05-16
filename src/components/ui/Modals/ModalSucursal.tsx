@@ -98,12 +98,13 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
       }
     };
 
-  const validationSchema = Yup.object().shape({
-    nombre: Yup.string().required('Campo requerido'),
-    horarioCierre: Yup.string().required('Campo requerido'),
-    horarioApertura: Yup.string().required('Campo requerido'),
-    //agregar calle, cp, numero, pais, provincia y localidad 
-  });
+    const validationSchema = Yup.object().shape({
+      nombre: Yup.string().required('Campo requerido'),
+      horarioApertura: Yup.string().required('Campo requerido'),
+      horarioCierre: Yup.string().required('Campo requerido'),
+    });
+    
+    
 
 
   useEffect(() => {
