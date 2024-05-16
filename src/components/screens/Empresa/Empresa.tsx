@@ -110,7 +110,7 @@ const EmpresaComponent = () => {
       renderCell: (empresa) => (
         <>
           <Tooltip title="Ver Sucursales">
-            <IconButton component={Link} to={`/empresas/${empresa.id}`} aria-label="Ver Sucursales">
+            <IconButton component={Link} to={`/empresas/${empresa.id}`} aria-label="Ver Sucursales" >
               <Visibility />
             </IconButton>
           </Tooltip>

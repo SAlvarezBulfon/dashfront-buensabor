@@ -146,19 +146,36 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     }
   };
 
-  // Función para manejar el cambio del checkbox de Casa Matriz
-  const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setCasaMatriz(event.target.checked);
-  };
+ // Función para verificar si la sucursal editada es casa matriz
+ const checkCasaMatriz = () => {
+  const sucursal = initialValues as ISucursal;
+  if (sucursal.esCasaMatriz) {
+    setCasaMatriz(true);
+  } else {
+    setCasaMatriz(false);
+  }
+};
 
-  // Mensaje para mostrar en el tooltip cuando se pase el mouse sobre el checkbox deshabilitado
-  useEffect(() => {
+useEffect(() => {
+  if (isEditMode) {
+    checkCasaMatriz(); // Verificar si la sucursal editada es casa matriz
     if (casaMatrizDisabled) {
       setTooltipMessage('Ya hay una sucursal que es casa matriz');
     } else {
       setTooltipMessage('');
     }
-  }, [casaMatrizDisabled]);
+  } else {
+    // Si no está en modo de edición, reiniciar el estado de casaMatriz
+    setCasaMatriz(false);
+  }
+}, [isEditMode, initialValues]);
+
+// Función para manejar el cambio del checkbox de Casa Matriz
+const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
+  setCasaMatriz(event.target.checked);
+};
+
+  
 
   if (!isEditMode) {
     initialValues = {
@@ -193,7 +210,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
       let sucursalData: SucursalPost | Sucursal;
 
       if (isEditMode) {
-        // Si estamos en modo de edición, es un objeto Sucursal, así que eliminamos el id del objeto
+       
         const { id, ...rest } = values as Sucursal;
         sucursalData = {
           ...rest,
@@ -203,6 +220,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
         };
         console.log('Data a enviar en modo edición:', sucursalData);
         await sucursalService.put(`${URL}/sucursal`, id, sucursalData);
+        window.location.reload();
       } else {
         // Si no estamos en modo de edición, es un objeto SucursalPost y agregamos el id de la empresa
         sucursalData = {
@@ -303,27 +321,28 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
           )}
           </div>
         </div>
-        {/* Checkbox para indicar si es la casa matriz */}
-        <label style={{ display: 'flex', alignItems: 'center' }} title={tooltipMessage}>
-          {casaMatriz ? (
-            <CheckCircleOutline color="primary" style={{ marginRight: '10px' }} />
-          ) : (
-            <HighlightOff color="error" style={{ marginRight: '10px' }} />
-          )}
-          <input
-            type="checkbox"
-            checked={casaMatriz}
-            onChange={handleCasaMatrizChange}
-            disabled={casaMatrizDisabled} // Deshabilitar el checkbox si es necesario
-            style={{ marginRight: '10px' }}
-          />
-          <h3 style={{ fontSize: '1.2rem' }}>Casa Matriz</h3>
-        </label>
-        {casaMatrizDisabled && tooltipMessage && (
-          <div style={{ fontSize: '1.1rem', color: 'red' }}>
-            {tooltipMessage}
-          </div>
-        )}
+     
+<label style={{ display: 'flex', alignItems: 'center' }}>
+  {casaMatriz ? (
+    <CheckCircleOutline color="primary" style={{ marginRight: '10px' }} />
+  ) : (
+    <HighlightOff color="error" style={{ marginRight: '10px' }} />
+  )}
+  <input
+  type="checkbox"
+  checked={casaMatriz}
+  onChange={handleCasaMatrizChange}
+  disabled={(isEditMode && !casaMatriz && casaMatrizDisabled) || (!isEditMode && casaMatrizDisabled)}
+  style={{ marginRight: '10px' }}
+/>
+  <h3 style={{ fontSize: '1.2rem' }}>Casa Matriz</h3>
+</label>
+
+{(!isEditMode && casaMatrizDisabled) || (isEditMode && !casaMatriz) ? (
+  <div style={{ fontSize: '1.1rem', color: 'red' }}>
+    {tooltipMessage}
+  </div>
+) : null}
       </div>
     </GenericModal>
   );
