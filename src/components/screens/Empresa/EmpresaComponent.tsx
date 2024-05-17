@@ -165,10 +165,10 @@ const EmpresaComponent: React.FC = () => {
                                     CUIL: {empresa.cuil}
                                 </Typography>
                                 <Box sx={{ mt: 2 }}>
-                                    <Button sx={{ mr: 1 }} onClick={() => handleEdit(empresa)} variant="outlined" color="primary">
+                                    <Button sx={{ mr: 1}} onClick={() => handleEdit(empresa)} variant="outlined" color="error" >
                                         Editar
                                     </Button>
-                                    <Button onClick={() => onDeleteEmpresa(empresa)} variant="outlined" color="error">
+                                    <Button onClick={() => onDeleteEmpresa(empresa)} variant="contained" color="error">
                                         Eliminar
                                     </Button>
                                 </Box>

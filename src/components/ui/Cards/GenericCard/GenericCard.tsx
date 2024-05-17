@@ -23,7 +23,7 @@ interface GenericCardProps {
 
 const GenericCard: React.FC<GenericCardProps> = ({ title, subtitle, images, actions = [], children }) => {
   return (
-    <Card sx={{ width: 300, marginY: 2, marginX: 2 }}>
+    <Card sx={{ width: 300, marginY: 2, marginX: 2, backgroundColor: '#f5f5f5', color: '#333' }}> {/* Ajusta los colores de fondo y texto */}
       <Carousel prevLabel="" nextLabel="" className="custom-carousel">
         {images.map((image, index) => (
           <Carousel.Item key={index} className="carousel-item">
@@ -33,7 +33,7 @@ const GenericCard: React.FC<GenericCardProps> = ({ title, subtitle, images, acti
           </Carousel.Item>
         ))}
       </Carousel>
-      <CardHeader title={title} subheader={subtitle} action={renderActions(actions)} />
+      <CardHeader title={title} subheader={subtitle} action={renderActions(actions)} sx={{ backgroundColor: '#fafafa' }} /> {/* Ajusta el color de fondo del encabezado */}
       <CardContent>{children}</CardContent>
     </Card>
   );
@@ -48,7 +48,7 @@ const renderActions = (actions: Action[]) => {
         onClick={action.onClick}
         aria-label={action.tooltip}
         disabled={action.disabled}
-        className="custom-button" // Agrega la clase para los botones de acción
+        sx={{ color: '#fb6376', '&:hover': { color: '#d73754' } }}
       >
         {action.icon}
       </IconButton>

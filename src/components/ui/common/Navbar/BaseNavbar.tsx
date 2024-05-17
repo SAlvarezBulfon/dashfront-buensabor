@@ -11,6 +11,7 @@ import Person2OutlinedIcon from '@mui/icons-material/Person2Outlined';
 import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import Divider from '@mui/material/Divider';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
+import { Link } from 'react-router-dom';
 
 export default function PrimarySearchAppBar() {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -60,7 +61,8 @@ export default function PrimarySearchAppBar() {
             component="div"
             sx={{ justifyContent: 'center' }}
           >
-            Administrador
+           <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>Administrador</Link>
+
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton

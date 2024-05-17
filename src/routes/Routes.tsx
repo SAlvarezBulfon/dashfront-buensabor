@@ -3,9 +3,9 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import BaseNavbar from '../components/ui/common/Navbar/BaseNavbar';
 import Inicio from '../components/screens/Inicio/Inicio';
 import EmpresaComponent from '../components/screens/Empresa/EmpresaComponent';
-import Sucursal from '../components/screens/Sucursal/Sucursal';
 import SidebarLayout from '../components/ui/common/SideBarLayout/SideBarLayout';
 import './routes.css'
+import SucursalComponent from '../components/screens/Sucursal/SucursalComponent';
 
 
 const Rutas: React.FC = () => {
@@ -16,9 +16,9 @@ const Rutas: React.FC = () => {
       </div>
       <Routes>
         <Route path="/" element={<EmpresaComponent />} />
+        <Route path="/empresa/:empresaId" element={<SucursalComponent />} />
           <Route element={<SidebarLayout />}>
-          <Route path="/empresa/estadisticas/:empresaId" element={<Inicio />} />
-          <Route path="/empresa/:empresaId" element={<Sucursal />} />
+          <Route path="dashboard/:sucursalId" element={<Inicio />} />
         </Route>
       </Routes>
     </Router>
