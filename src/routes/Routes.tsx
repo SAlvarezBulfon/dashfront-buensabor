@@ -6,6 +6,7 @@ import EmpresaComponent from '../components/screens/Empresa/EmpresaComponent';
 import SidebarLayout from '../components/ui/common/SideBarLayout/SideBarLayout';
 import './routes.css'
 import SucursalComponent from '../components/screens/Sucursal/SucursalComponent';
+import Insumo from '../components/screens/Insumo/Insumo';
 
 
 const Rutas: React.FC = () => {
@@ -19,6 +20,7 @@ const Rutas: React.FC = () => {
         <Route path="/empresa/:empresaId" element={<SucursalComponent />} />
           <Route element={<SidebarLayout />}>
           <Route path="dashboard/:sucursalId" element={<Inicio />} />
+          <Route path="insumos/:sucursalId" element={<Insumo />} />
         </Route>
       </Routes>
     </Router>

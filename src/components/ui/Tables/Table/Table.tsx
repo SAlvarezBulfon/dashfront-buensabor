@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Table, TableHead, TableBody, TableRow, TableCell, TableSortLabel, TablePagination, Box } from '@mui/material';
 import DeleteButton from './DeleteButton'; 
 import EditButton from './EditButton';
-import Row from '../../../types/Row';
+import Row from '../../../../types/Row';
 
 interface Props{
   data: any[]; // Utiliza la interfaz genérica DataModel<T>
