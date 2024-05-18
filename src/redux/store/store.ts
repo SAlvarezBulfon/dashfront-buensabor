@@ -5,6 +5,7 @@ import ProvinciaReducer from '../slices/ProvinciaReducer'
 import ModalReducer from '../slices/ModalReducer'
 import PaisReducer from '../slices/PaisReducer'
 import SucursalReducer from '../slices/SucursalReducer'
+import InsumosReducer from '../slices/InsumosReducer'
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +15,7 @@ export const store = configureStore({
     pais: PaisReducer,
     modal: ModalReducer,
     sucursal: SucursalReducer,
+    insumo: InsumosReducer,
 
   },
 })

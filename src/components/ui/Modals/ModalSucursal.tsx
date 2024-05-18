@@ -36,7 +36,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   idEmpresa,
   casaMatrizDisabled, // Nuevo prop para deshabilitar el checkbox de casa matriz
 }) => {
-  
+
   const sucursalService = new SucursalService();
   const URL: string = import.meta.env.VITE_API_URL as string;
   const paisService = new PaisService();
@@ -66,7 +66,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     }
   };
 
-  
+
   const fetchPaises = async () => {
     try {
       const paises = await paisService.getAll(`${URL}/pais`);
@@ -76,35 +76,35 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     }
   }
 
-    const fetchProvincias = async () => {
-      try {
-        if (selectedPais) {
-          const provincias = await provinciaService.getAll(`${URL}/provincia/findByPais/${selectedPais}`);
-          setProvincias(provincias);
-        }
-      } catch (error) {
-        console.error('Error al obtener las provincias:', error);
+  const fetchProvincias = async () => {
+    try {
+      if (selectedPais) {
+        const provincias = await provinciaService.getAll(`${URL}/provincia/findByPais/${selectedPais}`);
+        setProvincias(provincias);
       }
-    };
+    } catch (error) {
+      console.error('Error al obtener las provincias:', error);
+    }
+  };
 
-    const fetchLocalidades = async () => {
-      try {
-        if (selectedProvincia) {
-          const localidades = await localidadService.getAll(`${URL}/localidad/findByProvincia/${selectedProvincia}`);
-          setLocalidades(localidades);
-        }
-      } catch (error) {
-        console.error('Error al obtener las localidades:', error);
+  const fetchLocalidades = async () => {
+    try {
+      if (selectedProvincia) {
+        const localidades = await localidadService.getAll(`${URL}/localidad/findByProvincia/${selectedProvincia}`);
+        setLocalidades(localidades);
       }
-    };
+    } catch (error) {
+      console.error('Error al obtener las localidades:', error);
+    }
+  };
 
-    const validationSchema = Yup.object().shape({
-      nombre: Yup.string().required('Campo requerido'),
-      horarioApertura: Yup.string().required('Campo requerido'),
-      horarioCierre: Yup.string().required('Campo requerido'),
-    });
-    
-    
+  const validationSchema = Yup.object().shape({
+    nombre: Yup.string().required('Campo requerido'),
+    horarioApertura: Yup.string().required('Campo requerido'),
+    horarioCierre: Yup.string().required('Campo requerido'),
+  });
+
+
 
 
   useEffect(() => {
@@ -112,7 +112,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     fetchPaises();
     fetchProvincias();
     fetchLocalidades();
-  }, [URL,idEmpresa, selectedPais, selectedProvincia]);
+  }, [URL, idEmpresa, selectedPais, selectedProvincia]);
 
   const handlePaisChange = (event: ChangeEvent<HTMLSelectElement>) => {
     const paisNombre = event.target.value;
@@ -147,36 +147,36 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     }
   };
 
- // Función para verificar si la sucursal editada es casa matriz
- const checkCasaMatriz = () => {
-  const sucursal = initialValues as ISucursal;
-  if (sucursal.esCasaMatriz) {
-    setCasaMatriz(true);
-  } else {
-    setCasaMatriz(false);
-  }
-};
-
-useEffect(() => {
-  if (isEditMode) {
-    checkCasaMatriz(); // Verificar si la sucursal editada es casa matriz
-    if (casaMatrizDisabled) {
-      setTooltipMessage('Ya hay una sucursal que es casa matriz');
+  // Función para verificar si la sucursal editada es casa matriz
+  const checkCasaMatriz = () => {
+    const sucursal = initialValues as ISucursal;
+    if (sucursal.esCasaMatriz) {
+      setCasaMatriz(true);
     } else {
-      setTooltipMessage('');
+      setCasaMatriz(false);
     }
-  } else {
-    // Si no está en modo de edición, reiniciar el estado de casaMatriz
-    setCasaMatriz(false);
-  }
-}, [isEditMode, initialValues]);
+  };
 
-// Función para manejar el cambio del checkbox de Casa Matriz
-const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
-  setCasaMatriz(event.target.checked);
-};
+  useEffect(() => {
+    if (isEditMode) {
+      checkCasaMatriz(); // Verificar si la sucursal editada es casa matriz
+      if (casaMatrizDisabled) {
+        setTooltipMessage('Ya hay una sucursal que es casa matriz');
+      } else {
+        setTooltipMessage('');
+      }
+    } else {
+      // Si no está en modo de edición, reiniciar el estado de casaMatriz
+      setCasaMatriz(false);
+    }
+  }, [isEditMode, initialValues]);
 
-  
+  // Función para manejar el cambio del checkbox de Casa Matriz
+  const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setCasaMatriz(event.target.checked);
+  };
+
+
 
   if (!isEditMode) {
     initialValues = {
@@ -211,7 +211,7 @@ const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
       let sucursalData: SucursalPost | Sucursal;
 
       if (isEditMode) {
-       
+
         const { id, ...rest } = values as Sucursal;
         sucursalData = {
           ...rest,
@@ -249,7 +249,7 @@ const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
   return (
     <GenericModal
       modalName={modalName}
-      title={isEditMode ? 'Editar Sucursal' :  `Añadir Sucursal a ${empresa?.nombre}`}
+      title={isEditMode ? 'Editar Sucursal' : `Añadir Sucursal a ${empresa?.nombre}`}
       initialValues={sucursalAEditar || initialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
@@ -288,62 +288,62 @@ const handleCasaMatrizChange = (event: ChangeEvent<HTMLInputElement>) => {
         </div>
 
         <div style={{ display: 'flex', gap: '20px' }}>
-        <div style={{ flex: 1 }}>
-          <SelectList
-            title="Países"
-            items={paises.map((pais: IPais) => pais.nombre)}
-            handleChange={handlePaisChange}
-            selectedValue={selectedPais}
-            disabled={isEditMode}
-          />
-          </div>
           <div style={{ flex: 1 }}>
-          {selectedPais && (
             <SelectList
-              title="Provincias"
-              items={provincias.map((provincia: IProvincia) => provincia.nombre)}
-              handleChange={handleProvinciaChange}
-              //selectedValue={selectedProvincia}
-              selectedValue={provinciaNombre}
+              title="Países"
+              items={paises.map((pais: IPais) => pais.nombre)}
+              handleChange={handlePaisChange}
+              selectedValue={selectedPais}
               disabled={isEditMode}
             />
-          )}
           </div>
           <div style={{ flex: 1 }}>
-          {selectedProvincia && (
-            <SelectList
-              title="Localidades"
-              items={localidades.map((localidad: ILocalidad) => localidad.nombre)}
-              handleChange={handleLocalidadChange}
-              //selectedValue={selectedLocalidad}
-              selectedValue={localidadNombre}
-              disabled={isEditMode}
-            />
-          )}
+            {selectedPais && (
+              <SelectList
+                title="Provincias"
+                items={provincias.map((provincia: IProvincia) => provincia.nombre)}
+                handleChange={handleProvinciaChange}
+                //selectedValue={selectedProvincia}
+                selectedValue={provinciaNombre}
+                disabled={isEditMode}
+              />
+            )}
+          </div>
+          <div style={{ flex: 1 }}>
+            {selectedProvincia && (
+              <SelectList
+                title="Localidades"
+                items={localidades.map((localidad: ILocalidad) => localidad.nombre)}
+                handleChange={handleLocalidadChange}
+                //selectedValue={selectedLocalidad}
+                selectedValue={localidadNombre}
+                disabled={isEditMode}
+              />
+            )}
           </div>
         </div>
-     
-<label style={{ display: 'flex', alignItems: 'center' }}>
-  {casaMatriz ? (
-    <CheckCircleOutline color="primary" style={{ marginRight: '10px' }} />
-  ) : (
-    <HighlightOff color="error" style={{ marginRight: '10px' }} />
-  )}
-  <input
-  type="checkbox"
-  checked={casaMatriz}
-  onChange={handleCasaMatrizChange}
-  disabled={(isEditMode && !casaMatriz && casaMatrizDisabled) || (!isEditMode && casaMatrizDisabled)}
-  style={{ marginRight: '10px' }}
-/>
-  <h3 style={{ fontSize: '1.2rem' }}>Casa Matriz</h3>
-</label>
 
-{(!isEditMode && casaMatrizDisabled) || (isEditMode && !casaMatriz) ? (
-  <div style={{ fontSize: '1.1rem', color: 'red' }}>
-    {tooltipMessage}
-  </div>
-) : null}
+        <label style={{ display: 'flex', alignItems: 'center' }}>
+          {casaMatriz ? (
+            <CheckCircleOutline color="primary" style={{ marginRight: '10px' }} />
+          ) : (
+            <HighlightOff color="error" style={{ marginRight: '10px' }} />
+          )}
+          <input
+            type="checkbox"
+            checked={casaMatriz}
+            onChange={handleCasaMatrizChange}
+            disabled={(isEditMode && !casaMatriz && casaMatrizDisabled) || (!isEditMode && casaMatrizDisabled)}
+            style={{ marginRight: '10px' }}
+          />
+          <h3 style={{ fontSize: '1.2rem' }}>Casa Matriz</h3>
+        </label>
+
+        {(!isEditMode && casaMatrizDisabled) || (isEditMode && !casaMatriz) ? (
+          <div style={{ fontSize: '1.1rem', color: 'red' }}>
+            {tooltipMessage}
+          </div>
+        ) : null}
       </div>
     </GenericModal>
   );

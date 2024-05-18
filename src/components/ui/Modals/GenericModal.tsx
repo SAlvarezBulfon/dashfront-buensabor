@@ -1,4 +1,5 @@
 import React from 'react';
+import './modal.css'
 import { Modal, Button, Form } from 'react-bootstrap';
 import { Formik, FormikProps } from 'formik';
 import * as Yup from 'yup';
@@ -6,7 +7,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store/store'; 
 import { toggleModal } from '../../../redux/slices/ModalReducer';
 import Swal from 'sweetalert2'; 
-import './modal.css'
+
+
 // Definición de las props del componente
 interface ModalProps {
   modalName: string; // Nombre del modal

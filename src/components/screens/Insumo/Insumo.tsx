@@ -1,6 +1,7 @@
 
 import { Container } from '@mui/material';
 import TableUnidadMedida from '../../ui/Tables/TableUnidadMedida/TableUnidadMedida';
+import TableInsumo from '../../ui/Tables/TableInsumos/TableInsumos';
 
 
 
@@ -8,6 +9,7 @@ import TableUnidadMedida from '../../ui/Tables/TableUnidadMedida/TableUnidadMedi
 const Insumo = () => {
   return (
     <Container maxWidth="lg" sx={{mt: 10}}>
+        <TableInsumo />
         <TableUnidadMedida/>
     </Container>
   );
