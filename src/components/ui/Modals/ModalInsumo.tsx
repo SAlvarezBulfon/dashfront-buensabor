@@ -6,6 +6,7 @@ import TextFieldValue from '../TextFieldValue/TextFieldValue';
 import InsumoService from '../../../services/InsumoService';
 import UnidadMedidaService from '../../../services/UnidadMedidaService';
 import Swal from 'sweetalert2';
+import { InsumoPost } from '../../../types/post/InsumoPost';
 import { IInsumo } from '../../../types/IInsumo';
 
 interface ModalInsumoProps {
@@ -42,7 +43,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
 
     const validationSchema = Yup.object().shape({
         denominacion: Yup.string().required('Campo requerido'),
-        precioVenta: Yup.number().required('Campo requerido').positive('El precio de venta debe ser un número positivo'),
+        precioVenta: Yup.number().required('Campo requerido'),
         precioCompra: Yup.number().required('Campo requerido').positive('El precio de compra debe ser un número positivo'),
         stockActual: Yup.number()
             .required('Campo requerido')
@@ -53,25 +54,27 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
         stockMinimo: Yup.number().required('Campo requerido').positive('El stock mínimo debe ser un número positivo'),
     });
 
-
-    const handleSubmit = async (values: IInsumo) => {
-        console.log(values)
+    const handleSubmit = async (values: InsumoPost) => {
         try {
             const insumoPost = {
-                ...values,
+                denominacion: values.denominacion,
+                precioVenta: values.precioVenta,
+                precioCompra: values.precioCompra,
+                stockActual: values.stockActual,
+                stockMaximo: values.stockMaximo,
+                stockMinimo: values.stockMinimo,
+                imagenes: [],
                 idUnidadMedida: unidadMedida,
                 esParaElaborar: esParaElaborar,
             };
+            
+            console.log(insumoPost);
 
             let response;
 
+            
             if (isEditMode && insumoAEditar) {
-                const updatedInsumo = {
-                    ...values,
-                    idUnidadMedida: unidadMedida,
-                    esParaElaborar: esParaElaborar,
-                }
-                response = await insumoService.put(`${URL}/ArticuloInsumo`, insumoAEditar.id, updatedInsumo);
+                response = await insumoService.put(`${URL}/ArticuloInsumo`,insumoAEditar.id, insumoPost);
                 getInsumos();
             } else {
                 response = await insumoService.post(`${URL}/ArticuloInsumo`, insumoPost);
@@ -116,30 +119,12 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
             isEditMode={isEditMode}
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                        <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        <TextFieldValue label="Precio de Venta" name="precioVenta" type="number" placeholder="Precio de Venta" />
-                    </div>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                        <TextFieldValue label="Precio de Compra" name="precioCompra" type="number" placeholder="Precio de Compra" />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        <TextFieldValue label="Stock Actual" name="stockActual" type="number" placeholder="Stock Actual" />
-                    </div>
-                </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                        <TextFieldValue label="Stock Máximo" name="stockMaximo" type="number" placeholder="Stock Máximo" />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                        <TextFieldValue label="Stock Mínimo" name="stockMinimo" type="number" placeholder="Stock Mínimo" />
-                    </div>
-                </div>
+                <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" />
+                <TextFieldValue label="Precio de Venta" name="precioVenta" type="number" placeholder="Precio de Venta" />
+                <TextFieldValue label="Precio de Compra" name="precioCompra" type="number" placeholder="Precio de Compra" />
+                <TextFieldValue label="Stock Actual" name="stockActual" type="number" placeholder="Stock Actual" />
+                <TextFieldValue label="Stock Máximo" name="stockMaximo" type="number" placeholder="Stock Máximo" />
+                <TextFieldValue label="Stock Mínimo" name="stockMinimo" type="number" placeholder="Stock Mínimo" />
 
                 <FormControl fullWidth>
                     <label className='label' style={{ marginTop: '16px' }}>Unidad de Medida</label>
