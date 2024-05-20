@@ -1,5 +1,6 @@
 import { Box, Typography, Button, Container, CircularProgress } from "@mui/material";
 import { AddCircle, Visibility } from "@mui/icons-material";
+import EditIcon from '@mui/icons-material/Edit';
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setEmpresa } from "../../../redux/slices/EmpresaReducer";
 
@@ -27,6 +28,7 @@ const EmpresaComponent: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [empresaEditar, setEmpresaEditar] = useState<Empresa | undefined>();
     const [, setEmpresaSucursales] = useState<ISucursal[]>();
+    
     const fetchSucursalesForEmpresa = async (empresaId: number) => {
         try {
             const empresa = await empresaService.get(url + `/empresa/sucursales`, empresaId);
@@ -140,41 +142,51 @@ const EmpresaComponent: React.FC = () => {
                   
                 ) : (
                     <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-                        {globalEmpresas.map((empresa: IEmpresa) => (
-                            <GenericCard
-                                images={imagenes}
-                                key={empresa.id}
-                                title={empresa.nombre}
-                                subtitle={empresa.razonSocial}
-                                actions={[
-                                    {
-                                        icon: <Visibility />,
-                                        tooltip: "Ver Sucursales",
-                                        link: `/empresa/${empresa.id}`,
-                                        onClick: () => fetchSucursalesForEmpresa(empresa.id)
-                                    },
-                                    {
-                                        icon: <AddCircle />,
-                                        tooltip: "Agregar Sucursal",
-                                        onClick: () => handleAddSucursal(empresa)
-                                    },
-                                ]}
-                            >
+    {globalEmpresas.map((empresa: IEmpresa) => (
+    <GenericCard
+        images={imagenes}
+        key={empresa.id}
+        title={empresa.nombre}
+        subtitle={empresa.razonSocial}
+        actions={[
+            {
+                icon: <EditIcon />,
+                tooltip: "Editar",
+                onClick: () => handleEdit(empresa)
+            },
+        ]}
+    >
+        <Typography variant="body2" color="text.secondary">
+            CUIL: {empresa.cuil}
+        </Typography>
+     
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1,  cursor: 'pointer' }}>
+    <AddCircle sx={{ marginRight: 1, color: '#fb6376' }} onClick={() => handleAddSucursal(empresa)} />
+    <Typography variant="body2" onClick={() => handleAddSucursal(empresa)} style={{ color: '#fb6376' }}>Agregar Sucursales</Typography>
+</Box>
+<Box
+    sx={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 1,
+        cursor: 'pointer'
+    }}
+    onClick={() => {
+        fetchSucursalesForEmpresa(empresa.id);
+        window.location.href = `/empresa/${empresa.id}`;
+    }}
+>
+    <Visibility sx={{ marginRight: 1, color: '#fb6376' }} />
+    <Typography variant="body2" style={{ color: '#fb6376' }}>Ver Sucursales</Typography>
+</Box>
 
-                                <Typography variant="body2" color="text.secondary">
-                                    CUIL: {empresa.cuil}
-                                </Typography>
-                                <Box sx={{ mt: 2 }}>
-                                    <Button sx={{ mr: 1}} onClick={() => handleEdit(empresa)} variant="outlined" color="error" >
-                                        Editar
-                                    </Button>
-                                    <Button onClick={() => onDeleteEmpresa(empresa)} variant="contained" color="error">
-                                        Eliminar
-                                    </Button>
-                                </Box>
-                            </GenericCard>
-                        ))}
-                    </Box>
+
+    </GenericCard>
+))}
+
+</Box>
+
                 )}
                 {isLoading && (
                     <Box sx={{ display: "flex", justifyContent: "center", minHeight: "100vh", marginY: 2 }}>

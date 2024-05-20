@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Box, Typography, Button, Container, CircularProgress } from "@mui/material";
-import TableComponent from "../Table/Table";
 import { Add } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom"; // Importar useNavigate
+import TableComponent from "../Table/Table";
 import { IInsumo } from "../../../../types/IInsumo";
 import Row from "../../../../types/Row";
 import { useAppDispatch, useAppSelector } from "../../../../hooks/redux";
@@ -16,6 +17,7 @@ import { InsumoPost } from "../../../../types/post/InsumoPost";
 import EmptyState from "../../Cards/EmptyState/EmptyState";
 
 const TableInsumo = () => {
+    const navigate = useNavigate(); // Crear navigate para manejar la navegación
     const dispatch = useAppDispatch();
     const globalArticulosInsumos = useAppSelector((state) => state.insumo.data);
     const isModalOpen = useAppSelector((state) => state.modal.modalInsumo);
@@ -105,23 +107,39 @@ const TableInsumo = () => {
     return (
         <Box component="main" sx={{ flexGrow: 1, my: 2 }}>
             <Container>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", my: 1 }}>
-                    <Typography variant="h5" gutterBottom>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", my: 3 }}>
+                    <Typography variant="h4" gutterBottom>
                         Insumos
                     </Typography>
-                    <Button
-                        sx={{
-                            bgcolor: "#fb6376",
-                            "&:hover": {
-                                bgcolor: "#d73754",
-                            },
-                        }}
-                        variant="contained"
-                        startIcon={<Add />}
-                        onClick={handleAddInsumo}
-                    >
-                        Insumo
-                    </Button>
+                    <Box>
+                        <Button
+                            sx={{
+                                bgcolor: "#fb6376",
+                                "&:hover": {
+                                    bgcolor: "#d73754",
+                                },
+                                mr: 1,
+                            }}
+                            variant="contained"
+                            startIcon={<Add />}
+                            onClick={handleAddInsumo}
+                        >
+                            Insumo
+                        </Button>
+                        <Button
+                            sx={{
+                                bgcolor: "#fb6376",
+                                "&:hover": {
+                                    bgcolor: "#d73754",
+                                },
+                            }}
+                            variant="contained"
+                            startIcon={<Add />}
+                            onClick={() => navigate("/unidad-de-medida")}
+                        >
+                            Unidad de medida
+                        </Button>
+                    </Box>
                 </Box>
                 {isLoading ? ( // Mostrar componente de carga mientras los datos se están cargando
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>

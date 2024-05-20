@@ -7,6 +7,7 @@ import SidebarLayout from '../components/ui/common/SideBarLayout/SideBarLayout';
 import './routes.css'
 import SucursalComponent from '../components/screens/Sucursal/SucursalComponent';
 import Insumo from '../components/screens/Insumo/Insumo';
+import TableUnidadMedida from '../components/ui/Tables/TableUnidadMedida/TableUnidadMedida';
 
 
 const Rutas: React.FC = () => {
@@ -21,6 +22,7 @@ const Rutas: React.FC = () => {
           <Route element={<SidebarLayout />}>
           <Route path="dashboard/:sucursalId" element={<Inicio />} />
           <Route path="insumos/:sucursalId" element={<Insumo />} />
+          <Route path="/unidad-de-medida" element={<TableUnidadMedida />} />
         </Route>
       </Routes>
     </Router>

@@ -38,14 +38,14 @@ const CardSucursal: React.FC<CardSucursalProps> = ({ sucursal, onEdit, onDelete 
         >
           Editar
         </Button>
-        <Button
+        {/* <Button
           onClick={() => onDelete(sucursal)}
           variant="contained"
           sx={{ bgcolor: '#f44336', '&:hover': { bgcolor: '#d32f2f' }, mr: 1}}
           startIcon={<Delete />}
         >
           Eliminar
-        </Button>
+        </Button> */}
         <Button
           component={Link}
           to={`/dashboard/${sucursal.id}`} // Asegúrate de que esta ruta sea correcta
