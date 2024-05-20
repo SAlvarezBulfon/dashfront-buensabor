@@ -7,7 +7,6 @@ import InsumoService from '../../../services/InsumoService';
 import UnidadMedidaService from '../../../services/UnidadMedidaService';
 import Swal from 'sweetalert2';
 import { InsumoPost } from '../../../types/post/InsumoPost';
-import { IInsumo } from '../../../types/IInsumo';
 
 interface ModalInsumoProps {
     modalName: string;
