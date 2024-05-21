@@ -56,7 +56,6 @@ const EmpresaComponent: React.FC = () => {
         }
     ];
 
-
     const fetchEmpresas = async () => {
         try {
             setIsLoading(true);
@@ -68,7 +67,6 @@ const EmpresaComponent: React.FC = () => {
             setIsLoading(false);
         }
     };
-
 
     useEffect(() => {
         fetchEmpresas();
@@ -136,57 +134,52 @@ const EmpresaComponent: React.FC = () => {
                 <AddButton onClick={handleAddEmpresa} />
                 {!isLoading && globalEmpresas.length === 0 ? (
                     <EmptyState
-                    title="No hay empresas disponibles"
-                    description="Parece que aún no has creado ninguna empresa. ¿Por qué no crear una ahora?"
-                  />
-                  
+                        title="No hay empresas disponibles"
+                        description="Parece que aún no has creado ninguna empresa. ¿Por qué no crear una ahora?"
+                    />
                 ) : (
                     <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-    {globalEmpresas.map((empresa: IEmpresa) => (
-    <GenericCard
-        images={imagenes}
-        key={empresa.id}
-        title={empresa.nombre}
-        subtitle={empresa.razonSocial}
-        actions={[
-            {
-                icon: <EditIcon />,
-                tooltip: "Editar",
-                onClick: () => handleEdit(empresa)
-            },
-        ]}
-    >
-        <Typography variant="body2" color="text.secondary">
-            CUIL: {empresa.cuil}
-        </Typography>
-     
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1,  cursor: 'pointer' }}>
-    <AddCircle sx={{ marginRight: 1, color: '#fb6376' }} onClick={() => handleAddSucursal(empresa)} />
-    <Typography variant="body2" onClick={() => handleAddSucursal(empresa)} style={{ color: '#fb6376' }}>Agregar Sucursales</Typography>
-</Box>
-<Box
-    sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: 1,
-        cursor: 'pointer'
-    }}
-    onClick={() => {
-        fetchSucursalesForEmpresa(empresa.id);
-        window.location.href = `/empresa/${empresa.id}`;
-    }}
->
-    <Visibility sx={{ marginRight: 1, color: '#fb6376' }} />
-    <Typography variant="body2" style={{ color: '#fb6376' }}>Ver Sucursales</Typography>
-</Box>
+                        {globalEmpresas.map((empresa: IEmpresa) => (
+                            <GenericCard
+                                images={imagenes}
+                                key={empresa.id}
+                                title={empresa.nombre}
+                                subtitle={empresa.razonSocial}
+                                actions={[
+                                    {
+                                        icon: <EditIcon />,
+                                        tooltip: "Editar",
+                                        onClick: () => handleEdit(empresa)
+                                    },
+                                ]}
+                            >
+                                <Typography variant="body2" color="text.secondary">
+                                    CUIL: {empresa.cuil}
+                                </Typography>
 
-
-    </GenericCard>
-))}
-
-</Box>
-
+                                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: 1, gap: 1 }}>
+                                    <Button
+                                        startIcon={<AddCircle sx={{ color: '#fb6376' }} />}
+                                        onClick={() => handleAddSucursal(empresa)}
+                                        variant="outlined"
+                                        sx={{ color: '#fb6376', borderColor: '#fb6376', fontSize: '0.70rem', padding: '8px 14px' }}
+                                    >
+                                        Sucursales
+                                    </Button>
+                                    <Button
+                                        startIcon={<Visibility />}
+                                        onClick={() => {
+                                            fetchSucursalesForEmpresa(empresa.id);
+                                            window.location.href = `/empresa/${empresa.id}`;
+                                        }}
+                                        sx={{ color: '#ffffff', backgroundColor: '#fb6376', fontSize: '0.70rem', padding: '9px 15px', '&:hover': { backgroundColor: '#fa5064' } }}
+                                    >
+                                        Sucursales
+                                    </Button>
+                                </Box>
+                            </GenericCard>
+                        ))}
+                    </Box>
                 )}
                 {isLoading && (
                     <Box sx={{ display: "flex", justifyContent: "center", minHeight: "100vh", marginY: 2 }}>
