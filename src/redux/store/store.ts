@@ -6,6 +6,7 @@ import ModalReducer from '../slices/ModalReducer'
 import PaisReducer from '../slices/PaisReducer'
 import SucursalReducer from '../slices/SucursalReducer'
 import InsumosReducer from '../slices/InsumosReducer'
+import CategoriaReducer from '../slices/CategoriaReducer'
 
 export const store = configureStore({
   reducer: {
@@ -16,7 +17,7 @@ export const store = configureStore({
     modal: ModalReducer,
     sucursal: SucursalReducer,
     insumo: InsumosReducer,
-
+    categoria: CategoriaReducer,
   },
 })
 

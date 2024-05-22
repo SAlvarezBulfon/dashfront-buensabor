@@ -8,6 +8,7 @@ import './routes.css'
 import SucursalComponent from '../components/screens/Sucursal/SucursalComponent';
 import Insumo from '../components/screens/Insumo/Insumo';
 import TableUnidadMedida from '../components/ui/Tables/TableUnidadMedida/TableUnidadMedida';
+import Categoria from '../components/screens/Categoria/Categoria';
 
 
 const Rutas: React.FC = () => {
@@ -23,6 +24,7 @@ const Rutas: React.FC = () => {
           <Route path="dashboard/:sucursalId" element={<Inicio />} />
           <Route path="insumos/:sucursalId" element={<Insumo />} />
           <Route path="/unidad-de-medida" element={<TableUnidadMedida />} />
+          <Route path="categorias/:sucursalId" element={<Categoria />} />
         </Route>
       </Routes>
     </Router>
