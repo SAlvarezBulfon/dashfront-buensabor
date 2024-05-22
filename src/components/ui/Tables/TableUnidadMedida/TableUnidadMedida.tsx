@@ -8,9 +8,10 @@ import { onDelete } from '../../../../utils/utils';
 import * as Yup from 'yup';
 import EmptyState from '../../Cards/EmptyState/EmptyState';
 import swal from 'sweetalert2';
+import Column from '../../../../types/Column';
 
 const TableUnidadMedida: React.FC = () => {
-  const navigate = useNavigate(); // Para manejar la navegación
+  const navigate = useNavigate();
   const [units, setUnits] = useState<IUnidadMedida[]>([]);
   const [denominacion, setDenominacion] = useState('');
   const [editId, setEditId] = useState<number | null>(null);
@@ -109,29 +110,31 @@ const TableUnidadMedida: React.FC = () => {
     }
   };
 
+  const columns: Column[] = [
+    { id: "denominacion", label: "Nombre", renderCell: (rowData) => <>{rowData.denominacion}</> },
+  ];
+
   return (
     <Container sx={{ mt: 5 }}>
-    <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2, my: 10 }}>
-  <Button
-    sx={{
-      bgcolor: '#fb6376',
-      '&:hover': {
-        bgcolor: '#d73754',
-      },
-    }}
-    variant="contained"
-    onClick={() => navigate('/insumos/:sucursalId')}
-  >
-    Volver a Insumos
-  </Button>
-</Box>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2, my: 10 }}>
+        <Button
+          sx={{
+            bgcolor: '#fb6376',
+            '&:hover': {
+              bgcolor: '#d73754',
+            },
+          }}
+          variant="contained"
+          onClick={() => navigate('/insumos/:sucursalId')}
+        >
+          Volver a Insumos
+        </Button>
+      </Box>
 
-      
-      <Typography variant="h4" sx={{ my: 8}}>
+      <Typography variant="h4" sx={{ my: 8 }}>
         Unidades de Medida
       </Typography>
-      
-     
+
       {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
       <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, my: 0 }}>
         <TextField
@@ -149,9 +152,7 @@ const TableUnidadMedida: React.FC = () => {
       ) : (
         <TableComponent
           data={units}
-          columns={[
-            { id: 'denominacion', label: 'Denominación' },
-          ]}
+          columns={columns}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

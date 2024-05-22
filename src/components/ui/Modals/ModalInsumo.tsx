@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
-import { MenuItem, Select, FormControl, Checkbox, FormControlLabel } from '@mui/material';
+import { MenuItem, Select, FormControl, Checkbox, FormControlLabel, Grid } from '@mui/material';
 import GenericModal from './GenericModal';
 import TextFieldValue from '../TextFieldValue/TextFieldValue';
 import InsumoService from '../../../services/InsumoService';
@@ -135,55 +135,78 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
             onSubmit={handleSubmit}
             isEditMode={isEditMode}
         >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" disabled={isEditMode} />
-                <TextFieldValue label="Precio de Venta" name="precioVenta" type="number" placeholder="Precio de Venta" />
-                <TextFieldValue label="Precio de Compra" name="precioCompra" type="number" placeholder="Precio de Compra" />
-                <TextFieldValue label="Stock Actual" name="stockActual" type="number" placeholder="Stock Actual" />
-                <TextFieldValue label="Stock Máximo" name="stockMaximo" type="number" placeholder="Stock Máximo" />
-                <TextFieldValue label="Stock Mínimo" name="stockMinimo" type="number" placeholder="Stock Mínimo" />
-
-                <FormControl fullWidth>
-                    <label className='label' style={{ marginTop: '16px' }}>Unidad de Medida</label>
-                    <Select
-                        labelId="unidadMedidaLabel"
-                        id="unidadMedida"
-                        value={unidadMedida}
-                        onChange={(e) => setUnidadMedida(e.target.value as number)}
-                        displayEmpty
-                        disabled={isEditMode}
-                    >
-                        <MenuItem disabled value="">
-                            Seleccione una unidad de medida
-                        </MenuItem>
-                        {unidadMedidaOptions.map((unidad) => (
-                            <MenuItem key={unidad.id} value={unidad.id}>
-                                {unidad.denominacion}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={4}>
+                        <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" disabled={isEditMode} />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <TextFieldValue label="Precio de Venta" name="precioVenta" type="number" placeholder="Precio de Venta" />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <TextFieldValue label="Precio de Venta" name="precioVenta" type="number" placeholder="Precio de Venta" />
+                    </Grid>
+                </Grid>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item xs={4}>
+                        <TextFieldValue label="Precio de Compra" name="precioCompra" type="number" placeholder="Precio de Compra" />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <TextFieldValue label="Stock Actual" name="stockActual" type="number" placeholder="Stock Actual" />
+                    </Grid>
+                    <Grid item xs={4}>
+                        <TextFieldValue label="Stock Máximo" name="stockMaximo" type="number" placeholder="Stock Máximo" />
+                    </Grid>
+                </Grid>
+                <Grid container spacing={2} alignItems="center">
+                <Grid item xs={6}>
+                    <TextFieldValue label="Stock Mínimo" name="stockMinimo" type="number" placeholder="Stock Mínimo" />
+                </Grid>
+                <Grid item xs={6}>
+                    <FormControl fullWidth>
+                        <label className='label'>Unidad de Medida</label>
+                        <Select
+                            labelId="unidadMedidaLabel"
+                            id="unidadMedida"
+                            value={unidadMedida}
+                            onChange={(e) => setUnidadMedida(e.target.value as number)}
+                            displayEmpty
+                            disabled={isEditMode}
+                        >
+                            <MenuItem disabled value="">
+                                Seleccione una unidad de medida
                             </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
-                
-                <FormControl fullWidth>
-                    <label className='label' style={{ marginTop: '16px' }}>Categoría</label>
-                    <Select
-                        labelId="categoriaLabel"
-                        id="categoria"
-                        value={categoria}
-                        onChange={(e) => setCategoria(e.target.value as number)}
-                        displayEmpty
-                        disabled={isEditMode}
-                    >
-                        <MenuItem disabled value="">
-                            Seleccione una categoría
-                        </MenuItem>
-                        {categoriaOptions.map((categoria) => (
-                            <MenuItem key={categoria.id} value={categoria.id}>
-                                {categoria.denominacion}
+                            {unidadMedidaOptions.map((unidad) => (
+                                <MenuItem key={unidad.id} value={unidad.id}>
+                                    {unidad.denominacion}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Grid>
+                <Grid item xs={12}>
+                    <FormControl fullWidth>
+                        <label className='label' style={{ marginTop: '16px' }}>Categoría</label>
+                        <Select
+                            labelId="categoriaLabel"
+                            id="categoria"
+                            value={categoria}
+                            onChange={(e) => setCategoria(e.target.value as number)}
+                            displayEmpty
+                            disabled={isEditMode}
+                        >
+                            <MenuItem disabled value="">
+                                Seleccione una categoría
                             </MenuItem>
-                        ))}
-                    </Select>
-                </FormControl>
+                            {categoriaOptions.map((categoria) => (
+                                <MenuItem key={categoria.id} value={categoria.id}>
+                                    {categoria.denominacion}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                </Grid>
+                </Grid>
                 <FormControlLabel
                     control={
                         <Checkbox

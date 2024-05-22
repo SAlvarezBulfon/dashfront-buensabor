@@ -120,6 +120,8 @@ const TableInsumo = () => {
                                     bgcolor: "#d73754",
                                 },
                                 mr: 1,
+                                padding: "10px 20px", 
+                                fontSize: "1.0rem" 
                             }}
                             variant="contained"
                             startIcon={<Add />}
@@ -133,6 +135,7 @@ const TableInsumo = () => {
                                 "&:hover": {
                                     bgcolor: "#d73754",
                                 },
+                                padding: "10px 20px", fontSize: "1.0rem" 
                             }}
                             variant="contained"
                             startIcon={<Add />}

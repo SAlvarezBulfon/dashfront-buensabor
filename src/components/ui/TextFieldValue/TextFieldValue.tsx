@@ -1,56 +1,51 @@
-import { ErrorMessage, Field } from "formik";
-import "./textFieldValue.css"; // Importación del archivo de estilos CSS
+import React from 'react';
+import { ErrorMessage, Field } from 'formik';
+import { TextField, InputLabel } from '@mui/material'; 
+import './textFieldValue.css'; // Importa el archivo de estilos CSS
 
-// Interfaz para los props del componente TextFieldValue
-interface props {
-  label: string; // Etiqueta del campo
-  name: string; // Nombre del campo
-  type: string; // Tipo de campo (text, number, etc.)
-  placeholder: string; // Placeholder del campo
-  disabled?: boolean;
+interface TextFieldValueProps {
+  label: string;
+  name: string;
+  type: string;
+  placeholder: string;
+  disabled?: boolean
 }
 
-// Componente TextFieldValue
-const TextFieldValue = ({ label, name, type, placeholder, disabled }: props) => {
-  // Componente para crear los input de un formulario con Formik
+const TextFieldValue: React.FC<TextFieldValueProps> = ({ label, name, type, placeholder, disabled }) => {
   return (
-    <div className="mt-2" style={{ display: "flex", flexDirection: "column" }}>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "flex-start",
-          alignItems: "center",
-          padding: ".3rem 0",
-        }}
-      >
-        {/* Etiqueta del campo */}
-        <label
-          htmlFor={label}
-          style={{
-            color: "black",
-            fontFamily: "sans-serif",
-            fontSize: "14px",
-            fontWeight: "bold",
-          }}
-        >
-          {label}
-        </label>
-      </div>
-
-      {/* Campo de entrada del formulario */}
-      <Field
-        className={`form-control  mb-3  input-formulario `}
-        placeholder={placeholder}
-        name={name}
-        type={type}
-        autoComplete="off"
-        disabled={disabled}
-      />
-
-      {/* Mensaje de error para el campo */}
+    <div className="text-field-container">
+      {/* Utiliza InputLabel de Material-UI */}
+      <InputLabel htmlFor={name} className="label">
+        {label}
+      </InputLabel>
+      {/* Renderiza un TextField o un TextArea según el tipo especificado */}
+      {type === 'textarea' ? (
+        <Field
+          as={TextField} // Utiliza TextField como el componente para el campo Field
+          variant="outlined" // Añade un borde alrededor del campo
+          fullWidth // Ocupa todo el ancho disponible
+          multiline // Permite múltiples líneas
+          minRows={3} // Especifica el número mínimo de filas
+          placeholder={placeholder}
+          name={name}
+          autoComplete="off"
+          disabled={disabled}
+        />
+      ) : (
+        <Field
+          as={TextField} // Utiliza TextField como el componente para el campo Field
+          variant="outlined" // Añade un borde alrededor del campo
+          fullWidth // Ocupa todo el ancho disponible
+          placeholder={placeholder}
+          name={name}
+          type={type}
+          autoComplete="off"
+          disabled={disabled}
+        />
+      )}
       <ErrorMessage component="div" name={name} className="error" />
     </div>
   );
 };
 
-export default TextFieldValue; // Exportación del componente TextFieldValue
+export default TextFieldValue;

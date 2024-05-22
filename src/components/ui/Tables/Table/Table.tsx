@@ -7,7 +7,7 @@ import Row from '../../../../types/Row';
 interface Props{
   data: any[]; // Utiliza la interfaz genérica DataModel<T>
   columns: any[];
-  onEdit: (item: any) => void; // Utiliza la interfaz genérica DataModel<T>
+  onEdit?: (item: any) => void; // Utiliza la interfaz genérica DataModel<T>
   onDelete: (item:any ) => void; // Utiliza la interfaz genérica DataModel<T>
 }
 
@@ -71,8 +71,9 @@ const TableComponent: React.FC<Props> = ({ data, columns, onEdit, onDelete }) =>
               ))}
               <TableCell>
                 <Box sx={{ display: 'flex'}}>
-                  {/* Utilizamos los nuevos componentes de botones */}
-                  <EditButton onClick={() => onEdit(row)} />
+                  {onEdit &&
+                    <EditButton onClick={() => onEdit(row)} />
+                  }
                   <DeleteButton onClick={() => onDelete(row)} />
                 </Box>
               </TableCell>
