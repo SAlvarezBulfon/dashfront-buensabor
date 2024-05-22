@@ -48,7 +48,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     const fetchCategorias = async () => {
         try {
             const categorias = await categoriaService.getAll(`${URL}/categoria`);
-            setCategoriaOptions(categorias);
+            setCategoriaOptions(categorias.filter(categoria => categoria.esInsumo));
         } catch (error) {
             console.error('Error al obtener las categorías:', error);
         }
