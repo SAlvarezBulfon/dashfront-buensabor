@@ -7,7 +7,6 @@ import { setEmpresa } from "../../../redux/slices/EmpresaReducer";
 import EmpresaService from "../../../services/EmpresaService";
 import Empresa from "../../../types/IEmpresa";
 import { toggleModal } from "../../../redux/slices/ModalReducer";
-import { onDelete } from "../../../utils/utils";
 import ModalEmpresa from "../../ui/Modals/ModalEmpresa";
 import ModalSucursal from "../../ui/Modals/ModalSucursal";
 import GenericCard from "../../ui/Cards/GenericCard/GenericCard";
@@ -72,24 +71,6 @@ const EmpresaComponent: React.FC = () => {
         fetchEmpresas();
     }, [dispatch]);
 
-    const onDeleteEmpresa = async (empresa: Empresa) => {
-        try {
-            await onDelete(
-                empresa,
-                async (empresaToDelete: Empresa) => {
-                    await empresaService.delete(url + '/empresa', empresaToDelete.id);
-                },
-                fetchEmpresas,
-                () => {
-                },
-                (error: any) => {
-                    console.error("Error al eliminar empresa:", error);
-                }
-            );
-        } catch (error) {
-            console.error("Error al eliminar empresa:", error);
-        }
-    };
 
     const handleEdit = (empresa: Empresa) => {
         setIsEditing(true);

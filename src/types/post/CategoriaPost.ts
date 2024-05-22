@@ -4,5 +4,5 @@
 export interface CategoriaPost {
     denominacion: string;
     esInsumo: boolean;
-    sucursales?: number;
+    sucursales?: number[];
 }

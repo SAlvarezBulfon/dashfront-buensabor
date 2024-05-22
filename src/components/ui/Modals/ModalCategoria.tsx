@@ -11,7 +11,7 @@ interface ModalCategoriaProps {
     modalName: string;
     initialValues: CategoriaPost | any;
     isEditMode: boolean;
-    getCategoria: Function;
+    getCategoria: () => void;
     categoriaAEditar?: any;
 }
 
@@ -42,10 +42,8 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
 
             if (isEditMode && categoriaAEditar) {
                 response = await categoriaService.put(`${URL}/categoria`, categoriaAEditar.id, categoriaPost);
-                getCategoria();
             } else {
                 response = await categoriaService.post(`${URL}/categoria`, categoriaPost);
-                getCategoria();
             }
 
             if (response) {
@@ -69,9 +67,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     };
 
     useEffect(() => {
-        if (isEditMode && categoriaAEditar) {
-            // Any other initial setup can go here
-        }
+        // Puedes agregar cualquier configuración inicial aquí si es necesario
     }, [isEditMode, categoriaAEditar]);
 
     return (

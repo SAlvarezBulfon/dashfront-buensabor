@@ -24,7 +24,7 @@ const Rutas: React.FC = () => {
           <Route path="dashboard/:sucursalId" element={<Inicio />} />
           <Route path="insumos/:sucursalId" element={<Insumo />} />
           <Route path="/unidad-de-medida" element={<TableUnidadMedida />} />
-          <Route path="categorias/:sucursalId" element={<Categoria />} />
+          <Route path="categorias/:idSucursal" element={<Categoria />} />
         </Route>
       </Routes>
     </Router>

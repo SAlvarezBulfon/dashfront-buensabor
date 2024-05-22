@@ -4,7 +4,6 @@ import AddIcon from '@mui/icons-material/Add';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
 import { ICategoria } from '../../../types/Categoria';
 import { setCategoria } from '../../../redux/slices/CategoriaReducer';
-import Row from '../../../types/Row';
 import { CategoriaPost } from '../../../types/post/CategoriaPost';
 import { handleSearch, onDelete } from '../../../utils/utils';
 import { toggleModal } from '../../../redux/slices/ModalReducer';
@@ -23,7 +22,7 @@ const Categoria: React.FC = () => {
     const { idSucursal } = useParams<{ idSucursal: string }>();
     const sucursalService = new SucursalService();
     const [selectedCategory, setSelectedCategory] = useState<ICategoria | CategoriaPost>();
-    const [filteredData, setFilteredData] = useState<Row[]>([]);
+    const [filteredData, setFilteredData] = useState<ICategoria[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -31,14 +30,10 @@ const Categoria: React.FC = () => {
         try {
             setIsLoading(true);
             if(idSucursal!== undefined){
-            const sucursales = await sucursalService.get(`${url}/sucursal/getCategorias`,parseInt(idSucursal));
-                dispatch(setCategoria(sucursales.categorias));
-                setFilteredData(sucursales.categorias);
-                console.log(sucursales);
-
-            } else {
-                console.log(idSucursal)
-            }
+            const categorias = await sucursalService.get(`${url}/sucursal/getCategorias`,parseInt(idSucursal)) as any;
+                dispatch(setCategoria(categorias));
+                setFilteredData(categorias);
+            } 
             
         } catch (error) {
             console.error("Error al obtener las categorías:", error);
