@@ -53,7 +53,8 @@ const TableInsumo = () => {
         stockMaximo: 0,
         stockMinimo: 0,
         esParaElaborar: false,
-        imagenes: []
+        imagenes: [],
+        idCategoria: 0
     };
 
     const onSearch = (query: string) => {

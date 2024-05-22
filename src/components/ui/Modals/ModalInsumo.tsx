@@ -7,6 +7,7 @@ import InsumoService from '../../../services/InsumoService';
 import UnidadMedidaService from '../../../services/UnidadMedidaService';
 import Swal from 'sweetalert2';
 import { InsumoPost } from '../../../types/post/InsumoPost';
+import CategoriaService from '../../../services/CategoriaService';
 
 interface ModalInsumoProps {
     modalName: string;
@@ -26,10 +27,13 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     const insumoService = new InsumoService();
     const unidadMedidaService = new UnidadMedidaService();
     const URL = import.meta.env.VITE_API_URL;
+    const categoriaService = new CategoriaService();
 
     const [unidadMedidaOptions, setUnidadMedidaOptions] = useState<{ id: number; denominacion: string }[]>([]);
     const [unidadMedida, setUnidadMedida] = useState<number>(initialValues.idUnidadMedida || 0);
+    const [categoria, setCategoria] = useState<number>(initialValues.idCategoria || 0);
     const [esParaElaborar, setEsParaElaborar] = useState<boolean>(initialValues.esParaElaborar || false);
+    const [categoriaOptions, setCategoriaOptions] = useState<{ id: number; denominacion: string }[]>([]);
 
     const fetchUnidadesMedida = async () => {
         try {
@@ -37,6 +41,16 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
             setUnidadMedidaOptions(unidadesMedida);
         } catch (error) {
             console.error('Error al obtener las unidades de medida:', error);
+        }
+    };
+
+
+    const fetchCategorias = async () => {
+        try {
+            const categorias = await categoriaService.getAll(`${URL}/categoria`);
+            setCategoriaOptions(categorias);
+        } catch (error) {
+            console.error('Error al obtener las categorías:', error);
         }
     };
 
@@ -54,6 +68,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     });
 
     const handleSubmit = async (values: InsumoPost) => {
+        console.log(values)
         try {
             const insumoPost = {
                 denominacion: values.denominacion,
@@ -65,15 +80,16 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
                 imagenes: [],
                 idUnidadMedida: unidadMedida,
                 esParaElaborar: esParaElaborar,
+                idCategoria: categoria,
             };
-            
+
             console.log(insumoPost);
 
             let response;
 
-            
+
             if (isEditMode && insumoAEditar) {
-                response = await insumoService.put(`${URL}/ArticuloInsumo`,insumoAEditar.id, insumoPost);
+                response = await insumoService.put(`${URL}/ArticuloInsumo`, insumoAEditar.id, insumoPost);
                 getInsumos();
             } else {
                 response = await insumoService.post(`${URL}/ArticuloInsumo`, insumoPost);
@@ -101,9 +117,11 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     };
 
     useEffect(() => {
+        fetchCategorias();
         fetchUnidadesMedida();
         if (isEditMode && insumoAEditar) {
             setUnidadMedida(insumoAEditar.idUnidadMedida);
+            setCategoria(insumoAEditar.idCategoria);
             setEsParaElaborar(insumoAEditar.esParaElaborar);
         }
     }, [isEditMode, insumoAEditar]);
@@ -118,7 +136,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
             isEditMode={isEditMode}
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" />
+                <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" disabled={isEditMode} />
                 <TextFieldValue label="Precio de Venta" name="precioVenta" type="number" placeholder="Precio de Venta" />
                 <TextFieldValue label="Precio de Compra" name="precioCompra" type="number" placeholder="Precio de Compra" />
                 <TextFieldValue label="Stock Actual" name="stockActual" type="number" placeholder="Stock Actual" />
@@ -133,6 +151,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
                         value={unidadMedida}
                         onChange={(e) => setUnidadMedida(e.target.value as number)}
                         displayEmpty
+                        disabled={isEditMode}
                     >
                         <MenuItem disabled value="">
                             Seleccione una unidad de medida
@@ -144,13 +163,34 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
                         ))}
                     </Select>
                 </FormControl>
-
+                
+                <FormControl fullWidth>
+                    <label className='label' style={{ marginTop: '16px' }}>Categoría</label>
+                    <Select
+                        labelId="categoriaLabel"
+                        id="categoria"
+                        value={categoria}
+                        onChange={(e) => setCategoria(e.target.value as number)}
+                        displayEmpty
+                        disabled={isEditMode}
+                    >
+                        <MenuItem disabled value="">
+                            Seleccione una categoría
+                        </MenuItem>
+                        {categoriaOptions.map((categoria) => (
+                            <MenuItem key={categoria.id} value={categoria.id}>
+                                {categoria.denominacion}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
                 <FormControlLabel
                     control={
                         <Checkbox
                             checked={esParaElaborar}
                             onChange={(e) => setEsParaElaborar(e.target.checked)}
                             name="esParaElaborar"
+                            disabled={isEditMode}
                         />
                     }
                     label="Es para elaborar"
