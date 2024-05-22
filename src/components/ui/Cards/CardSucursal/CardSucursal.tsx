@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, Typography, Button, Box, Divider } from '@mui/material';
-import { CheckCircleOutline, HighlightOff, Edit, Delete } from '@mui/icons-material';
+import { CheckCircleOutline, HighlightOff, Edit } from '@mui/icons-material';
 import { Link } from 'react-router-dom';
 import Sucursal from '../../../../types/ISucursal';
 
@@ -10,7 +10,7 @@ interface CardSucursalProps {
   onDelete: (sucursal: Sucursal) => void;
 }
 
-const CardSucursal: React.FC<CardSucursalProps> = ({ sucursal, onEdit, onDelete }) => {
+const CardSucursal: React.FC<CardSucursalProps> = ({ sucursal, onEdit }) => {
   
   return (
     <Card sx={{ maxWidth: 400, margin: 2, boxShadow: 3, borderRadius: 2 }}>
