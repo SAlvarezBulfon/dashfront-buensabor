@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, TextField, CircularProgress, Container} from '@mui/material';
+import { Box, Typography, Button, CircularProgress, Container } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import CategoriaService from '../../../services/CategoriaService';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
-import { ICategoria } from '../../../types/ICategoria';
+import { ICategoria } from '../../../types/Categoria';
 import { setCategoria } from '../../../redux/slices/CategoriaReducer';
-// import { useNavigate } from 'react-router-dom';
 import Row from '../../../types/Row';
 import { CategoriaPost } from '../../../types/post/CategoriaPost';
 import { handleSearch, onDelete } from '../../../utils/utils';
@@ -15,52 +13,59 @@ import EmptyState from '../../ui/Cards/EmptyState/EmptyState';
 import SearchBar from '../../ui/common/SearchBar/SearchBar';
 import TableComponent from '../../ui/Tables/Table/Table';
 import ModalCategoria from '../../ui/Modals/ModalCategoria';
+import { useParams } from 'react-router-dom';
+import SucursalService from '../../../services/SucursalService';
 
 const Categoria: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
-    // const navigate = useNavigate(); 
     const dispatch = useAppDispatch();
-    const categoriaService = new CategoriaService();
     const globalCategorias = useAppSelector((state) => state.categoria.data);
-    const isModalOpen = useAppSelector((state) => state.modal.modalInsumo);
-    // const [searchValue, setSearchValue] = useState<string>('');
+    const { idSucursal } = useParams<{ idSucursal: string }>();
+    const sucursalService = new SucursalService();
     const [selectedCategory, setSelectedCategory] = useState<ICategoria | CategoriaPost>();
     const [filteredData, setFilteredData] = useState<Row[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+
     const fetchCategoria = async () => {
         try {
-            const categoria = await categoriaService.getAll(url + '/categoria');
-            dispatch(setCategoria(categoria));
-            setFilteredData(categoria);
+            setIsLoading(true);
+            if(idSucursal!== undefined){
+            const sucursales = await sucursalService.get(`${url}/sucursal/getCategorias`,parseInt(idSucursal));
+                dispatch(setCategoria(sucursales.categorias));
+                setFilteredData(sucursales.categorias);
+                console.log(sucursales);
+
+            } else {
+                console.log(idSucursal)
+            }
+            
         } catch (error) {
             console.error("Error al obtener las categorías:", error);
         } finally {
-            setIsLoading(false); // Indicamos que la carga de datos ha terminado
+            setIsLoading(false);
         }
-        
     };
 
     useEffect(() => {
         fetchCategoria();
-    }, [dispatch]);
+    }, [dispatch,url, idSucursal]);
 
     const initialValue: CategoriaPost = {
         denominacion: "",
-    esInsumo: false,
-    sucursales: []
+        esInsumo: false,
     };
 
     const onSearch = (query: string) => {
         handleSearch(query, globalCategorias, 'denominacion', setFilteredData);
-    }
-   
-  const handleEdit = (categoria: ICategoria) => {
-          if (categoria) {
-          setIsEditing(true);
-        setSelectedCategory(categoria);
-          dispatch(toggleModal({ modalName: "modalCategoria" }));
-      }
+    };
+
+    const handleEdit = (categoria: ICategoria) => {
+        if (categoria) {
+            setIsEditing(true);
+            setSelectedCategory(categoria);
+            dispatch(toggleModal({ modalName: "modalCategoria" }));
+        }
     };
 
     const handleAddCategoria = () => {
@@ -74,7 +79,7 @@ const Categoria: React.FC = () => {
             await onDelete(
                 categoria,
                 async (categoriaToDelete: ICategoria) => {
-                    await categoriaService.delete(url + '/categoria', categoriaToDelete.id);
+                    await sucursalService.delete(`${url}/categoria`, categoriaToDelete.id);
                 },
                 fetchCategoria,
                 () => { },
@@ -86,35 +91,37 @@ const Categoria: React.FC = () => {
             console.error("Error al eliminar la categoria:", error);
         }
     };
+
     const columns: Column[] = [
-        {id: "denominacion", label: "Nombre", renderCell:(rowData) =><> {rowData.denominacion}</>},
-        {id: "esInsumo", label: "Es Insumo?", renderCell:(rowData) =><> {rowData.esInsumo? "Si":"No"}</>},
-    ]
+        { id: "denominacion", label: "Nombre", renderCell: (rowData) => <> {rowData.denominacion}</> },
+        { id: "esInsumo", label: "Es Insumo?", renderCell: (rowData) => <> {rowData.esInsumo ? "Si" : "No"}</> },
+    ];
+
     return (
         <Box sx={{ maxWidth: 1150, margin: '0 auto', padding: 2, my: 10 }}>
             <Container>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                <Typography variant="h4">Categoría</Typography>
-                <Button
-                    variant="contained"
-                    color="secondary"
-                    startIcon={<AddIcon />}
-                    sx={{
-                        backgroundColor: '#fb6376',
-                        "&:hover": {
-                            bgcolor: "#d73754",
-                        },
-                    }}
-                    onClick={handleAddCategoria}
-                >
-                    Categorías
-                </Button>
-            </Box>
-            {isLoading ? ( // Mostrar componente de carga mientras los datos se están cargando
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="h4">Categoría</Typography>
+                    <Button
+                        variant="contained"
+                        color="secondary"
+                        startIcon={<AddIcon />}
+                        sx={{
+                            backgroundColor: '#fb6376',
+                            "&:hover": {
+                                bgcolor: "#d73754",
+                            },
+                        }}
+                        onClick={handleAddCategoria}
+                    >
+                        Categorías
+                    </Button>
+                </Box>
+                {isLoading ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
                         <CircularProgress sx={{ color: '#fb6376' }} />
                     </Box>
-                ) : filteredData.length === 0 ? ( // Mostrar componente de estado vacío si no hay datos
+                ) : filteredData.length === 0 ? (
                     <EmptyState
                         title="No hay categorias cargadas"
                         description="Agrega nuevas categorias utilizando el formulario."
@@ -128,15 +135,15 @@ const Categoria: React.FC = () => {
                     </>
                 )}
             </Container>
-            {isModalOpen && selectedCategory &&
+           
                 <ModalCategoria
                     modalName="modalInsumo"
-                    initialValues={selectedCategory|| initialValue}
+                    initialValues={selectedCategory || initialValue}
                     isEditMode={isEditing}
                     getCategoria={fetchCategoria}
                     categoriaAEditar={selectedCategory}
                 />
-            }
+            
         </Box>
     );
 };
