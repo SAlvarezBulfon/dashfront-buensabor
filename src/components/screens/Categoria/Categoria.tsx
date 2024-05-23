@@ -20,6 +20,10 @@ const Categoria: React.FC = () => {
     const dispatch = useAppDispatch();
     const globalCategorias = useAppSelector((state) => state.categoria.data);
     const { idSucursal } = useParams<{ idSucursal: string }>();
+    let sucursalid = 0;
+    if(idSucursal){
+        sucursalid = parseInt(idSucursal);
+    }
     const sucursalService = new SucursalService();
     const [selectedCategory, setSelectedCategory] = useState<ICategoria | CategoriaPost>();
     const [filteredData, setFilteredData] = useState<ICategoria[]>([]);
@@ -48,6 +52,7 @@ const Categoria: React.FC = () => {
     const initialValue: CategoriaPost = {
         denominacion: "",
         esInsumo: false,
+        idSucursales: [0]
     };
 
     const onSearch = (query: string) => {
@@ -129,13 +134,15 @@ const Categoria: React.FC = () => {
                     </>
                 )}
             </Container>
-            <ModalCategoria
-                modalName="modalCategoria"
-                initialValues={selectedCategory || initialValue}
-                isEditMode={isEditing}
-                getCategoria={fetchCategoria}
-                categoriaAEditar={isEditing ? selectedCategory : undefined}
-            />
+            {idSucursal &&
+                <ModalCategoria
+                    modalName="modalCategoria"
+                    initialValues={selectedCategory || initialValue}
+                    isEditMode={isEditing}
+                    getCategoria={fetchCategoria}
+                    categoriaAEditar={isEditing ? selectedCategory : undefined}
+                    idSucursal={sucursalid}
+                />}
         </Box>
     );
 };
