@@ -29,7 +29,6 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
         denominacion: Yup.string().required('Campo requerido'),
         esInsumo: Yup.boolean().required('Campo requerido'),
     });
-
     const handleSubmit = async (values: CategoriaPost) => {
         try {
             const categoriaPost = {
@@ -37,22 +36,25 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                 esInsumo: values.esInsumo,
                 sucursales: values.sucursales || [],
             };
-
+    
             let response;
-
+    
             if (isEditMode && categoriaAEditar) {
                 response = await categoriaService.put(`${URL}/categoria`, categoriaAEditar.id, categoriaPost);
+                getCategoria();
             } else {
+                
                 response = await categoriaService.post(`${URL}/categoria`, categoriaPost);
+                getCategoria();
             }
-
+            getCategoria(); 
             if (response) {
                 Swal.fire({
                     title: '¡Éxito!',
                     text: isEditMode ? 'Categoría editada correctamente' : 'Categoría creada correctamente',
                     icon: 'success',
                 });
-                getCategoria();
+                getCategoria(); // Refresh the category list
             } else {
                 throw new Error('No se recibió una respuesta del servidor.');
             }
@@ -65,6 +67,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
             });
         }
     };
+    
 
     useEffect(() => {
         // Puedes agregar cualquier configuración inicial aquí si es necesario
@@ -81,15 +84,17 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" />
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            name="esInsumo"
-                            defaultChecked={initialValues.esInsumo}
-                        />
-                    }
-                    label="Es insumo"
-                />
+                {!isEditMode && (
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                name="esInsumo"
+                                defaultChecked={initialValues.esInsumo}
+                            />
+                        }
+                        label="Es insumo"
+                    />
+                )}
             </div>
         </GenericModal>
     );

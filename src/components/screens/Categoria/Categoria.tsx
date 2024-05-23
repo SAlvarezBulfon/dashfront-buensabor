@@ -29,12 +29,11 @@ const Categoria: React.FC = () => {
     const fetchCategoria = async () => {
         try {
             setIsLoading(true);
-            if(idSucursal!== undefined){
-            const categorias = await sucursalService.get(`${url}/sucursal/getCategorias`,parseInt(idSucursal)) as any;
+            if (idSucursal !== undefined) {
+                const categorias = await sucursalService.get(`${url}/sucursal/getCategorias`, parseInt(idSucursal)) as any;
                 dispatch(setCategoria(categorias));
                 setFilteredData(categorias);
-            } 
-            
+            }
         } catch (error) {
             console.error("Error al obtener las categorías:", error);
         } finally {
@@ -44,7 +43,7 @@ const Categoria: React.FC = () => {
 
     useEffect(() => {
         fetchCategoria();
-    }, [dispatch,url, idSucursal]);
+    }, [dispatch, url, idSucursal]);
 
     const initialValue: CategoriaPost = {
         denominacion: "",
@@ -109,7 +108,7 @@ const Categoria: React.FC = () => {
                         }}
                         onClick={handleAddCategoria}
                     >
-                        Categorías
+                        Añadir Categoría
                     </Button>
                 </Box>
                 {isLoading ? (
@@ -130,15 +129,13 @@ const Categoria: React.FC = () => {
                     </>
                 )}
             </Container>
-           
-                <ModalCategoria
-                    modalName="modalInsumo"
-                    initialValues={selectedCategory || initialValue}
-                    isEditMode={isEditing}
-                    getCategoria={fetchCategoria}
-                    categoriaAEditar={selectedCategory}
-                />
-            
+            <ModalCategoria
+                modalName="modalCategoria"
+                initialValues={selectedCategory || initialValue}
+                isEditMode={isEditing}
+                getCategoria={fetchCategoria}
+                categoriaAEditar={isEditing ? selectedCategory : undefined}
+            />
         </Box>
     );
 };
