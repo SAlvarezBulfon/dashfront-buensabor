@@ -48,7 +48,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     const [unidadMedidaProducto, setUnidadMedidaProducto] = useState<number>(initialValues.idUnidadMedida || 0);
     const [categoriasInsumo, setCategoriasInsumo] = useState<any[]>([]);
     const [selectedCategoria, setSelecteCategoria] = useState<number | null>(null);
-    const [categoriaProductoOptions, setCategoriaProductoOptions] = useState<{ id: number; denominacion: string }[]>([]);
+    const [categoriaProductoOptions, setCategoriaProductoOptions] = useState<any[]>([]);
     const [categoriaProducto, setCategoriaProducto] = useState<number | ''>('');
 
 

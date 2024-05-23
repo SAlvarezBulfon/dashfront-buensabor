@@ -33,7 +33,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     const [unidadMedida, setUnidadMedida] = useState<number>(initialValues.idUnidadMedida || 0);
     const [categoria, setCategoria] = useState<number>(initialValues.idCategoria || 0);
     const [esParaElaborar, setEsParaElaborar] = useState<boolean>(initialValues.esParaElaborar || false);
-    const [categoriaOptions, setCategoriaOptions] = useState<{ id: number; denominacion: string }[]>([]);
+    const [categoriaOptions, setCategoriaOptions] = useState<any []>([]);
 
     const fetchUnidadesMedida = async () => {
         try {
