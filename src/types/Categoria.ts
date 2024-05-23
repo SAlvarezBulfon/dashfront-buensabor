@@ -6,5 +6,5 @@ export interface ICategoria extends DataModel<ICategoria> {
     denominacion: string,
     esInsumo: boolean,
     sucursales: ISucursal[]
-    subCategoriaS: ICategoria[];
+    subCategorias: ICategoria[];
   }

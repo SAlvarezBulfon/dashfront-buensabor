@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Box, Typography, Button, Container, CircularProgress } from "@mui/material";
 import { Add } from "@mui/icons-material";
-import { useNavigate } from "react-router-dom"; // Importar useNavigate
 import TableComponent from "../Table/Table";
 import { IInsumo } from "../../../../types/IInsumo";
 import Row from "../../../../types/Row";
@@ -17,7 +16,7 @@ import { InsumoPost } from "../../../../types/post/InsumoPost";
 import EmptyState from "../../Cards/EmptyState/EmptyState";
 
 const TableInsumo = () => {
-    const navigate = useNavigate(); // Crear navigate para manejar la navegación
+
     const dispatch = useAppDispatch();
     const globalArticulosInsumos = useAppSelector((state) => state.insumo.data);
     const isModalOpen = useAppSelector((state) => state.modal.modalInsumo);
@@ -129,20 +128,7 @@ const TableInsumo = () => {
                         >
                             Insumo
                         </Button>
-                        <Button
-                            sx={{
-                                bgcolor: "#fb6376",
-                                "&:hover": {
-                                    bgcolor: "#d73754",
-                                },
-                                padding: "10px 20px", fontSize: "1.0rem" 
-                            }}
-                            variant="contained"
-                            startIcon={<Add />}
-                            onClick={() => navigate("/unidad-de-medida")}
-                        >
-                            Unidad de medida
-                        </Button>
+
                     </Box>
                 </Box>
                 {isLoading ? ( // Mostrar componente de carga mientras los datos se están cargando

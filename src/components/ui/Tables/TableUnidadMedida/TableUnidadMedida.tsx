@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { TextField, Button, Container, Box, Typography, Alert } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import TableComponent from '../Table/Table';
 import { IUnidadMedida } from '../../../../types/IUnidadMedida';
 import UnidadMedidaService from '../../../../services/UnidadMedidaService';
@@ -11,7 +10,7 @@ import swal from 'sweetalert2';
 import Column from '../../../../types/Column';
 
 const TableUnidadMedida: React.FC = () => {
-  const navigate = useNavigate();
+
   const [units, setUnits] = useState<IUnidadMedida[]>([]);
   const [denominacion, setDenominacion] = useState('');
   const [editId, setEditId] = useState<number | null>(null);
@@ -116,22 +115,7 @@ const TableUnidadMedida: React.FC = () => {
 
   return (
     <Container sx={{ mt: 5 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2, my: 10 }}>
-        <Button
-          sx={{
-            bgcolor: '#fb6376',
-            '&:hover': {
-              bgcolor: '#d73754',
-            },
-          }}
-          variant="contained"
-          onClick={() => navigate('/insumos/:sucursalId')}
-        >
-          Volver a Insumos
-        </Button>
-      </Box>
-
-      <Typography variant="h4" sx={{ my: 8 }}>
+      <Typography variant="h4" sx={{ mt: 8, mb: 2 }}>
         Unidades de Medida
       </Typography>
 

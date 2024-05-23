@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { Checkbox, FormControlLabel } from '@mui/material';
+import { Checkbox, FormControlLabel, Button, TextField } from '@mui/material';
 import GenericModal from './GenericModal';
 import TextFieldValue from '../TextFieldValue/TextFieldValue';
 import CategoriaService from '../../../services/CategoriaService';
@@ -9,6 +9,7 @@ import { CategoriaPost } from '../../../types/post/CategoriaPost';
 import SucursalService from '../../../services/SucursalService';
 import EmpresaService from '../../../services/EmpresaService';
 import ISucursal from '../../../types/ISucursal';
+import ICategoria from '../../../types/ICategoria';
 
 interface ModalCategoriaProps {
     modalName: string;
@@ -31,7 +32,8 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     const URL = import.meta.env.VITE_API_URL;
     const [sucursales, setSucursales] = useState<ISucursal[]>([]);
     const [selectedSucursales, setSelectedSucursales] = useState<number[]>([]);
-    const [esInsumo, setEsInsumo] = useState<boolean>(initialValues.esInsumo); // Estado local para controlar el valor del checkbox
+    const [esInsumo, setEsInsumo] = useState<boolean>(initialValues.esInsumo);
+    const [subCategorias, setSubCategorias] = useState<ICategoria[]>(initialValues.subCategorias || []);
     const empresaService = new EmpresaService();
     const sucursalService = new SucursalService();
     const url = import.meta.env.VITE_API_URL;
@@ -42,7 +44,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     });
 
     useEffect(() => {
-        setEsInsumo(initialValues.esInsumo); // Actualizar el estado del checkbox cuando cambie initialValues
+        setEsInsumo(initialValues.esInsumo);
     }, [initialValues]);
 
     const fetchSucursales = async () => {
@@ -51,7 +53,6 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
             const empresaid = sucursal.empresa.id;
             const empresa = await empresaService.get(`${url}/empresa/sucursales`, empresaid);
             const sucursales = empresa.sucursales;
-            console.log(empresa);
             setSucursales(sucursales);
         } catch (error) {
             console.error("Error al obtener las sucursales:", error);
@@ -65,29 +66,48 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     const handleSubmit = async (values: CategoriaPost) => {
         try {
             if (selectedSucursales.length > 0) {
-                const categoriaPost = {
+                const categoriaPost: CategoriaPost = {
                     denominacion: values.denominacion,
-                    esInsumo: esInsumo, // Usar el valor de estado local
+                    esInsumo: esInsumo,
                     idSucursales: selectedSucursales,
+                    subCategorias: []  // Inicialmente vacío
                 };
 
                 let response;
+                let categoriaId;
 
                 if (isEditMode && categoriaAEditar) {
                     response = await categoriaService.put(`${URL}/categoria`, categoriaAEditar.id, categoriaPost);
-                    getCategoria();
+                    categoriaId = categoriaAEditar.id;
                 } else {
-                    response = await categoriaService.post(`${URL}/categoria`, categoriaPost);
-                    getCategoria();
+                    response = await categoriaService.post(`${URL}/categoria`, categoriaPost) as ICategoria;
+                    categoriaId = response.id;
                 }
 
                 if (response) {
+                    // Después de crear/actualizar la categoría principal, agregar las subcategorías
+                    for (const subCategoria of subCategorias) {
+                        const subCategoriaPost: CategoriaPost = {
+                            denominacion: subCategoria.denominacion,
+                            esInsumo: subCategoria.esInsumo,
+                            idSucursales: selectedSucursales,
+                            subCategorias: [] 
+                        };
+                        await fetch(`${URL}/categoria/addSubCategoria/${categoriaId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(subCategoriaPost)
+                        });
+                    }
+
                     Swal.fire({
                         title: '¡Éxito!',
                         text: isEditMode ? 'Categoría editada correctamente' : 'Categoría creada correctamente',
                         icon: 'success',
                     });
-                    getCategoria(); // Refresh the category list
+                    getCategoria();
                 } else {
                     throw new Error('No se recibió una respuesta del servidor.');
                 }
@@ -111,6 +131,22 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
         }
     };
 
+    const addSubCategoria = () => {
+        const newSubCategoria: ICategoria = {
+            id: 0, 
+            eliminado: false,
+            denominacion: '',
+            subCategorias: [],
+            esInsumo: false,
+            idSucursales: selectedSucursales
+        };
+        setSubCategorias([...subCategorias, newSubCategoria]);
+    };
+
+    const removeSubCategoria = (index: number) => {
+        setSubCategorias(subCategorias.filter((_, i) => i !== index));
+    };
+
     return (
         <GenericModal
             modalName={modalName}
@@ -126,8 +162,8 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                     control={
                         <Checkbox
                             name="esInsumo"
-                            checked={esInsumo} // Usar el estado local para el valor del checkbox
-                            onChange={() => setEsInsumo(!esInsumo)} // Invertir el valor del estado local cuando se cambia el checkbox
+                            checked={esInsumo}
+                            onChange={() => setEsInsumo(!esInsumo)}
                             disabled={isEditMode}
                         />
                     }
@@ -147,6 +183,22 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                                 }
                                 label={sucursal.nombre}
                             />
+                        ))}
+                        <p>Agregar Subcategorías:</p>
+                        <Button onClick={addSubCategoria}>Añadir Subcategoría</Button>
+                        {subCategorias.map((subCategoria, index) => (
+                            <div key={index}>
+                                <TextField
+                                    label={`Denominación Subcategoría ${index + 1}`}
+                                    value={subCategoria.denominacion}
+                                    onChange={(e) => {
+                                        const newSubCategorias = [...subCategorias];
+                                        newSubCategorias[index].denominacion = e.target.value;
+                                        setSubCategorias(newSubCategorias);
+                                    }}
+                                />
+                                <Button onClick={() => removeSubCategoria(index)}>Eliminar</Button>
+                            </div>
                         ))}
                     </>
                 )}

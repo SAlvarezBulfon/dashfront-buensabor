@@ -137,13 +137,10 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={4}>
+                    <Grid item xs={6}>
                         <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" disabled={isEditMode} />
                     </Grid>
-                    <Grid item xs={4}>
-                        <TextFieldValue label="Precio de Venta" name="precioVenta" type="number" placeholder="Precio de Venta" />
-                    </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={6}>
                         <TextFieldValue label="Precio de Venta" name="precioVenta" type="number" placeholder="Precio de Venta" />
                     </Grid>
                 </Grid>

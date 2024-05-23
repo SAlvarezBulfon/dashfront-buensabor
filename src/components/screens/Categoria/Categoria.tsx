@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, CircularProgress, Container } from '@mui/material';
+import { Box, Typography, Button, CircularProgress, Container, Stack } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
-import { ICategoria } from '../../../types/Categoria';
+import  ICategoria  from '../../../types/ICategoria';
 import { setCategoria } from '../../../redux/slices/CategoriaReducer';
 import { CategoriaPost } from '../../../types/post/CategoriaPost';
-import { handleSearch, onDelete } from '../../../utils/utils';
+import { handleSearch } from '../../../utils/utils';
 import { toggleModal } from '../../../redux/slices/ModalReducer';
-import Column from '../../../types/Column';
 import EmptyState from '../../ui/Cards/EmptyState/EmptyState';
 import SearchBar from '../../ui/common/SearchBar/SearchBar';
-import TableComponent from '../../ui/Tables/Table/Table';
 import ModalCategoria from '../../ui/Modals/ModalCategoria';
 import { useParams } from 'react-router-dom';
 import SucursalService from '../../../services/SucursalService';
+import SimpleCategoriaAccordion from '../../ui/accordion/CategoriaAccordion';
+
 
 const Categoria: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
@@ -52,7 +52,8 @@ const Categoria: React.FC = () => {
     const initialValue: CategoriaPost = {
         denominacion: "",
         esInsumo: false,
-        idSucursales: [0]
+        idSucursales: [0],
+        subCategorias: []
     };
 
     const onSearch = (query: string) => {
@@ -73,28 +74,23 @@ const Categoria: React.FC = () => {
         dispatch(toggleModal({ modalName: "modalCategoria" }));
     };
 
-    const handleDelete = async (categoria: ICategoria) => {
-        try {
-            await onDelete(
-                categoria,
-                async (categoriaToDelete: ICategoria) => {
-                    await sucursalService.delete(`${url}/categoria`, categoriaToDelete.id);
-                },
-                fetchCategoria,
-                () => { },
-                (error: any) => {
-                    console.error("Error al eliminar la categoria:", error);
-                }
+
+    const renderCategorias = (categorias: ICategoria[], order: number) => {
+        return categorias.map((categoria, index) => {
+            if (categoria.eliminado) {
+                return null;
+            }
+            return (
+                <SimpleCategoriaAccordion
+                    key={index}
+                    categoria={categoria}
+                    order={order}
+                    onEdit={handleEdit}
+                />
             );
-        } catch (error) {
-            console.error("Error al eliminar la categoria:", error);
-        }
+        });
     };
 
-    const columns: Column[] = [
-        { id: "denominacion", label: "Nombre", renderCell: (rowData) => <> {rowData.denominacion}</> },
-        { id: "esInsumo", label: "Es Insumo?", renderCell: (rowData) => <> {rowData.esInsumo ? "Si" : "No"}</> },
-    ];
 
     return (
         <Box sx={{ maxWidth: 1150, margin: '0 auto', padding: 2, my: 10 }}>
@@ -130,7 +126,9 @@ const Categoria: React.FC = () => {
                         <Box sx={{ mt: 2 }}>
                             <SearchBar onSearch={onSearch} />
                         </Box>
-                        <TableComponent data={filteredData} columns={columns} onDelete={handleDelete} onEdit={handleEdit} />
+                        <Stack direction="column" spacing={1} mt={2}>
+                            {renderCategorias(filteredData, 0)}
+                        </Stack>
                     </>
                 )}
             </Container>

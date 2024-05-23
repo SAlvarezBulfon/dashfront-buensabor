@@ -55,7 +55,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   const [casaMatriz, setCasaMatriz] = useState<boolean>(false); // Estado para casa matriz
   const [provinciaNombre, setProvinciaNombre] = useState<string>('');
   const [localidadNombre, setLocalidadNombre] = useState<string>('');
-  const [tooltipMessage, setTooltipMessage] = useState<string>(''); // Mensaje para el tooltip
+  const [, setTooltipMessage] = useState<string>(''); // Mensaje para el tooltip
 
   const fetchEmpresa = async () => {
     try {

@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { cilBarChart, cilCart, cilFastfood, cilPeople } from "@coreui/icons";
+import { cilBarChart, cilCart, cilFastfood, cilPeople, cilDollar, cilSpeedometer  } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CNavGroup, CNavItem, CNavTitle, CSidebar, CSidebarNav } from "@coreui/react";
 import '@coreui/coreui/dist/css/coreui.min.css';
-import { cilDollar } from "@coreui/icons";
 import SucursalService from '../../../../services/SucursalService';
 import ISucursal from '../../../../types/ISucursal';
-
 
 const BasicSidebar: React.FC = () => {
     const { sucursalId } = useParams<{ sucursalId: string }>();
@@ -58,7 +56,7 @@ const BasicSidebar: React.FC = () => {
                         }
                     >
                         <CNavItem>
-                            <Link  to={`/productos/${sucursalId}`}  className="nav-link" >
+                            <Link to={`/productos/${sucursalId}`} className="nav-link" >
                                 <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
                                 Lista de Productos
                             </Link>
@@ -72,7 +70,7 @@ const BasicSidebar: React.FC = () => {
                     </CNavGroup>
 
                     <CNavItem>
-                        <Link  to={`/promociones/${sucursalId}`}  className="nav-link">
+                        <Link to={`/promociones/${sucursalId}`} className="nav-link">
                             <CIcon customClassName="nav-icon" icon={cilDollar} />
                             Promociones
                         </Link>
@@ -87,29 +85,34 @@ const BasicSidebar: React.FC = () => {
                         }
                     >
                         <CNavItem>
-                            <Link  to={`/empleados/${sucursalId}`}  className="nav-link" >
+                            <Link to={`/empleados/${sucursalId}`} className="nav-link" >
                                 <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
                                 Lista de Empleados
                             </Link>
                         </CNavItem>
                         <CNavItem>
-                            <Link  to={`/roles/${sucursalId}`}  className="nav-link">
+                            <Link to={`/roles/${sucursalId}`} className="nav-link">
                                 <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
                                 Roles
                             </Link>
                         </CNavItem>
                     </CNavGroup>
                     <CNavItem>
-                        <Link  to={`/insumos/${sucursalId}`}  className="nav-link">
+                        <Link to={`/insumos/${sucursalId}`} className="nav-link">
                             <CIcon customClassName="nav-icon" icon={cilCart} />
                             Insumos
                         </Link>
                     </CNavItem>
+                    <CNavItem>
+                        <Link to={`/unidadMedida`} className="nav-link">
+                            <CIcon customClassName="nav-icon" icon={cilSpeedometer} />
+                            Unidad de Medida
+                        </Link>
+                    </CNavItem>
+
                 </CSidebarNav>
             </CSidebar>
         </div>
-
-        
     );
 }
 
