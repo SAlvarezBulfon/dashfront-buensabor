@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, Container } from "@mui/material";
+import { Box, Typography, Button, Container, CircularProgress } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setProducto } from "../../../redux/slices/ProductoReducer";
@@ -13,7 +13,6 @@ import { toggleModal } from "../../../redux/slices/ModalReducer";
 import SearchBar from "../../ui/common/SearchBar/SearchBar";
 import TableComponent from "../../ui/Tables/Table/TableComponent";
 
-
 const Producto = () => {
   const url = import.meta.env.VITE_API_URL;
   const dispatch = useAppDispatch();
@@ -23,6 +22,7 @@ const Producto = () => {
   const [filteredData, setFilteredData] = useState<Row[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [productoEditar, setProductoEditar] = useState<IProducto | undefined>();
+  const [isLoading, setIsLoading] = useState(true);
 
   const fetchProductos = async () => {
     try {
@@ -31,6 +31,8 @@ const Producto = () => {
       setFilteredData(productos);
     } catch (error) {
       console.error("Error al obtener los productos:", error);
+    } finally {
+      setIsLoading(false); // Indicamos que la carga de datos ha terminado
     }
   };
 
@@ -107,20 +109,29 @@ const Producto = () => {
             sx={{
               bgcolor: "#fb6376",
               "&:hover": {
-                  bgcolor: "#d73754",
+                bgcolor: "#d73754",
               },
-              padding: "10px 20px", fontSize: "1.0rem" 
-          }}
+              padding: "10px 20px",
+              fontSize: "1.0rem",
+            }}
           >
             Producto
           </Button>
         </Box>
-        <Box sx={{ mt: 2 }}>
-          <SearchBar onSearch={onSearch} />
-        </Box>
-        <Box sx={{ flexGrow: 1, overflow: "auto", mt: 2 }}>
-          <TableComponent data={filteredData} columns={columns} onDelete={onDeleteProducto} onEdit={handleEdit} />
-        </Box>
+        {isLoading ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
+            <CircularProgress sx={{ color: '#fb6376' }} />
+          </Box>
+        ) : (
+          <>
+            <Box sx={{ mt: 2 }}>
+              <SearchBar onSearch={onSearch} />
+            </Box>
+            <Box sx={{ flexGrow: 1, overflow: "auto", mt: 2 }}>
+              <TableComponent data={filteredData} columns={columns} onDelete={onDeleteProducto} onEdit={handleEdit} />
+            </Box>
+          </>
+        )}
         <ModalProducto
           modalName="modalProducto"
           initialValues={{
