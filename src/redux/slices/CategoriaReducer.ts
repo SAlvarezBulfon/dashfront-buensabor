@@ -1,4 +1,5 @@
-import { ICategoria } from "../../types/ICategoria";
+
+import { ICategoria } from '../../types/Categoria';
 import { createGenericSlice } from './GenericReducer';
 
 const categoriaSlice = createGenericSlice<ICategoria[]>('categoriaState', { data: [] });
