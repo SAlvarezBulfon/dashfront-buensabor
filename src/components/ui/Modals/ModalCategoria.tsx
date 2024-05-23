@@ -31,6 +31,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     const URL = import.meta.env.VITE_API_URL;
     const [sucursales, setSucursales] = useState<ISucursal[]>([]);
     const [selectedSucursales, setSelectedSucursales] = useState<number[]>([]);
+    const [esInsumo, setEsInsumo] = useState<boolean>(initialValues.esInsumo); // Estado local para controlar el valor del checkbox
     const empresaService = new EmpresaService();
     const sucursalService = new SucursalService();
     const url = import.meta.env.VITE_API_URL;
@@ -39,6 +40,10 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
         denominacion: Yup.string().required('Campo requerido'),
         esInsumo: Yup.boolean().required('Campo requerido'),
     });
+
+    useEffect(() => {
+        setEsInsumo(initialValues.esInsumo); // Actualizar el estado del checkbox cuando cambie initialValues
+    }, [initialValues]);
 
     const fetchSucursales = async () => {
         try {
@@ -62,7 +67,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
             if (selectedSucursales.length > 0) {
                 const categoriaPost = {
                     denominacion: values.denominacion,
-                    esInsumo: values.esInsumo,
+                    esInsumo: esInsumo, // Usar el valor de estado local
                     idSucursales: selectedSucursales,
                 };
 
@@ -121,7 +126,9 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                     control={
                         <Checkbox
                             name="esInsumo"
-                            defaultChecked={initialValues.esInsumo}
+                            checked={esInsumo} // Usar el estado local para el valor del checkbox
+                            onChange={() => setEsInsumo(!esInsumo)} // Invertir el valor del estado local cuando se cambia el checkbox
+                            disabled={isEditMode}
                         />
                     }
                     label="Es insumo"
