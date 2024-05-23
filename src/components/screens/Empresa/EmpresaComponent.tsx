@@ -179,7 +179,7 @@ const EmpresaComponent: React.FC = () => {
                     isEditMode={false}
                     getSucursales={fetchEmpresas}
                     idEmpresa={empresaEditar?.id || 0}
-                    casaMatrizDisabled={false}
+                    casaMatrizDisabled={true}
                 />
             </Container>
         </Box>

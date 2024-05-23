@@ -66,7 +66,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     }
   };
 
-
   const fetchPaises = async () => {
     try {
       const paises = await paisService.getAll(`${URL}/pais`);
@@ -103,9 +102,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     horarioApertura: Yup.string().required('Campo requerido'),
     horarioCierre: Yup.string().required('Campo requerido'),
   });
-
-
-
 
   useEffect(() => {
     fetchEmpresa();
@@ -176,8 +172,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     setCasaMatriz(event.target.checked);
   };
 
-
-
   if (!isEditMode) {
     initialValues = {
       nombre: '',
@@ -241,11 +235,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
     }
   };
 
-
-
-
-
-
   return (
     <GenericModal
       modalName={modalName}
@@ -303,7 +292,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
                 title="Provincias"
                 items={provincias.map((provincia: IProvincia) => provincia.nombre)}
                 handleChange={handleProvinciaChange}
-                //selectedValue={selectedProvincia}
                 selectedValue={provinciaNombre}
                 disabled={isEditMode}
               />
@@ -315,7 +303,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
                 title="Localidades"
                 items={localidades.map((localidad: ILocalidad) => localidad.nombre)}
                 handleChange={handleLocalidadChange}
-                //selectedValue={selectedLocalidad}
                 selectedValue={localidadNombre}
                 disabled={isEditMode}
               />
@@ -339,9 +326,9 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
           <h3 style={{ fontSize: '1.2rem' }}>Casa Matriz</h3>
         </label>
 
-        {(!isEditMode && casaMatrizDisabled) || (isEditMode && !casaMatriz) ? (
+        {(casaMatrizDisabled && !isEditMode) || (casaMatrizDisabled && isEditMode && !casaMatriz) ? (
           <div style={{ fontSize: '1.1rem', color: 'red' }}>
-            {tooltipMessage}
+            Ya hay una sucursal que es casa matriz
           </div>
         ) : null}
       </div>
@@ -350,4 +337,3 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
 };
 
 export default ModalSucursal;
-
