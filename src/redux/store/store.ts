@@ -8,6 +8,7 @@ import SucursalReducer from '../slices/SucursalReducer'
 import InsumosReducer from '../slices/InsumosReducer'
 import ProductoReducer from '../slices/ProductoReducer'
 import ProductoDetalleReducer from '../slices/ProductoDetalleReducer'
+import CategoriaReducer from '../slices/CategoriaReducer'
 
 export const store = configureStore({
   reducer: {
@@ -19,8 +20,8 @@ export const store = configureStore({
     sucursal: SucursalReducer,
     insumo: InsumosReducer,
     producto: ProductoReducer,
-    productoDetalle: ProductoDetalleReducer
-
+    productoDetalle: ProductoDetalleReducer,
+    categoria: CategoriaReducer,
   },
 })
 
