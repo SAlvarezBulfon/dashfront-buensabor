@@ -26,7 +26,7 @@ const EmpresaComponent: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [empresaEditar, setEmpresaEditar] = useState<Empresa | undefined>();
     const [, setEmpresaSucursales] = useState<ISucursal[]>();
-    
+
     const fetchSucursalesForEmpresa = async (empresaId: number) => {
         try {
             const empresa = await empresaService.get(url + `/empresa/sucursales`, empresaId);
@@ -40,7 +40,7 @@ const EmpresaComponent: React.FC = () => {
 
 
 
-    
+
 
     const fetchEmpresas = async () => {
         try {
@@ -61,12 +61,13 @@ const EmpresaComponent: React.FC = () => {
 
     const handleEdit = (empresa: Empresa) => {
         setIsEditing(true);
-        setEmpresaEditar(empresa);
+        setEmpresaEditar(empresa); // Aquí asegúrate que empresa no sea undefined
         dispatch(toggleModal({ modalName: "modal" }));
     };
 
     const handleAddEmpresa = () => {
         setIsEditing(false);
+        setEmpresaEditar(undefined);
         dispatch(toggleModal({ modalName: "modal" }));
     };
 
@@ -159,6 +160,7 @@ const EmpresaComponent: React.FC = () => {
                     initialValues={empresaEditar || { id: 0, eliminado: false, nombre: "", razonSocial: "", cuil: 0, sucursales: [], imagenes: [] }}
                     isEditMode={isEditing}
                     getEmpresas={fetchEmpresas}
+                    empresaAEditar={empresaEditar} // Asegúrate de pasar empresaEditar como empresaAEditar
                 />
                 <ModalSucursal
                     modalName="modalSucursal"

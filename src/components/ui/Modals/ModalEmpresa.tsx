@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
 import GenericModal from './GenericModal';
 import TextFieldValue from '../TextFieldValue/TextFieldValue';
@@ -7,6 +7,8 @@ import Swal from 'sweetalert2';
 import IEmpresa from '../../../types/IEmpresa';
 import EmpresaPost from '../../../types/post/EmpresaPost';
 import '../../../utils/swal.css';
+import { Delete, PhotoCamera } from '@mui/icons-material';
+import { Button, Card, CardActions, CardMedia, IconButton, Typography } from '@mui/material';
 
 interface ModalEmpresaProps {
   modalName: string;
@@ -26,6 +28,8 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   const empresaService = new EmpresaService();
   const URL = import.meta.env.VITE_API_URL;
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+  const [empresaImages, setEmpresaImages] = useState<any[]>([]);
+  const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
 
   const validationSchema = Yup.object().shape({
     nombre: Yup.string().required('Campo requerido'),
@@ -37,7 +41,21 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   });
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSelectedFiles(event.target.files);
+    const files = event.target.files;
+    if (files && files.length > 3) {
+      Swal.fire({
+        title: 'Error',
+        text: 'No puedes seleccionar más de 3 imágenes',
+        icon: 'warning',
+        customClass: {
+          container: 'my-swal',
+        },
+      });
+      event.target.value = '';
+      return;
+    }
+    setSelectedFiles(files);
+    setDisableSubmit(!files || files.length === 0);
   };
 
   const uploadImages = async (id: number) => {
@@ -47,7 +65,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
         text: "Selecciona al menos una imagen",
         icon: "warning",
         customClass: {
-          popup: 'my-swal',
+          container: 'my-swal',
         },
       });
     }
@@ -57,20 +75,17 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       formData.append("uploads", file);
     });
 
-    console.log("FormData:", formData); // Log para verificar los datos del FormData
-
     const url = `${URL}/empresa/uploads?id=${id}`;
 
     Swal.fire({
       title: "Subiendo imágenes...",
       text: "Espere mientras se suben los archivos.",
       customClass: {
-        popup: 'my-swal',
+        container: 'my-swal',
       },
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
-        // Agregar clase personalizada al modal de SweetAlert
         const modal = Swal.getPopup();
         if (modal) {
           modal.classList.add('my-swal');
@@ -96,7 +111,66 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     setSelectedFiles(null);
   };
 
+  const handleDeleteImg = async (publicId: string, imageId: number) => {
+    const formData = new FormData();
+    formData.append("publicId", publicId);
+    formData.append("id", imageId.toString());
+
+    Swal.fire({
+      title: "Eliminando imagen...",
+      text: "Espere mientras se elimina la imagen.",
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading();
+      },
+    });
+
+    try {
+      const response = await fetch(`${URL}/empresa/deleteImg`, {
+        method: "POST",
+        body: formData,
+      });
+
+      Swal.close();
+
+      if (response.ok) {
+        Swal.fire("Éxito", "Imagen eliminada correctamente", "success");
+        setEmpresaImages((prevImages) => prevImages.filter((img) => img.id !== imageId));
+      } else {
+        Swal.fire("Error", "Algo falló al eliminar la imagen, inténtalo de nuevo.", "error");
+      }
+    } catch (error) {
+      Swal.close();
+      Swal.fire("Error", "Algo falló, contacta al desarrollador.", "error");
+      console.error("Error:", error);
+    }
+  };
+
   const handleSubmit = async (values: EmpresaPost) => {
+    if (!isEditMode && (!selectedFiles || selectedFiles.length === 0)) {
+      Swal.fire({
+        title: "Error",
+        text: "Debes subir al menos una imagen",
+        icon: "warning",
+        customClass: {
+          container: 'my-swal',
+        },
+      });
+      return;
+    }
+
+    if (selectedFiles && selectedFiles.length > 3) {
+      Swal.fire({
+        title: "Error",
+        text: "No puedes subir más de 3 imágenes",
+        icon: "warning",
+        customClass: {
+          container: 'my-swal',
+        },
+      });
+      return;
+    }
+
     let rollback = false;
     let id: number | null = null;
 
@@ -109,20 +183,17 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
         id = response.id;
       }
 
-      // Verifica si hay un ID válido antes de llamar a uploadImages
       if (id !== null) {
         if (selectedFiles) {
           await uploadImages(id);
         }
 
         if (rollback) {
-          // Si se activa el rollback, eliminar la empresa creada
           await empresaService.delete(`${URL}/empresa`, id);
         } else {
           getEmpresas();
         }
       } else {
-        // Si el ID es null, muestra un mensaje de error
         throw new Error('El ID de la empresa es nulo');
       }
     } catch (error) {
@@ -135,36 +206,88 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     }
   };
 
-  if (!isEditMode) {
-    initialValues = {
-      id: 0,
-      eliminado: false,
-      nombre: '',
-      razonSocial: '',
-      cuil: 0,
-      sucursales: [],
-      imagenes: [],
+  useEffect(() => {
+    if (isEditMode && empresaAEditar) {
+      if (empresaAEditar.imagenes) {
+        setEmpresaImages(empresaAEditar.imagenes);
+      }
+    }
+  }, [isEditMode, empresaAEditar]);
+
+  useEffect(() => {
+    if (isEditMode) {
+      setDisableSubmit(false);
+    } else {
+      setDisableSubmit(true);
+    }
+  }, [isEditMode]);
+
+  useEffect(() => {
+    return () => {
+      setSelectedFiles(null);
     };
-  }
+  }, []);
+
+
+
+  const formInitialValues = isEditMode && empresaAEditar ? empresaAEditar : initialValues;
 
   return (
     <GenericModal
       modalName={modalName}
       title={isEditMode ? 'Editar Empresa' : 'Añadir Empresa'}
-      initialValues={empresaAEditar || initialValues}
+      initialValues={formInitialValues}
       validationSchema={validationSchema}
       onSubmit={handleSubmit}
       isEditMode={isEditMode}
+      disableSubmit={disableSubmit}
     >
       <TextFieldValue label="Nombre" name="nombre" type="text" placeholder="Nombre" />
-      <TextFieldValue label="Razón Social" name="razonSocial" type="text" placeholder="Razón Social" />
-      <TextFieldValue label="CUIL" name="cuil" type="text" placeholder="Ejemplo: 12345678901" />
-      <input
-        id="file-upload"
-        type="file"
-        onChange={handleFileChange}
-        multiple
-      />
+      <TextFieldValue label="Razón Social" name="razonSocial" type="text" placeholder="Razón Social" disabled={isEditMode} />
+      <TextFieldValue label="CUIL" name="cuil" type="text" placeholder="Ejemplo: 12345678901" disabled={isEditMode} />
+      <Button
+        variant="contained"
+        component="label"
+        startIcon={<PhotoCamera />}
+        sx={{
+          my: 2,
+          bgcolor: "#fb6376",
+          "&:hover": {
+            bgcolor: "#d73754",
+          },
+        }}
+      >
+        Subir Imágenes
+        <input
+          type="file"
+          hidden
+          onChange={handleFileChange}
+          multiple
+        />
+      </Button>
+      {isEditMode && empresaImages.length > 0 && (
+        <div>
+          <Typography variant='h5' sx={{ mb: 1}}>Imágenes de la Empresa</Typography>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+            {empresaImages.map((image) => (
+              <Card key={image.id} style={{ position: 'relative', width: '100px', height: '100px' }}>
+                <CardMedia
+                  component="img"
+                  image={image.url}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <CardActions style={{ position: 'absolute', top: 0, right: 0 }}>
+                  <IconButton style={{ color: 'red' }} onClick={() => handleDeleteImg(image.publicId, image.id)}>
+                    <Delete />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+
     </GenericModal>
   );
 };
