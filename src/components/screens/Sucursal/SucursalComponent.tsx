@@ -40,7 +40,7 @@ const SucursalesEmpresa = () => {
         try {
             setIsLoading(true);
             if (empresaId !== undefined) {
-                const empresa = await empresaService.get(`${url}/empresa/sucursales`, parseInt(empresaId));
+                const empresa = await empresaService.get(`${url}/empresa/sucursales`, parseInt(empresaId)) as IEmpresa;
                 dispatch(setSucursal(empresa.sucursales));
                 setFilteredData(empresa.sucursales);
                 setNombreEmpresa(empresa.nombre);

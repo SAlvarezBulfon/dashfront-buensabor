@@ -59,7 +59,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
 
   const fetchEmpresa = async () => {
     try {
-      const empre = await empresaService.get(`${URL}/empresa`, idEmpresa);
+      const empre = await empresaService.get(`${URL}/empresa`, idEmpresa) as IEmpresa;
       setEmpresa(empre);
     } catch (error) {
       console.error('Error al obtener la empresa:', error);

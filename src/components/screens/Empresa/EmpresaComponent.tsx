@@ -3,7 +3,7 @@ import { AddCircle, Visibility } from "@mui/icons-material";
 import EditIcon from '@mui/icons-material/Edit';
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setEmpresa } from "../../../redux/slices/EmpresaReducer";
-
+import '../../../utils/swal.css'
 import EmpresaService from "../../../services/EmpresaService";
 import Empresa from "../../../types/IEmpresa";
 import { toggleModal } from "../../../redux/slices/ModalReducer";
@@ -15,7 +15,6 @@ import SucursalPost from "../../../types/post/SucursalPost";
 import AddButton from "../../ui/Buttons/AddButton";
 import EmptyState from "../../ui/Cards/EmptyState/EmptyState";
 import IEmpresa from "../../../types/IEmpresa";
-import IImagen from "../../../types/IImagen";
 import ISucursal from "../../../types/ISucursal";
 
 const EmpresaComponent: React.FC = () => {
@@ -37,23 +36,11 @@ const EmpresaComponent: React.FC = () => {
             return [];
         }
     };
-    const imagenes: IImagen[] = [
-        {
-            id: 1,
-            eliminado: false,
-            url: "https://images.unsplash.com/photo-1545231027-637d2f6210f8?q=80&w=1335&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            id: 2,
-            eliminado: false,
-            url: "https://images.unsplash.com/photo-1528732263440-4dd1a18a4cc2?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-        },
-        {
-            id: 3,
-            eliminado: false,
-            url: "https://images.unsplash.com/photo-1634250420331-68d96d14ec5b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8c3RhcmJ1Y2tzfGVufDB8MHwwfHx8MA%3D%3D"
-        }
-    ];
+
+
+
+
+    
 
     const fetchEmpresas = async () => {
         try {
@@ -122,7 +109,7 @@ const EmpresaComponent: React.FC = () => {
                     <Box sx={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
                         {globalEmpresas.map((empresa: IEmpresa) => (
                             <GenericCard
-                                images={imagenes}
+                                images={empresa.imagenes}
                                 key={empresa.id}
                                 title={empresa.nombre}
                                 subtitle={empresa.razonSocial}
@@ -169,7 +156,7 @@ const EmpresaComponent: React.FC = () => {
                 )}
                 <ModalEmpresa
                     modalName="modal"
-                    initialValues={empresaEditar || { id: 0, eliminado: false, nombre: "", razonSocial: "", cuil: 0, sucursales: [] }}
+                    initialValues={empresaEditar || { id: 0, eliminado: false, nombre: "", razonSocial: "", cuil: 0, sucursales: [], imagenes: [] }}
                     isEditMode={isEditing}
                     getEmpresas={fetchEmpresas}
                 />
