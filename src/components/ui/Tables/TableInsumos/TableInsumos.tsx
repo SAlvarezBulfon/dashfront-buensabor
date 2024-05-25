@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Button, Container, CircularProgress } from "@mui/material";
+import { Box, Typography, Button, Container, CircularProgress, Avatar, CardMedia } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import TableComponent from "../Table/Table";
 import { IInsumo } from "../../../../types/IInsumo";
@@ -14,6 +14,7 @@ import ModalInsumo from "../../Modals/ModalInsumo";
 import { toggleModal } from "../../../../redux/slices/ModalReducer";
 import { InsumoPost } from "../../../../types/post/InsumoPost";
 import EmptyState from "../../Cards/EmptyState/EmptyState";
+import IImagen from "../../../../types/IImagen";
 
 const TableInsumo = () => {
 
@@ -92,6 +93,23 @@ const TableInsumo = () => {
     };
 
     const columns: Column[] = [
+        {
+            id: "imagen",
+            label: "",
+            renderCell: (producto: IInsumo | Row) => (
+                <Box>
+                    {producto.imagenes && producto.imagenes.length > 0 && (
+                        <CardMedia
+                            component="img"
+                            height="80"
+                            image={producto.imagenes[0].url}
+                            alt="Producto"
+                            sx={{ borderRadius: '10px' }}
+                        />
+                    )}
+                </Box>
+            ),
+        },
         { id: "denominacion", label: "Nombre", renderCell: (rowData) => <>{rowData.denominacion}</> },
         { id: "precioCompra", label: "Precio de compra", renderCell: (rowData) => <>{rowData.precioCompra}</> },
         { id: "precioVenta", label: "Precio de Venta", renderCell: (rowData) => <>{rowData.precioVenta}</> },
@@ -156,6 +174,7 @@ const TableInsumo = () => {
                     isEditMode={isEditing}
                     getInsumos={fetchArticulosInsumos}
                     insumoAEditar={selectedArticle}
+                    onClose={() => dispatch(toggleModal({ modalName: "modalInsumo" }))} 
                 />
             }
         </Box>
