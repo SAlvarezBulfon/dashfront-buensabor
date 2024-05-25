@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
-import { Box, MenuItem, Select, FormControl, TextField, Button, Typography, Grid } from '@mui/material';
+import { Box, MenuItem, Select, FormControl, TextField, Button, Typography, Grid, Card, CardMedia, CardActions, IconButton } from '@mui/material';
 import GenericModal from './GenericModal';
 import TextFieldValue from '../TextFieldValue/TextFieldValue';
 import ProductoService from '../../../services/ProductoService';
@@ -8,7 +8,7 @@ import IProducto from '../../../types/IProducto';
 import UnidadMedidaService from '../../../services/UnidadMedidaService';
 import ProductoDetalleService from '../../../services/ProductoDetalleService';
 import InsumoService from '../../../services/InsumoService';
-import Swal from 'sweetalert2';
+import Swal, { SweetAlertIcon } from 'sweetalert2';
 import '../TextFieldValue/textFieldValue.css';
 import Column from '../../../types/Column';
 import IProductoDetalle from '../../../types/IProductoDetalle';
@@ -16,6 +16,8 @@ import '../../../utils/swal.css';
 import CategoriaService from '../../../services/CategoriaService';
 import { IInsumo } from '../../../types/IInsumo';
 import TableComponent from '../Tables/Table/TableComponent';
+import ImagenService from '../../../services/ImagenService';
+import { Delete, PhotoCamera } from '@mui/icons-material';
 
 interface ModalProductoProps {
     modalName: string;
@@ -23,6 +25,7 @@ interface ModalProductoProps {
     isEditMode: boolean;
     getProductos: Function;
     productoAEditar?: IProducto;
+    onClose: () => void;
 }
 
 const ModalProducto: React.FC<ModalProductoProps> = ({
@@ -31,12 +34,14 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     isEditMode,
     getProductos,
     productoAEditar,
+    onClose,
 }) => {
     const productoService = new ProductoService();
     const productoDetalleService = new ProductoDetalleService();
     const unidadMedidaService = new UnidadMedidaService();
     const insumoService = new InsumoService();
     const categoriaService = new CategoriaService();
+    const imagenService = new ImagenService();
     const URL = import.meta.env.VITE_API_URL;
 
     const [unidadMedidaOptions, setUnidadMedidaOptions] = useState<{ id: number; denominacion: string }[]>([]);
@@ -50,8 +55,148 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     const [selectedCategoria, setSelecteCategoria] = useState<number | null>(null);
     const [categoriaProductoOptions, setCategoriaProductoOptions] = useState<any[]>([]);
     const [categoriaProducto, setCategoriaProducto] = useState<number | ''>('');
+    const [articuloImages, setArticuloImages] = useState<any[]>([]);
+    const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
+    const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
+
+    const showModal = (title: string, text: string, icon: SweetAlertIcon) => {
+        Swal.fire({
+            title: title,
+            text: text,
+            icon: icon,
+            customClass: {
+                container: "my-swal",
+            },
+        });
+    };
 
 
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const files = event.target.files;
+        if (files) {
+            // Verificar si la cantidad total de imágenes (las actuales más las nuevas) supera el límite de 3
+            if (articuloImages.length + files.length > 3) {
+                showModal("Error", "No puedes subir más de 3 imágenes", "warning");
+                event.target.value = '';
+                return;
+            }
+
+            // Si no supera el límite, actualizar la lista de archivos seleccionados
+            setSelectedFiles(files);
+            // Calcular la cantidad total de imágenes después de agregar las nuevas
+            const totalImages = articuloImages.length + files.length;
+            // Habilitar el botón de submit si hay al menos una imagen seleccionada
+            setDisableSubmit(totalImages === 0);
+        }
+    };
+
+
+    const uploadImages = async (id: number) => {
+        if (!selectedFiles) {
+            return showModal("No hay imágenes seleccionadas", "Selecciona al menos una imagen", "warning");;
+        }
+        const formData = new FormData();
+        Array.from(selectedFiles).forEach((file) => {
+            formData.append("uploads", file);
+        });
+
+        const url = `${URL}/ArticuloManufacturado/uploads?id=${id}`;
+
+        Swal.fire({
+            title: "Subiendo imágenes...",
+            text: "Espere mientras se suben los archivos.",
+            customClass: {
+                container: 'my-swal',
+            },
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+                const modal = Swal.getPopup();
+                if (modal) {
+                    modal.classList.add('my-swal');
+                }
+            },
+        });
+
+        try {
+            const response = await imagenService.uploadImages(url, formData);
+
+            if (!response.ok) {
+                throw new Error('Error al subir las imágenes');
+            }
+
+            showModal("Éxito", "Imágenes subidas correctamente", "success");
+        } catch (error) {
+            showModal("Error", "Algo falló al subir las imágenes, inténtalo de nuevo.", "error");
+            console.error("Error al subir las imágenes:", error);
+        }
+        setSelectedFiles(null);
+    };
+
+    const handleDeleteImg = async (url: string, uuid: string) => {
+        const urlParts = url.split("/");
+        const publicId = urlParts[urlParts.length - 1];
+
+        const formData = new FormData();
+        formData.append("publicId", publicId);
+        formData.append("id", uuid);
+
+        if (articuloImages.length === 1) {
+            showModal("Error", "No puedes eliminar la última imagen de la empresa", "warning");
+            return;
+        }
+
+        Swal.fire({
+            title: "Eliminando imagen...",
+            text: "Espere mientras se elimina la imagen.",
+            customClass: {
+                container: 'my-swal',
+            },
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            },
+        });
+
+        try {
+            const response = await fetch(`${URL}/ArticuloManufacturado/deleteImg`, {
+                method: "POST",
+                body: formData,
+            });
+
+            Swal.close();
+
+            if (response.ok) {
+                showModal("Éxito", "Imagen eliminada correctamente", "success");
+                // Filtra la imagen eliminada de la lista
+                const updatedImages = articuloImages.filter((img) => img.uuid !== uuid);
+                setArticuloImages(updatedImages);
+                // Vuelve a cargar las imágenes actualizadas
+                getProductos();
+                onClose(); // Close the modal
+            } else {
+                showModal("Error", "Algo falló al eliminar la imagen, inténtalo de nuevo.", "error");
+            }
+        } catch (error) {
+            Swal.close();
+            showModal("Error", "Algo falló, contacta al desarrollador.", "error");
+            console.error("Error:", error);
+        }
+    };
+
+    useEffect(() => {
+        if (isEditMode) {
+            setDisableSubmit(false);
+        } else {
+            setDisableSubmit(true);
+        }
+    }, [isEditMode]);
+
+    useEffect(() => {
+        return () => {
+            setSelectedFiles(null);
+        };
+    }, []);
 
 
     const fetchUnidadesMedida = async () => {
@@ -184,7 +329,6 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     ];
 
     const handleSubmit = async (values: IProducto) => {
-
         try {
             const productoPost = {
                 denominacion: values.denominacion,
@@ -201,8 +345,9 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                     };
                 }),
             };
-            
+
             let response;
+            let id: number | null = null;
 
             if (isEditMode && productoAEditar) {
                 const productoPut = {
@@ -213,13 +358,19 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                             idArticuloInsumo: detalle.articuloInsumo.id,
                         };
                     }),
-                }
-                response = await productoService.put(`${URL}/ArticuloManufacturado`, productoAEditar.id, productoPut);
+                };
+                await productoService.put(`${URL}/ArticuloManufacturado`, productoAEditar.id, productoPut);
+                id = productoAEditar.id;
             } else {
-                response = await productoService.post(`${URL}/ArticuloManufacturado`, productoPost);
+                response = await productoService.post(`${URL}/ArticuloManufacturado`, productoPost) as IProducto;
+                id = response.id;
             }
 
-            if (response) {
+            if (id !== null) {
+                if (selectedFiles) {
+                    await uploadImages(id);
+                }
+
                 Swal.fire({
                     title: '¡Éxito!',
                     text: isEditMode ? 'Producto editado correctamente' : 'Producto creado correctamente',
@@ -228,9 +379,9 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                         container: 'my-swal',
                     },
                 });
-                await getProductos();  // Actualiza los productos después de guardar
+                await getProductos(); // Actualiza los productos después de guardar
             } else {
-                throw new Error('No se recibió una respuesta del servidor.');
+                throw new Error('El ID del producto es nulo');
             }
         } catch (error) {
             console.error('Error al enviar los datos:', error);
@@ -287,6 +438,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             validationSchema={validationSchema}
             onSubmit={handleSubmit}
             isEditMode={isEditMode}
+            disableSubmit={disableSubmit}
         >
             <Grid container spacing={2} alignItems="center">
                 <Grid item xs={4}>
@@ -355,8 +507,52 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             </Grid>
 
             <TextFieldValue label="Preparación" name="preparacion" type="textarea" placeholder="Preparación" />
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                <Button
+                    variant="contained"
+                    component="label"
+                    startIcon={<PhotoCamera />}
+                    sx={{
+                        my: 2,
+                        bgcolor: "#fb6376",
+                        "&:hover": {
+                            bgcolor: "#d73754",
+                        },
+                    }}
+                >
+                    Subir Imágenes
+                    <input
+                        type="file"
+                        hidden
+                        onChange={handleFileChange}
+                        multiple
+                    />
+                </Button>
+                {isEditMode && productoAEditar && productoAEditar?.imagenes.length > 0 && (
+                    <div>
+                        <Typography variant='h5' sx={{ mb: 1 }}>Imágenes del producto</Typography>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                            {productoAEditar?.imagenes.map((image) => (
+                                <Card key={image.id} style={{ position: 'relative', width: '100px', height: '100px' }}>
+                                    <CardMedia
+                                        component="img"
+                                        image={image.url}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                    <CardActions style={{ position: 'absolute', top: 0, right: 0 }}>
+                                        <IconButton style={{ color: 'red' }} onClick={() => handleDeleteImg(image.url, image.id.toString())}>
+                                            <Delete />
+                                        </IconButton>
+                                    </CardActions>
+                                </Card>
+                            ))}
+                        </div>
+                    </div>
+                )}
+            </Box>
 
-            <Typography variant="h6" align="center" gutterBottom sx={{my:2}}>
+
+            <Typography variant="h6" align="center" gutterBottom sx={{ my: 2 }}>
                 Ingredientes
             </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2vh' }}>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Typography, Button, Container, CircularProgress } from "@mui/material";
+import { Box, Typography, Button, Container, CircularProgress, CardMedia } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
 import { setProducto } from "../../../redux/slices/ProductoReducer";
@@ -21,7 +21,7 @@ const Producto = () => {
 
   const [filteredData, setFilteredData] = useState<Row[]>([]);
   const [isEditing, setIsEditing] = useState(false);
-  const [productoEditar, setProductoEditar] = useState<IProducto | undefined>();
+  const [productoEditar, setProductoEditar] = useState<IProducto>();
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchProductos = async () => {
@@ -75,6 +75,23 @@ const Producto = () => {
   };
 
   const columns: Column[] = [
+    {
+      id: "imagen",
+      label: "",
+      renderCell: (producto: IProducto | Row) => (
+        <Box>
+          {producto.imagenes && ( 
+            <CardMedia
+              component="img"
+              height="140"
+              image={producto.imagenes[0].url}
+              alt="Producto"
+              sx={{borderRadius: '10px'}}
+            />
+          )}
+        </Box>
+      ),
+    },
     {
       id: "denominacion",
       label: "",
@@ -146,6 +163,8 @@ const Producto = () => {
           isEditMode={isEditing}
           getProductos={fetchProductos}
           productoAEditar={productoEditar}
+          onClose={() => dispatch(toggleModal({ modalName: "modalProducto" }))}
+
         />
       </Container>
     </Box>

@@ -9,6 +9,7 @@ import '../../../utils/swal.css';
 import { Delete, PhotoCamera } from '@mui/icons-material';
 import { Button, Card, CardActions, CardMedia, IconButton, Typography } from '@mui/material';
 import Swal, { SweetAlertIcon } from 'sweetalert2';
+import ImagenService from '../../../services/ImagenService';
 
 interface ModalEmpresaProps {
   modalName: string;
@@ -28,6 +29,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   onClose,
 }) => {
   const empresaService = new EmpresaService();
+  const imagenService = new ImagenService();
   const URL = import.meta.env.VITE_API_URL;
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [empresaImages, setEmpresaImages] = useState<any[]>([]);
@@ -57,14 +59,23 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (files && files.length > 3) {
-      showModal("Error", "No puedes seleccionar más de 3 imágenes", "warning");
-      event.target.value = '';
-      return;
+    if (files) {
+      // Verificar si la cantidad total de imágenes (las actuales más las nuevas) supera el límite de 3
+      if (empresaImages.length + files.length > 3) {
+        showModal("Error", "No puedes subir más de 3 imágenes", "warning");
+        event.target.value = '';
+        return;
+      }
+  
+      // Si no supera el límite, actualizar la lista de archivos seleccionados
+      setSelectedFiles(files);
+      // Calcular la cantidad total de imágenes después de agregar las nuevas
+      const totalImages = empresaImages.length + files.length;
+      // Habilitar el botón de submit si hay al menos una imagen seleccionada
+      setDisableSubmit(totalImages === 0);
     }
-    setSelectedFiles(files);
-    setDisableSubmit(!files || files.length === 0);
   };
+  
 
   const uploadImages = async (id: number) => {
     if (!selectedFiles) {
@@ -94,10 +105,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     });
 
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await imagenService.uploadImages(url, formData); 
 
       if (!response.ok) {
         throw new Error('Error al subir las imágenes');
