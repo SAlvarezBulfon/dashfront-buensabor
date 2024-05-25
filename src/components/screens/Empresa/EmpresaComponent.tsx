@@ -160,7 +160,8 @@ const EmpresaComponent: React.FC = () => {
                     initialValues={empresaEditar || { id: 0, eliminado: false, nombre: "", razonSocial: "", cuil: 0, sucursales: [], imagenes: [] }}
                     isEditMode={isEditing}
                     getEmpresas={fetchEmpresas}
-                    empresaAEditar={empresaEditar} // Asegúrate de pasar empresaEditar como empresaAEditar
+                    empresaAEditar={empresaEditar} 
+                    onClose={() => dispatch(toggleModal({ modalName: "modal" }))} 
                 />
                 <ModalSucursal
                     modalName="modalSucursal"

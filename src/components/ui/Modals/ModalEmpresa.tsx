@@ -3,12 +3,12 @@ import * as Yup from 'yup';
 import GenericModal from './GenericModal';
 import TextFieldValue from '../TextFieldValue/TextFieldValue';
 import EmpresaService from '../../../services/EmpresaService';
-import Swal from 'sweetalert2';
 import IEmpresa from '../../../types/IEmpresa';
 import EmpresaPost from '../../../types/post/EmpresaPost';
 import '../../../utils/swal.css';
 import { Delete, PhotoCamera } from '@mui/icons-material';
 import { Button, Card, CardActions, CardMedia, IconButton, Typography } from '@mui/material';
+import Swal, { SweetAlertIcon } from 'sweetalert2';
 
 interface ModalEmpresaProps {
   modalName: string;
@@ -16,6 +16,7 @@ interface ModalEmpresaProps {
   isEditMode: boolean;
   getEmpresas: () => void;
   empresaAEditar?: IEmpresa;
+  onClose: () => void; 
 }
 
 const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
@@ -24,6 +25,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   isEditMode,
   getEmpresas,
   empresaAEditar,
+  onClose,
 }) => {
   const empresaService = new EmpresaService();
   const URL = import.meta.env.VITE_API_URL;
@@ -40,17 +42,23 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       .required('Campo requerido'),
   });
 
+
+  const showModal = (title: string , text: string, icon: SweetAlertIcon) => {
+    Swal.fire({
+      title: title,
+      text: text,
+      icon: icon,
+      customClass: {
+        container: "my-swal",
+      },
+    });
+  };
+  
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files && files.length > 3) {
-      Swal.fire({
-        title: 'Error',
-        text: 'No puedes seleccionar más de 3 imágenes',
-        icon: 'warning',
-        customClass: {
-          container: 'my-swal',
-        },
-      });
+      showModal("Error", "No puedes seleccionar más de 3 imágenes", "warning");
       event.target.value = '';
       return;
     }
@@ -60,16 +68,8 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
 
   const uploadImages = async (id: number) => {
     if (!selectedFiles) {
-      return Swal.fire({
-        title: "No hay imágenes seleccionadas",
-        text: "Selecciona al menos una imagen",
-        icon: "warning",
-        customClass: {
-          container: 'my-swal',
-        },
-      });
+      return showModal("No hay imágenes seleccionadas", "Selecciona al menos una imagen", "warning");;
     }
-
     const formData = new FormData();
     Array.from(selectedFiles).forEach((file) => {
       formData.append("uploads", file);
@@ -103,48 +103,67 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
         throw new Error('Error al subir las imágenes');
       }
 
-      Swal.fire("Éxito", "Imágenes subidas correctamente", "success");
+      showModal("Éxito", "Imágenes subidas correctamente", "success");
     } catch (error) {
-      Swal.fire("Error", "Algo falló al subir las imágenes, inténtalo de nuevo.", "error");
+      showModal("Error", "Algo falló al subir las imágenes, inténtalo de nuevo.", "error");
       console.error("Error al subir las imágenes:", error);
     }
     setSelectedFiles(null);
   };
 
-  const handleDeleteImg = async (publicId: string, imageId: number) => {
+  const handleDeleteImg = async (url: string, uuid: string) => {
+    const urlParts = url.split("/");
+    const publicId = urlParts[urlParts.length - 1];
+  
     const formData = new FormData();
     formData.append("publicId", publicId);
-    formData.append("id", imageId.toString());
-
+    formData.append("id", uuid);
+  
+    if (empresaImages.length === 1) {
+      showModal("Error", "No puedes eliminar la última imagen de la empresa", "warning");
+      return;
+    }
+  
     Swal.fire({
       title: "Eliminando imagen...",
       text: "Espere mientras se elimina la imagen.",
+      customClass: {
+        container: 'my-swal',
+      },
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
       },
     });
-
+  
     try {
       const response = await fetch(`${URL}/empresa/deleteImg`, {
         method: "POST",
         body: formData,
       });
-
+  
       Swal.close();
-
+  
       if (response.ok) {
-        Swal.fire("Éxito", "Imagen eliminada correctamente", "success");
-        setEmpresaImages((prevImages) => prevImages.filter((img) => img.id !== imageId));
+        showModal("Éxito", "Imagen eliminada correctamente", "success");
+        // Filtra la imagen eliminada de la lista
+        const updatedImages = empresaImages.filter((img) => img.uuid !== uuid);
+        setEmpresaImages(updatedImages);
+        // Vuelve a cargar las imágenes actualizadas
+        getEmpresas();
+        onClose(); // Close the modal
       } else {
-        Swal.fire("Error", "Algo falló al eliminar la imagen, inténtalo de nuevo.", "error");
+        showModal("Error", "Algo falló al eliminar la imagen, inténtalo de nuevo.", "error");
       }
     } catch (error) {
       Swal.close();
-      Swal.fire("Error", "Algo falló, contacta al desarrollador.", "error");
+      showModal("Error", "Algo falló, contacta al desarrollador.", "error");
       console.error("Error:", error);
     }
   };
+  
+
+
 
   const handleSubmit = async (values: EmpresaPost) => {
     if (!isEditMode && (!selectedFiles || selectedFiles.length === 0)) {
@@ -201,7 +220,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       if (id !== null) {
         await empresaService.delete(`${URL}/empresa`, id);
       }
-      Swal.fire("Error", "Ocurrió un error, por favor intenta nuevamente.", "error");
+      showModal("Error", "Ocurrió un error, por favor intenta nuevamente.", "error");
       console.error('Error al enviar los datos:', error);
     }
   };
@@ -244,7 +263,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     >
       <TextFieldValue label="Nombre" name="nombre" type="text" placeholder="Nombre" />
       <TextFieldValue label="Razón Social" name="razonSocial" type="text" placeholder="Razón Social" disabled={isEditMode} />
-      <TextFieldValue label="CUIL" name="cuil" type="text" placeholder="Ejemplo: 12345678901" disabled={isEditMode} />
+      <TextFieldValue label="CUIL" name="cuil" type="text" placeholder="Ejemplo: 12345678901" />
       <Button
         variant="contained"
         component="label"
@@ -267,7 +286,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       </Button>
       {isEditMode && empresaImages.length > 0 && (
         <div>
-          <Typography variant='h5' sx={{ mb: 1}}>Imágenes de la Empresa</Typography>
+          <Typography variant='h5' sx={{ mb: 1 }}>Imágenes de la Empresa</Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
             {empresaImages.map((image) => (
               <Card key={image.id} style={{ position: 'relative', width: '100px', height: '100px' }}>
@@ -277,7 +296,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 <CardActions style={{ position: 'absolute', top: 0, right: 0 }}>
-                  <IconButton style={{ color: 'red' }} onClick={() => handleDeleteImg(image.publicId, image.id)}>
+                  <IconButton style={{ color: 'red' }} onClick={() => handleDeleteImg(image.url, image.id)}>
                     <Delete />
                   </IconButton>
                 </CardActions>
