@@ -6,11 +6,12 @@ import { setPromociones } from '../../../redux/slices/PromocionReducer';
 import { toggleModal } from '../../../redux/slices/ModalReducer';
 import EmptyState from '../../ui/Cards/EmptyState/EmptyState';
 import SearchBar from '../../ui/common/SearchBar/SearchBar';
-import ModalPromocion from '../../ui/Modals/ModalPromocion';
 import { useParams } from 'react-router-dom';
 import { handleSearch } from '../../../utils/utils';
 import CardPromocion from '../../ui/Cards/CardPromocion/CardPromocion';
 import SucursalService from '../../../services/SucursalService';
+import { TipoPromocion } from '../../../types/enums/TipoPromocion';
+import ModalPromocion from '../../ui/Modals/ModalPromocion';
 
 const Promocion: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
@@ -31,7 +32,7 @@ const Promocion: React.FC = () => {
         try {
             setIsLoading(true);
             if (idSucursal !== undefined) {
-                const promociones = await sucursalService.get(`${url}/promocion/getPromociones`, parseInt(idSucursal)) as any;
+                const promociones = await sucursalService.get(`${url}/sucursal/getPromociones`, parseInt(idSucursal)) as any;
                 dispatch(setPromociones(promociones));
                 setFilteredData(promociones);
             }
@@ -54,7 +55,7 @@ const Promocion: React.FC = () => {
         horaHasta: "",
         descripcionDescuento: "",
         precioPromocional: 0,
-        tipoPromocion: "",
+        tipoPromocion: TipoPromocion.PROMOCION,
         idSucursales: [0],
         detalles: [{ cantidad: 0, idArticulo: 0 }]
     };
@@ -140,6 +141,7 @@ const Promocion: React.FC = () => {
                 fetchPromociones={fetchPromociones}
                 promocionAEditar={isEditing ? selectedPromocion : undefined}
                 idSucursal={sucursalid}
+                // onClose={() => dispatch(toggleModal({ modalName: "modalPromocion" }))} 
             />
             }
         </Box>

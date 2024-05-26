@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Box, Typography, Button, Container, CircularProgress, Avatar, CardMedia } from "@mui/material";
+import { Box, Typography, Button, Container, CircularProgress, CardMedia } from "@mui/material";
 import { Add } from "@mui/icons-material";
 import TableComponent from "../Table/Table";
 import { IInsumo } from "../../../../types/IInsumo";
@@ -14,7 +14,7 @@ import ModalInsumo from "../../Modals/ModalInsumo";
 import { toggleModal } from "../../../../redux/slices/ModalReducer";
 import { InsumoPost } from "../../../../types/post/InsumoPost";
 import EmptyState from "../../Cards/EmptyState/EmptyState";
-import IImagen from "../../../../types/IImagen";
+
 
 const TableInsumo = () => {
 
