@@ -136,17 +136,21 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
             <TextField label="Denominación" name="denominacion" type="text" placeholder="Denominación" />
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
+                <> Fecha Desde</>
                     <TextField name="fechaDesde" type="date" placeholder="Fecha Desde" fullWidth />
                 </Grid>
                 <Grid item xs={12} sm={6}>
+                    <> Fecha Hasta</>
                     <TextField name="fechaHasta" type="date" placeholder="Fecha Hasta" fullWidth />
                 </Grid>
             </Grid>
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={6}>
+                <> Hora Desde</>
                     <TextField name="horaDesde" type="time" placeholder="Hora Desde" fullWidth />
                 </Grid>
                 <Grid item xs={12} sm={6}>
+                <> Hora Hasta</>
                     <TextField name="horaHasta" type="time" placeholder="Hora Hasta" fullWidth />
                 </Grid>
             </Grid>
