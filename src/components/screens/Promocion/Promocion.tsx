@@ -12,6 +12,8 @@ import CardPromocion from '../../ui/Cards/CardPromocion/CardPromocion';
 import SucursalService from '../../../services/SucursalService';
 import { TipoPromocion } from '../../../types/enums/TipoPromocion';
 import ModalPromocion from '../../ui/Modals/ModalPromocion';
+import IPromocion from '../../../types/IPromocion';
+import PromocionPost from '../../../types/post/PromocionPost';
 
 const Promocion: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
@@ -47,7 +49,7 @@ const Promocion: React.FC = () => {
         fetchPromociones();
     }, [dispatch, url, idSucursal]);
 
-    const initialValue = {
+    const initialValue: PromocionPost= {
         denominacion: "",
         fechaDesde: "",
         fechaHasta: "",
@@ -64,10 +66,10 @@ const Promocion: React.FC = () => {
         handleSearch(query, globalPromociones, 'denominacion', setFilteredData);
     };
 
-    const handleEdit = (promocion: any) => {
+    const handleEdit = (promocion: IPromocion) => {
         if (promocion) {
             setIsEditing(true);
-            setSelectedPromocion(promocion);
+            setSelectedPromocion(promocion );
             dispatch(toggleModal({ modalName: "modalPromocion" }));
         }
     };
@@ -85,7 +87,7 @@ const Promocion: React.FC = () => {
                     <Grid item xs={12} sm={6} md={4} key={index}>
                         <CardPromocion
                             promocion={promocion}
-                            onEdit={handleEdit}
+                            onEdit={() => handleEdit(promocion)}
                         />
                     </Grid>
                 ))}
@@ -139,9 +141,9 @@ const Promocion: React.FC = () => {
                 initialValues={selectedPromocion || initialValue}
                 isEditMode={isEditing}
                 fetchPromociones={fetchPromociones}
-                promocionAEditar={isEditing ? selectedPromocion : undefined}
+                promocionAEditar={selectedPromocion}
                 idSucursal={sucursalid}
-                // onClose={() => dispatch(toggleModal({ modalName: "modalPromocion" }))} 
+                onClose={() => dispatch(toggleModal({ modalName: "modalPromocion" }))} 
             />
             }
         </Box>

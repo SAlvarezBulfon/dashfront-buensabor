@@ -142,7 +142,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
         formData.append("id", uuid);
 
         if (articuloImages.length === 1) {
-            showModal("Error", "No puedes eliminar la última imagen de la empresa", "warning");
+            showModal("Error", "No puedes eliminar la última imagen del Producto", "warning");
             return;
         }
 

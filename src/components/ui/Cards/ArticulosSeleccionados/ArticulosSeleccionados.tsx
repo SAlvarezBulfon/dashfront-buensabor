@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, MenuItem, Select, FormControl, InputLabel, Box } from '@mui/material';
+import { TextField, Button, MenuItem, Select, FormControl, InputLabel, Box, Typography } from '@mui/material';
 import InsumoService from '../../../../services/InsumoService';
 import ProductoService from '../../../../services/ProductoService';
 
@@ -12,7 +12,7 @@ const ArticuloSeleccionado: React.FC<ArticuloSeleccionadoProps> = ({ onAgregarAr
     const [idArticulo, setIdArticulo] = useState('');
     const [cantidad, setCantidad] = useState(0);
     const [articulos, setArticulos] = useState<any[]>([]);
-    
+
     const insumoService = new InsumoService();
     const url = import.meta.env.VITE_API_URL;
     const articuloService = new ProductoService();
@@ -45,37 +45,44 @@ const ArticuloSeleccionado: React.FC<ArticuloSeleccionadoProps> = ({ onAgregarAr
     };
 
     return (
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <FormControl sx={{ minWidth: 200 }}>
-                <InputLabel id="select-articulo-label">Seleccionar artículo</InputLabel>
-                <Select
-                    labelId="select-articulo-label"
-                    value={idArticulo}
-                    label="Seleccionar artículo"
-                    onChange={(e) => setIdArticulo(e.target.value)}
-                >
-                    <MenuItem value="" disabled>
-                        <em>Seleccionar artículo</em>
-                    </MenuItem>
-                    {articulos.map((articulo) => (
-                        <MenuItem key={articulo.id} value={articulo.id}>
-                            {articulo.denominacion}
+        <>
+            <Typography variant="h6">Agregar Articulos</Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <FormControl sx={{ minWidth: 200 }}>
+                    <InputLabel id="select-articulo-label">Seleccionar artículo</InputLabel>
+                    <Select
+                        labelId="select-articulo-label"
+                        value={idArticulo}
+                        label="Seleccionar artículo"
+                        onChange={(e) => setIdArticulo(e.target.value)}
+                    >
+                        <MenuItem value="" disabled>
+                            <em>Seleccionar artículo</em>
                         </MenuItem>
-                    ))}
-                </Select>
-            </FormControl>
-            <TextField
-                label="Cantidad"
-                type="number"
-                value={cantidad}
-                onChange={(e) => setCantidad(parseInt(e.target.value))}
-                inputProps={{ min: 0 }}
-                sx={{ width: 100 }}
-            />
-            <Button variant='contained' onClick={handleAgregarArticulo}>
-                Agregar Artículo
-            </Button>
-        </Box>
+                        {articulos.map((articulo) => (
+                            <MenuItem key={articulo.id} value={articulo.id}>
+                                {articulo.denominacion}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <TextField
+                    label="Cantidad"
+                    type="number"
+                    value={cantidad}
+                    onChange={(e) => setCantidad(parseInt(e.target.value))}
+                    inputProps={{ min: 0 }}
+                    sx={{ width: 100 }}
+                />
+                <Button variant='contained' onClick={handleAgregarArticulo} sx={{
+                    bgcolor: '#fb6376', borderColor: '#fb6376', "&:hover": {
+                        bgcolor: "#d73754",
+                    }
+                }}>
+                    Agregar Artículo
+                </Button>
+            </Box>
+        </>
     );
 };
 
