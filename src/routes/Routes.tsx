@@ -10,6 +10,7 @@ import Insumo from '../components/screens/Insumo/Insumo';
 import Producto from '../components/screens/Producto/Producto';
 import Categoria from '../components/screens/Categoria/Categoria';
 import UnidadMedida from '../components/screens/UnidadMedida/UnidadMedida';
+import Promocion from '../components/screens/Promocion/Promocion';
 
 
 const Rutas: React.FC = () => {
@@ -27,6 +28,7 @@ const Rutas: React.FC = () => {
           <Route path="productos/:sucursalId" element={<Producto />} />
           <Route path="/unidadMedida" element={<UnidadMedida />} />
           <Route path="categorias/:idSucursal" element={<Categoria />} />
+          <Route path="promociones/:idSucursal" element={<Promocion />} /> 
         </Route>
       </Routes>
     </Router>
