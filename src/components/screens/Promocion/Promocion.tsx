@@ -49,7 +49,7 @@ const Promocion: React.FC = () => {
         fetchPromociones();
     }, [dispatch, url, idSucursal]);
 
-    const initialValue: PromocionPost= {
+    const initialValue: PromocionPost = {
         denominacion: "",
         fechaDesde: "",
         fechaHasta: "",
@@ -69,7 +69,7 @@ const Promocion: React.FC = () => {
     const handleEdit = (promocion: IPromocion) => {
         if (promocion) {
             setIsEditing(true);
-            setSelectedPromocion(promocion );
+            setSelectedPromocion(promocion);
             dispatch(toggleModal({ modalName: "modalPromocion" }));
         }
     };
@@ -80,7 +80,7 @@ const Promocion: React.FC = () => {
         dispatch(toggleModal({ modalName: "modalPromocion" }));
     };
 
-     const renderPromociones = (promociones: any[]) => {
+    const renderPromociones = (promociones: IPromocion[]) => {
         return (
             <Grid container spacing={2}>
                 {promociones.map((promocion, index) => (
@@ -94,6 +94,7 @@ const Promocion: React.FC = () => {
             </Grid>
         );
     };
+    
 
     return (
         <Box sx={{ maxWidth: 1150, margin: '0 auto', padding: 2, my: 10 }}>
