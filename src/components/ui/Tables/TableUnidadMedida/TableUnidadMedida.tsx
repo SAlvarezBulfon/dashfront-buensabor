@@ -1,37 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { TextField, Button, Container, Box, Typography, Alert } from '@mui/material';
+import { Button, Container, Box, Typography, Alert, TextField } from '@mui/material';
 import TableComponent from '../Table/Table';
 import { IUnidadMedida } from '../../../../types/IUnidadMedida';
 import UnidadMedidaService from '../../../../services/UnidadMedidaService';
 import { onDelete } from '../../../../utils/utils';
-import * as Yup from 'yup';
 import EmptyState from '../../Cards/EmptyState/EmptyState';
 import swal from 'sweetalert2';
 import Column from '../../../../types/Column';
+import ModalUnidadMedida from '../../Modals/ModalUnidadDeMedida';
 
 const TableUnidadMedida: React.FC = () => {
-
   const [units, setUnits] = useState<IUnidadMedida[]>([]);
-  const [denominacion, setDenominacion] = useState('');
   const [editId, setEditId] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [initialData, setInitialData] = useState<IUnidadMedida | undefined>(undefined);
+  const [searchQuery, setSearchQuery] = useState('');
   const url = import.meta.env.VITE_API_URL;
   const unidadMedidaService = new UnidadMedidaService();
-
-  const validationSchema = Yup.object().shape({
-    denominacion: Yup.string()
-      .required('La denominación es requerida')
-      .test(
-        'denominacionUnica',
-        'Ya existe una unidad de medida con esta denominación',
-        (value) =>
-          !units.some(
-            (unit) =>
-              unit.denominacion.toLowerCase() === value?.toLowerCase() &&
-              (editId === null || unit.id !== editId)
-          )
-      ),
-  });
 
   useEffect(() => {
     fetchUnits();
@@ -46,19 +32,22 @@ const TableUnidadMedida: React.FC = () => {
     }
   };
 
-  const handleAdd = async () => {
-    try {
-      await validationSchema.validate({ denominacion });
-      setErrorMessage('');
+  const handleModalOpen = () => {
+    setIsModalOpen(true);
+  };
 
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setEditId(null);
+    setInitialData(undefined);
+  };
+
+  const handleAddOrUpdate = async (unit: IUnidadMedida) => {
+    try {
       if (editId !== null) {
-        const updatedUnit = { id: editId, denominacion, eliminado: false };
-        await unidadMedidaService.put(url + '/UnidadMedida', editId, updatedUnit);
-        const updatedUnits = units.map((unit) =>
-          unit.id === editId ? { ...unit, denominacion } : unit
-        );
+        await unidadMedidaService.put(url + '/UnidadMedida', editId, unit);
+        const updatedUnits = units.map((u) => (u.id === editId ? unit : u));
         setUnits(updatedUnits);
-        setEditId(null);
         swal.fire({
           icon: 'success',
           title: '¡Éxito!',
@@ -66,9 +55,9 @@ const TableUnidadMedida: React.FC = () => {
           confirmButtonColor: '#fb6376',
         });
       } else {
-        const newUnit: IUnidadMedida = { id: Date.now(), denominacion, eliminado: false };
-        await unidadMedidaService.post(url + '/UnidadMedida', newUnit);
-        setUnits([...units, newUnit]);
+        unit.id = Date.now();
+        await unidadMedidaService.post(url + '/UnidadMedida', unit);
+        setUnits([...units, unit]);
         swal.fire({
           icon: 'success',
           title: '¡Éxito!',
@@ -76,19 +65,16 @@ const TableUnidadMedida: React.FC = () => {
           confirmButtonColor: '#fb6376',
         });
       }
-      setDenominacion('');
+      handleModalClose();
     } catch (error) {
-      if (error instanceof Yup.ValidationError) {
-        setErrorMessage(error.errors[0]);
-      } else {
-        console.error('Error agregando/modificando unidad de medida:', error);
-      }
+      console.error('Error agregando/modificando unidad de medida:', error);
     }
   };
 
   const handleEdit = (unit: IUnidadMedida) => {
-    setDenominacion(unit.denominacion);
+    setInitialData(unit);
     setEditId(unit.id);
+    handleModalOpen();
   };
 
   const handleDelete = async (unit: IUnidadMedida) => {
@@ -109,6 +95,14 @@ const TableUnidadMedida: React.FC = () => {
     }
   };
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredUnits = units.filter(unit =>
+    unit.denominacion.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const columns: Column[] = [
     { id: "denominacion", label: "Nombre", renderCell: (rowData) => <>{rowData.denominacion}</> },
   ];
@@ -119,28 +113,51 @@ const TableUnidadMedida: React.FC = () => {
         Unidades de Medida
       </Typography>
 
-      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
-      <Box sx={{ display: 'flex', alignItems: 'center', mt: 1, my: 0 }}>
-        <TextField
-          sx={{ mr: 1 }}
-          label="Denominación"
-          value={denominacion}
-          onChange={(e) => setDenominacion(e.target.value)}
-        />
-        <Button sx={{ color: '#fb6376' }} onClick={handleAdd}>{editId !== null ? 'Actualizar' : 'Agregar'}</Button>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={handleModalOpen}
+          sx={{
+            backgroundColor: '#fb6376',
+            "&:hover": {
+              bgcolor: "#d73754",
+            },
+          }}
+        >
+          + Unidad de Medida
+        </Button>
       </Box>
-      {units.length === 0 ? (
+      
+      <TextField
+        fullWidth
+        label="Buscar por nombre"
+        value={searchQuery}
+        onChange={handleSearchChange}
+        sx={{ mb: 2 }}
+      />
+
+      {errorMessage && <Alert severity="error">{errorMessage}</Alert>}
+      
+      {filteredUnits.length === 0 ? (
         <Box sx={{ my: 5 }}>
           <EmptyState title="No hay unidades de medida" description="Agrega nuevas unidades de medida para comenzar" />
         </Box>
       ) : (
         <TableComponent
-          data={units}
+          data={filteredUnits}
           columns={columns}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
       )}
+      
+      <ModalUnidadMedida
+        open={isModalOpen}
+        onClose={handleModalClose}
+        onSubmit={handleAddOrUpdate}
+        initialData={initialData}
+      />
     </Container>
   );
 };
