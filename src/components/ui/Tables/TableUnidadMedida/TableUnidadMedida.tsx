@@ -12,7 +12,7 @@ import ModalUnidadMedida from '../../Modals/ModalUnidadDeMedida';
 const TableUnidadMedida: React.FC = () => {
   const [units, setUnits] = useState<IUnidadMedida[]>([]);
   const [editId, setEditId] = useState<number | null>(null);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, ] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [initialData, setInitialData] = useState<IUnidadMedida | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');

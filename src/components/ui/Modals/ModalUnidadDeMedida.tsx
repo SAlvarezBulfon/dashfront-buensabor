@@ -1,5 +1,5 @@
 
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Box, Button, Modal, TextField, Typography } from '@mui/material';
 
 import * as Yup from 'yup';

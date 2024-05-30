@@ -5,7 +5,6 @@ import { useAppDispatch, useAppSelector } from '../../../hooks/redux';
 import ICategoria from '../../../types/ICategoria';
 import { setCategoria } from '../../../redux/slices/CategoriaReducer';
 import { CategoriaPost } from '../../../types/post/CategoriaPost';
-import { handleSearch } from '../../../utils/utils';
 import { toggleModal } from '../../../redux/slices/ModalReducer';
 import EmptyState from '../../ui/Cards/EmptyState/EmptyState';
 import SearchBar from '../../ui/common/SearchBar/SearchBar';
