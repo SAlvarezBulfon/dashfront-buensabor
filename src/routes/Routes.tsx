@@ -23,12 +23,12 @@ const Rutas: React.FC = () => {
         <Route path="/" element={<EmpresaComponent />} />
         <Route path="/empresa/:empresaId" element={<SucursalComponent />} />
           <Route element={<SidebarLayout />}>
-          <Route path="dashboard/:sucursalId" element={<Inicio />} />
-          <Route path="insumos/:sucursalId" element={<Insumo />} />
-          <Route path="productos/:sucursalId" element={<Producto />} />
+          <Route path="/dashboard/:sucursalId" element={<Inicio />} />
+          <Route path="/insumos/:sucursalId" element={<Insumo />} />
+          <Route path="/productos/:sucursalId" element={<Producto />} />
           <Route path="/unidadMedida" element={<UnidadMedida />} />
-          <Route path="categorias/:idSucursal" element={<Categoria />} />
-          <Route path="promociones/:idSucursal" element={<Promocion />} /> 
+          <Route path="/categorias/:idSucursal" element={<Categoria />} />
+          <Route path="/promociones/:idSucursal" element={<Promocion />} /> 
         </Route>
       </Routes>
     </Router>
