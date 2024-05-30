@@ -14,7 +14,6 @@ import { TipoPromocion } from '../../../types/enums/TipoPromocion';
 import ModalPromocion from '../../ui/Modals/ModalPromocion';
 import IPromocion from '../../../types/IPromocion';
 import PromocionPost from '../../../types/post/PromocionPost';
-import PromoModal from '../../ui/Modals/PromoModal';
 
 const Promocion: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
@@ -30,7 +29,6 @@ const Promocion: React.FC = () => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
     const fetchPromociones = async () => {
         try {
@@ -84,7 +82,7 @@ const Promocion: React.FC = () => {
 
     const handleViewDetails = (promocion: any) => {
         setSelectedPromocion(promocion);
-        setIsDetailsModalOpen(true);
+        dispatch(toggleModal({ modalName: "modalPromoDetail" }));
     };
 
     const renderPromociones = (promociones: IPromocion[]) => {
@@ -156,13 +154,13 @@ const Promocion: React.FC = () => {
                     onClose={() => dispatch(toggleModal({ modalName: "modalPromocion" }))}
                 />
             }
-            {selectedPromocion && (
+            {/* {selectedPromocion && (
                 <PromoModal
                     open={isDetailsModalOpen}
                     onClose={() => setIsDetailsModalOpen(false)}
                     promocion={selectedPromocion}
                 />
-            )}
+            )} */}
 
         </Box>
     );
