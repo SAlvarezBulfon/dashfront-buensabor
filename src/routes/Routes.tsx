@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import BaseNavbar from '../components/ui/common/Navbar/BaseNavbar';
 import Inicio from '../components/screens/Inicio/Inicio';
 import EmpresaComponent from '../components/screens/Empresa/EmpresaComponent';
@@ -14,12 +14,12 @@ import Promocion from '../components/screens/Promocion/Promocion';
 
 const Rutas: React.FC = () => {
   return (
-    <Router>
+    <>
       <div className='navbar'>
         <BaseNavbar />
       </div>
       <Routes>
-        <Route path="/" element={<EmpresaComponent />} />
+        <Route path="*" element={<EmpresaComponent />} />
         <Route path="/empresa/:empresaId" element={<SucursalComponent />} />
         <Route path="/dashboard/:sucursalId" element={<Inicio />} />
         <Route path="/insumos/:sucursalId" element={<Insumo />} />
@@ -28,7 +28,7 @@ const Rutas: React.FC = () => {
         <Route path="/categorias/:idSucursal" element={<Categoria />} />
         <Route path="/promociones/:idSucursal" element={<Promocion />} />
       </Routes>
-    </Router>
+    </>
   );
 }
 
