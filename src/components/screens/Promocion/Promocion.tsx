@@ -14,6 +14,7 @@ import { TipoPromocion } from '../../../types/enums/TipoPromocion';
 import ModalPromocion from '../../ui/Modals/ModalPromocion';
 import IPromocion from '../../../types/IPromocion';
 import PromocionPost from '../../../types/post/PromocionPost';
+import PromoModal from '../../ui/Modals/PromoModal';
 
 const Promocion: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
@@ -21,7 +22,7 @@ const Promocion: React.FC = () => {
     const globalPromociones = useAppSelector((state) => state.promocion.data);
     const { idSucursal } = useParams<{ idSucursal: string }>();
     let sucursalid = 0;
-    if(idSucursal){
+    if (idSucursal) {
         sucursalid = parseInt(idSucursal);
     }
     const sucursalService = new SucursalService();
@@ -29,6 +30,7 @@ const Promocion: React.FC = () => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
     const fetchPromociones = async () => {
         try {
@@ -80,6 +82,11 @@ const Promocion: React.FC = () => {
         dispatch(toggleModal({ modalName: "modalPromocion" }));
     };
 
+    const handleViewDetails = (promocion: any) => {
+        setSelectedPromocion(promocion);
+        setIsDetailsModalOpen(true);
+    };
+
     const renderPromociones = (promociones: IPromocion[]) => {
         return (
             <Grid container spacing={2}>
@@ -88,13 +95,15 @@ const Promocion: React.FC = () => {
                         <CardPromocion
                             promocion={promocion}
                             onEdit={() => handleEdit(promocion)}
+                            onViewDetails={() => handleViewDetails(promocion)}
                         />
                     </Grid>
                 ))}
             </Grid>
         );
     };
-    
+
+
 
     return (
         <Box sx={{ maxWidth: 1150, margin: '0 auto', padding: 2, my: 10 }}>
@@ -137,16 +146,24 @@ const Promocion: React.FC = () => {
                 )}
             </Container>
             {idSucursal &&
-            <ModalPromocion
-                modalName="modalPromocion"
-                initialValues={selectedPromocion || initialValue}
-                isEditMode={isEditing}
-                fetchPromociones={fetchPromociones}
-                promocionAEditar={selectedPromocion}
-                idSucursal={sucursalid}
-                onClose={() => dispatch(toggleModal({ modalName: "modalPromocion" }))} 
-            />
+                <ModalPromocion
+                    modalName="modalPromocion"
+                    initialValues={selectedPromocion || initialValue}
+                    isEditMode={isEditing}
+                    fetchPromociones={fetchPromociones}
+                    promocionAEditar={selectedPromocion}
+                    idSucursal={sucursalid}
+                    onClose={() => dispatch(toggleModal({ modalName: "modalPromocion" }))}
+                />
             }
+            {selectedPromocion && (
+                <PromoModal
+                    open={isDetailsModalOpen}
+                    onClose={() => setIsDetailsModalOpen(false)}
+                    promocion={selectedPromocion}
+                />
+            )}
+
         </Box>
     );
 };

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { Card, CardContent, Typography, Box, CardMedia, IconButton } from '@mui/material';
+import { Card, CardContent, Typography, Box, CardMedia, IconButton, Button } from '@mui/material';
 import { ArrowBackIos, ArrowForwardIos, Edit } from '@mui/icons-material';
 
 interface PromocionCardProps {
     promocion: any;
     onEdit: (promocion: any) => void;
+    onViewDetails: (promocion: any) => void;
 }
 
-const PromocionCard: React.FC<PromocionCardProps> = ({ promocion, onEdit }) => {
+const PromocionCard: React.FC<PromocionCardProps> = ({ promocion, onEdit, onViewDetails }) => {
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const handlePrevImage = () => {
@@ -64,11 +65,24 @@ const PromocionCard: React.FC<PromocionCardProps> = ({ promocion, onEdit }) => {
                         </IconButton>
                     </Box>
                     <Typography variant="body2">{promocion.descripcionDescuento}</Typography>
-                    <Typography variant="body2">Fecha Desde: {promocion.fechaDesde}</Typography>
-                    <Typography variant="body2">Fecha Hasta: {promocion.fechaHasta}</Typography>
-                    <Typography variant="body2">Hora Desde: {promocion.horaDesde}</Typography>
-                    <Typography variant="body2">Hora Hasta: {promocion.horaHasta}</Typography>
                     <Typography variant="body2">${promocion.precioPromocional}</Typography>
+                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'center' }}>
+                        <Button 
+                            variant="outlined" 
+                            onClick={() => onViewDetails(promocion)} 
+                            sx={{ 
+                                color: '#e91e63', 
+                                borderColor: '#e91e63', 
+                                '&:hover': { 
+                                    bgcolor: '#e91e63', 
+                                    color: '#fff',
+                                    borderColor: '#e91e63',
+                                } 
+                            }}
+                        >
+                            Ver Detalles
+                        </Button>
+                    </Box>
                 </CardContent>
             </Card>
         </Box>

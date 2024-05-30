@@ -28,14 +28,16 @@ const GenericModal: React.FC<ModalProps> = ({ modalName, title, initialValues, v
 
   const handleSubmit = async (values: any) => {
     try {
-      await onSubmit(values);
-      handleClose();
+      onSubmit(values); // Envía el formulario
+      handleClose(); // Cierra el modal después de enviar el formulario con éxito
+      // Muestra una alerta de éxito
       Swal.fire({
         icon: 'success',
         title: 'Éxito',
         text: isEditMode ? 'Cambios guardados exitosamente' : 'Datos añadidos exitosamente',
       });
     } catch (error) {
+      // En caso de error, muestra una alerta de error
       Swal.fire({
         icon: 'error',
         title: 'Error',
@@ -44,7 +46,7 @@ const GenericModal: React.FC<ModalProps> = ({ modalName, title, initialValues, v
       console.error('Error al enviar los datos:', error);
     }
   };
-
+  
   return (
     <Modal 
       open={showModal} 

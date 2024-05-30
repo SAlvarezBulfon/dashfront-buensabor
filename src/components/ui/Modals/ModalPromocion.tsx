@@ -172,7 +172,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
             if (isEditMode && promocionAEditar) {
                 try {
                     // Obtener los detalles de los artículos de la promoción
-                    const detallesPromocion = await promocionDetalleService.get(`${URL}/promocionDetalle`, promocionAEditar.id);
+                    const detallesPromocion = await promocionDetalleService.get(`${URL}/promocion/getDetallesByid`, promocionAEditar.id);
                     const detallesArray = Array.isArray(detallesPromocion) ? detallesPromocion : [detallesPromocion];
                     setDataArticles(detallesArray);
                 } catch (error) {
@@ -327,31 +327,27 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
     };
 
 
-
-
-
-
     const handleSubmit = async (values: PromocionPost) => {
         let rollback = false; // Variable para controlar el rollback
         let id: number | null = null;
-
+    
         try {
             // Validaciones previas al envío de datos
             if (!isEditMode && (!selectedFiles || selectedFiles.length === 0)) {
                 showModal("Error", "Debes subir al menos una imagen", "warning");
                 return;
             }
-
-            if (selectedFiles && selectedFiles.length > 3) {
+    
+            if (promocionAEditar.imagenes.length > 3) {
                 showModal("Error", "No puedes subir más de 3 imágenes", "warning");
                 return;
             }
-
-            if (selectedSucursales.length === 0) {
+    
+            if (!isEditMode && selectedSucursales.length === 0) {
                 showModal("Error", "Debe seleccionar al menos una sucursal.", "warning");
                 return;
             }
-
+    
             // Construcción del objeto a enviar
             const promocionPost: PromocionPost = {
                 denominacion: values.denominacion,
@@ -371,30 +367,29 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                 }),
             };
 
-
+    
             let response;
-
+    
             // Envío de datos (POST o PUT)
             if (isEditMode && promocionAEditar) {
+                console.log(promocionAEditar.id)
                 response = await promocionService.put(`${URL}/promocion`, promocionAEditar.id, promocionPost);
                 id = promocionAEditar.id;
             } else {
                 response = await promocionService.post(`${URL}/promocion`, promocionPost) as IPromocion;
                 id = response.id;
             }
+    
             // Verificación de éxito en el envío de datos
             if (id !== null) {
-                if (selectedFiles) {
+                if (selectedFiles && selectedFiles.length > 0) {
                     await uploadImages(id);
                 }
-
                 showModal("Éxito", isEditMode ? "Promoción editada correctamente" : "Promoción creada correctamente", "success");
                 fetchPromociones();
-
             } else {
                 throw new Error("El ID de la promoción es nulo");
             }
-
         } catch (error) {
             rollback = true; // Establecer rollback a true en caso de error
             if (id !== null && rollback) { // Realizar rollback si es necesario
@@ -404,6 +399,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
             console.error('Error al enviar los datos:', error);
         }
     };
+    
 
 
 
