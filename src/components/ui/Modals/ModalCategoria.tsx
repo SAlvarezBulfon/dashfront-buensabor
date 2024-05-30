@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import * as Yup from 'yup';
-import { Checkbox, FormControlLabel, Button, TextField } from '@mui/material';
+import { Checkbox, FormControlLabel, Button, TextField, IconButton, Stack } from '@mui/material';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import GenericModal from './GenericModal';
 import TextFieldValue from '../TextFieldValue/TextFieldValue';
 import CategoriaService from '../../../services/CategoriaService';
@@ -86,21 +87,27 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
 
                 if (response) {
                     // Después de crear/actualizar la categoría principal, agregar las subcategorías
-                    for (const subCategoria of subCategorias) {
-                        const subCategoriaPost: CategoriaPost = {
-                            denominacion: subCategoria.denominacion,
-                            esInsumo: subCategoria.esInsumo,
-                            idSucursales: selectedSucursales,
-                            subCategorias: [] 
-                        };
-                        await fetch(`${URL}/categoria/addSubCategoria/${categoriaId}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(subCategoriaPost)
-                        });
-                    }
+                    const saveSubCategorias = async (subCategorias: ICategoria[], parentId: number) => {
+                        for (const subCategoria of subCategorias) {
+                            const subCategoriaPost: CategoriaPost = {
+                                denominacion: subCategoria.denominacion,
+                                esInsumo: subCategoria.esInsumo,
+                                idSucursales: selectedSucursales,
+                                subCategorias: [] 
+                            };
+                            const subResponse = await fetch(`${URL}/categoria/addSubCategoria/${parentId}`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(subCategoriaPost)
+                            });
+                            const subCategoriaData = await subResponse.json();
+                            await saveSubCategorias(subCategoria.subCategorias, subCategoriaData.id);
+                        }
+                    };
+
+                    await saveSubCategorias(subCategorias, categoriaId);
 
                     Swal.fire({
                         title: '¡Éxito!',
@@ -131,7 +138,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
         }
     };
 
-    const addSubCategoria = () => {
+    const addSubCategoria = (parentIndex?: number) => {
         const newSubCategoria: ICategoria = {
             id: 0, 
             eliminado: false,
@@ -140,11 +147,53 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
             esInsumo: false,
             idSucursales: selectedSucursales
         };
-        setSubCategorias([...subCategorias, newSubCategoria]);
+        if (parentIndex !== undefined) {
+            const newSubCategorias = [...subCategorias];
+            newSubCategorias[parentIndex].subCategorias.push(newSubCategoria);
+            setSubCategorias(newSubCategorias);
+        } else {
+            setSubCategorias([...subCategorias, newSubCategoria]);
+        }
     };
 
-    const removeSubCategoria = (index: number) => {
-        setSubCategorias(subCategorias.filter((_, i) => i !== index));
+    const removeSubCategoria = (index: number, parentIndex?: number) => {
+        if (parentIndex !== undefined) {
+            const newSubCategorias = [...subCategorias];
+            newSubCategorias[parentIndex].subCategorias = newSubCategorias[parentIndex].subCategorias.filter((_, i) => i !== index);
+            setSubCategorias(newSubCategorias);
+        } else {
+            setSubCategorias(subCategorias.filter((_, i) => i !== index));
+        }
+    };
+
+    const renderSubCategorias = (subCategorias: ICategoria[], parentIndex?: number) => {
+        return subCategorias.map((subCategoria, index) => (
+            <div key={index} style={{ marginLeft: parentIndex !== undefined ? '20px' : '0px', marginTop: '10px' }}>
+                <Stack direction="row" alignItems="center" spacing={6}>
+                    <TextField
+                        label={`Denominación Subcategoría`}
+                        size="small"
+                        value={subCategoria.denominacion}
+                        onChange={(e) => {
+                            const newSubCategorias = [...subCategorias];
+                            newSubCategorias[index].denominacion = e.target.value;
+                            if (parentIndex !== undefined) {
+                                const newParentSubCategorias = [...subCategorias];
+                                newParentSubCategorias[parentIndex].subCategorias = newSubCategorias;
+                                setSubCategorias(newParentSubCategorias);
+                            } else {
+                                setSubCategorias(newSubCategorias);
+                            }
+                        }}
+                    />
+                    <IconButton size="small" onClick={() => addSubCategoria(index)}>
+                        <AddCircleOutlineIcon fontSize="small" />
+                    </IconButton>
+                    <Button size="small" onClick={() => removeSubCategoria(index, parentIndex)}>Eliminar</Button>
+                </Stack>
+                {subCategoria.subCategorias && renderSubCategorias(subCategoria.subCategorias, index)}
+            </div>
+        ));
     };
 
     return (
@@ -157,7 +206,16 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
             isEditMode={isEditMode}
         >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" />
+                <Stack direction="row" alignItems="center" spacing={1}>
+                    <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" />
+                    <IconButton size="small" onClick={() => addSubCategoria()}>
+                        <AddCircleOutlineIcon fontSize="small" />
+                    </IconButton>
+                </Stack>
+                <>
+                    <p>Subcategorías:</p>
+                    {renderSubCategorias(subCategorias)}
+                </>
                 <FormControlLabel
                     control={
                         <Checkbox
@@ -183,22 +241,6 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                                 }
                                 label={sucursal.nombre}
                             />
-                        ))}
-                        <p>Agregar Subcategorías:</p>
-                        <Button onClick={addSubCategoria}>Añadir Subcategoría</Button>
-                        {subCategorias.map((subCategoria, index) => (
-                            <div key={index}>
-                                <TextField
-                                    label={`Denominación Subcategoría ${index + 1}`}
-                                    value={subCategoria.denominacion}
-                                    onChange={(e) => {
-                                        const newSubCategorias = [...subCategorias];
-                                        newSubCategorias[index].denominacion = e.target.value;
-                                        setSubCategorias(newSubCategorias);
-                                    }}
-                                />
-                                <Button onClick={() => removeSubCategoria(index)}>Eliminar</Button>
-                            </div>
                         ))}
                     </>
                 )}
