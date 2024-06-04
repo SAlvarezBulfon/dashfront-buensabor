@@ -16,6 +16,7 @@ import AddButton from "../../ui/Buttons/AddButton";
 import EmptyState from "../../ui/Cards/EmptyState/EmptyState";
 import IEmpresa from "../../../types/IEmpresa";
 import ISucursal from "../../../types/ISucursal";
+import { useNavigate } from 'react-router-dom';
 
 const EmpresaComponent: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
@@ -26,6 +27,7 @@ const EmpresaComponent: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [empresaEditar, setEmpresaEditar] = useState<Empresa | undefined>();
     const [, setEmpresaSucursales] = useState<ISucursal[]>();
+    const navigate = useNavigate();
 
     const fetchSucursalesForEmpresa = async (empresaId: number) => {
         try {
@@ -139,7 +141,7 @@ const EmpresaComponent: React.FC = () => {
                                         startIcon={<Visibility />}
                                         onClick={() => {
                                             fetchSucursalesForEmpresa(empresa.id);
-                                            window.location.href = `/empresa/${empresa.id}`;
+                                            navigate(`/empresa/${empresa.id}`);
                                         }}
                                         sx={{ color: '#ffffff', backgroundColor: '#fb6376', fontSize: '0.70rem', padding: '9px 15px', '&:hover': { backgroundColor: '#fa5064' } }}
                                     >
