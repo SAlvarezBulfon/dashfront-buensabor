@@ -23,8 +23,8 @@ const Categoria: React.FC = () => {
     const [filteredData, setFilteredData] = useState<ICategoria[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [isInsumoFilter, setIsInsumoFilter] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [filter, setFilter] = useState<string>('all');
 
     const fetchCategoria = async () => {
         try {
@@ -54,17 +54,24 @@ const Categoria: React.FC = () => {
 
     const onSearch = (query: string) => {
         setSearchQuery(query);
+        filterData(query, filter);
+    };
+
+    const onFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newFilter = event.target.value;
+        setFilter(newFilter);
+        filterData(searchQuery, newFilter);
+    };
+
+    const filterData = (query: string, filter: string) => {
         const filtered = globalCategorias.filter(categoria => {
             const matchesSearch = categoria.denominacion.toLowerCase().includes(query.toLowerCase());
-            const matchesFilter = isInsumoFilter === 'all' || (isInsumoFilter === 'insumo' && categoria.esInsumo) || (isInsumoFilter === 'noInsumo' && !categoria.esInsumo);
+            const matchesFilter = (filter === 'all') ||
+                                  (filter === 'insumo' && categoria.esInsumo) ||
+                                  (filter === 'noInsumo' && !categoria.esInsumo);
             return matchesSearch && matchesFilter;
         });
         setFilteredData(filtered);
-    };
-
-    const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setIsInsumoFilter(event.target.value);
-        onSearch(searchQuery);
     };
 
     const handleEdit = (categoria: ICategoria) => {
@@ -117,19 +124,19 @@ const Categoria: React.FC = () => {
                         Añadir Categoría
                     </Button>
                 </Box>
-                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <SearchBar onSearch={onSearch} />
                     <TextField
                         select
-                        value={isInsumoFilter}
-                        onChange={handleFilterChange}
+                        value={filter}
+                        onChange={onFilterChange}
                         label="Filtrar por"
                         variant="outlined"
                         sx={{ minWidth: 200 }}
                     >
                         <MenuItem value="all">Todos</MenuItem>
-                        <MenuItem value="noInsumo"> Insumo</MenuItem>
-                        <MenuItem value="insumo">No Insumo</MenuItem>
+                        <MenuItem value="insumo">Insumos</MenuItem>
+                        <MenuItem value="noInsumo">No Insumos</MenuItem>
                     </TextField>
                 </Box>
                 {isLoading ? (
@@ -142,12 +149,9 @@ const Categoria: React.FC = () => {
                         description="Agrega nuevas categorias utilizando el formulario."
                     />
                 ) : (
-
-
                     <Stack direction="column" spacing={1} mt={2}>
                         {renderCategorias(filteredData, 0)}
                     </Stack>
-
                 )}
             </Container>
             {sucursalId &&
