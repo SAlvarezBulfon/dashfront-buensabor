@@ -52,7 +52,7 @@ const Producto = () => {
           await productoService.delete(url + "/ArticuloManufacturado", productoToDelete.id);
         },
         fetchProductos,
-        () => {},
+        () => { },
         (error: any) => {
           console.error("Error al eliminar producto:", error);
         }
@@ -80,13 +80,13 @@ const Producto = () => {
       label: "",
       renderCell: (producto: IProducto | Row) => (
         <Box>
-          {producto.imagenes && ( 
+          {producto.imagenes && (
             <CardMedia
               component="img"
               height="140"
               image={producto.imagenes[0].url}
               alt="Producto"
-              sx={{borderRadius: '10px'}}
+              sx={{ borderRadius: '10px' }}
             />
           )}
         </Box>
@@ -135,19 +135,19 @@ const Producto = () => {
             Producto
           </Button>
         </Box>
+        <Box sx={{ mt: 2 }}>
+          <SearchBar onSearch={onSearch} />
+        </Box>
         {isLoading ? (
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
             <CircularProgress sx={{ color: '#fb6376' }} />
           </Box>
         ) : (
-          <>
-            <Box sx={{ mt: 2 }}>
-              <SearchBar onSearch={onSearch} />
-            </Box>
-            <Box sx={{ flexGrow: 1, overflow: "auto", mt: 2 }}>
-              <TableComponent data={filteredData} columns={columns} onDelete={onDeleteProducto} onEdit={handleEdit} />
-            </Box>
-          </>
+
+          <Box sx={{ flexGrow: 1, overflow: "auto", mt: 2 }}>
+            <TableComponent data={filteredData} columns={columns} onDelete={onDeleteProducto} onEdit={handleEdit} />
+          </Box>
+
         )}
         <ModalProducto
           modalName="modalProducto"

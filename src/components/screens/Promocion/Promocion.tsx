@@ -117,6 +117,10 @@ const Promocion: React.FC = () => {
                         Añadir Promoción
                     </Button>
                 </Box>
+                <Box sx={{ mt: 2 }}>
+                    <SearchBar onSearch={onSearch} />
+                </Box>
+
                 {isLoading ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
                         <CircularProgress sx={{ color: '#fb6376' }} />
@@ -127,14 +131,12 @@ const Promocion: React.FC = () => {
                         description="Agrega nuevas promociones utilizando el formulario."
                     />
                 ) : (
-                    <>
-                        <Box sx={{ mt: 2 }}>
-                            <SearchBar onSearch={onSearch} />
-                        </Box>
-                        <Stack direction="column" spacing={1} mt={2}>
-                            {renderPromociones(filteredData)}
-                        </Stack>
-                    </>
+
+
+                    <Stack direction="column" spacing={1} mt={2}>
+                        {renderPromociones(filteredData)}
+                    </Stack>
+
                 )}
             </Container>
             {sucursalId &&

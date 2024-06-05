@@ -64,7 +64,7 @@ const Categoria: React.FC = () => {
 
     const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setIsInsumoFilter(event.target.value);
-        onSearch(searchQuery); 
+        onSearch(searchQuery);
     };
 
     const handleEdit = (categoria: ICategoria) => {
@@ -117,6 +117,21 @@ const Categoria: React.FC = () => {
                         Añadir Categoría
                     </Button>
                 </Box>
+                <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
+                    <SearchBar onSearch={onSearch} />
+                    <TextField
+                        select
+                        value={isInsumoFilter}
+                        onChange={handleFilterChange}
+                        label="Filtrar por"
+                        variant="outlined"
+                        sx={{ minWidth: 200 }}
+                    >
+                        <MenuItem value="all">Todos</MenuItem>
+                        <MenuItem value="noInsumo"> Insumo</MenuItem>
+                        <MenuItem value="insumo">No Insumo</MenuItem>
+                    </TextField>
+                </Box>
                 {isLoading ? (
                     <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
                         <CircularProgress sx={{ color: '#fb6376' }} />
@@ -127,26 +142,12 @@ const Categoria: React.FC = () => {
                         description="Agrega nuevas categorias utilizando el formulario."
                     />
                 ) : (
-                    <>
-                        <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between' }}>
-                            <SearchBar onSearch={onSearch} />
-                            <TextField
-                                select
-                                value={isInsumoFilter}
-                                onChange={handleFilterChange}
-                                label="Filtrar por"
-                                variant="outlined"
-                                sx={{ minWidth: 200 }}
-                            >
-                                <MenuItem value="all">Todos</MenuItem>
-                                <MenuItem value="noInsumo"> Insumo</MenuItem>
-                                <MenuItem value="insumo">No Insumo</MenuItem>
-                            </TextField>
-                        </Box>
-                        <Stack direction="column" spacing={1} mt={2}>
-                            {renderCategorias(filteredData, 0)}
-                        </Stack>
-                    </>
+
+
+                    <Stack direction="column" spacing={1} mt={2}>
+                        {renderCategorias(filteredData, 0)}
+                    </Stack>
+
                 )}
             </Container>
             {sucursalId &&
@@ -156,7 +157,7 @@ const Categoria: React.FC = () => {
                     isEditMode={isEditing}
                     getCategoria={fetchCategoria}
                     categoriaAEditar={isEditing ? selectedCategory : undefined}
-                    idSucursal={parseInt(sucursalId)} 
+                    idSucursal={parseInt(sucursalId)}
                 />}
         </Box>
     );
