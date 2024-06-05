@@ -8,7 +8,7 @@ import EmptyState from '../../Cards/EmptyState/EmptyState';
 import swal from 'sweetalert2';
 import Column from '../../../../types/Column';
 import ModalUnidadMedida from '../../Modals/ModalUnidadDeMedida';
-// xd
+
 const TableUnidadMedida: React.FC = () => {
   const [units, setUnits] = useState<IUnidadMedida[]>([]);
   const [editId, setEditId] = useState<number | null>(null);

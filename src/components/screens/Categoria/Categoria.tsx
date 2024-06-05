@@ -17,11 +17,7 @@ const Categoria: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
     const dispatch = useAppDispatch();
     const globalCategorias = useAppSelector((state) => state.categoria.data);
-    const { idSucursal } = useParams<{ idSucursal: string }>();
-    let sucursalid = 0;
-    if (idSucursal) {
-        sucursalid = parseInt(idSucursal);
-    }
+    const { sucursalId } = useParams<{ sucursalId: string }>();
     const sucursalService = new SucursalService();
     const [selectedCategory, setSelectedCategory] = useState<ICategoria | CategoriaPost>();
     const [filteredData, setFilteredData] = useState<ICategoria[]>([]);
@@ -33,8 +29,8 @@ const Categoria: React.FC = () => {
     const fetchCategoria = async () => {
         try {
             setIsLoading(true);
-            if (idSucursal !== undefined) {
-                const categorias = await sucursalService.get(`${url}/sucursal/getCategorias`, parseInt(idSucursal)) as any;
+            if (sucursalId !== undefined) {
+                const categorias = await sucursalService.get(`${url}/sucursal/getCategorias`, parseInt(sucursalId)) as any;
                 dispatch(setCategoria(categorias));
                 setFilteredData(categorias);
             }
@@ -47,7 +43,7 @@ const Categoria: React.FC = () => {
 
     useEffect(() => {
         fetchCategoria();
-    }, [dispatch, url, idSucursal]);
+    }, [dispatch, url, sucursalId]);
 
     const initialValue: CategoriaPost = {
         denominacion: "",
@@ -145,7 +141,6 @@ const Categoria: React.FC = () => {
                                 <MenuItem value="all">Todos</MenuItem>
                                 <MenuItem value="noInsumo"> Insumo</MenuItem>
                                 <MenuItem value="insumo">No Insumo</MenuItem>
-                             
                             </TextField>
                         </Box>
                         <Stack direction="column" spacing={1} mt={2}>
@@ -154,14 +149,14 @@ const Categoria: React.FC = () => {
                     </>
                 )}
             </Container>
-            {idSucursal &&
+            {sucursalId &&
                 <ModalCategoria
                     modalName="modalCategoria"
                     initialValues={selectedCategory || initialValue}
                     isEditMode={isEditing}
                     getCategoria={fetchCategoria}
                     categoriaAEditar={isEditing ? selectedCategory : undefined}
-                    idSucursal={sucursalid}
+                    idSucursal={parseInt(sucursalId)} 
                 />}
         </Box>
     );

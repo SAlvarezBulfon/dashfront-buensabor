@@ -19,11 +19,7 @@ const Promocion: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
     const dispatch = useAppDispatch();
     const globalPromociones = useAppSelector((state) => state.promocion.data);
-    const { idSucursal } = useParams<{ idSucursal: string }>();
-    let sucursalid = 0;
-    if (idSucursal) {
-        sucursalid = parseInt(idSucursal);
-    }
+    const { sucursalId } = useParams<{ sucursalId: string }>();
     const sucursalService = new SucursalService();
     const [selectedPromocion, setSelectedPromocion] = useState<any>();
     const [filteredData, setFilteredData] = useState<any[]>([]);
@@ -33,8 +29,8 @@ const Promocion: React.FC = () => {
     const fetchPromociones = async () => {
         try {
             setIsLoading(true);
-            if (idSucursal !== undefined) {
-                const promociones = await sucursalService.get(`${url}/sucursal/getPromociones`, parseInt(idSucursal)) as any;
+            if (sucursalId !== undefined) {
+                const promociones = await sucursalService.get(`${url}/sucursal/getPromociones`, parseInt(sucursalId)) as any;
                 dispatch(setPromociones(promociones));
                 setFilteredData(promociones);
             }
@@ -47,7 +43,7 @@ const Promocion: React.FC = () => {
 
     useEffect(() => {
         fetchPromociones();
-    }, [dispatch, url, idSucursal]);
+    }, [dispatch, url, sucursalId]);
 
     const initialValue: PromocionPost = {
         denominacion: "",
@@ -101,8 +97,6 @@ const Promocion: React.FC = () => {
         );
     };
 
-
-
     return (
         <Box sx={{ maxWidth: 1150, margin: '0 auto', padding: 2, my: 10 }}>
             <Container>
@@ -143,25 +137,17 @@ const Promocion: React.FC = () => {
                     </>
                 )}
             </Container>
-            {idSucursal &&
+            {sucursalId &&
                 <ModalPromocion
                     modalName="modalPromocion"
                     initialValues={selectedPromocion || initialValue}
                     isEditMode={isEditing}
                     fetchPromociones={fetchPromociones}
                     promocionAEditar={selectedPromocion}
-                    idSucursal={sucursalid}
+                    idSucursal={parseInt(sucursalId)}
                     onClose={() => dispatch(toggleModal({ modalName: "modalPromocion" }))}
                 />
             }
-            {/* {selectedPromocion && (
-                <PromoModal
-                    open={isDetailsModalOpen}
-                    onClose={() => setIsDetailsModalOpen(false)}
-                    promocion={selectedPromocion}
-                />
-            )} */}
-
         </Box>
     );
 };

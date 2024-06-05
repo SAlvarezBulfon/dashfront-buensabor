@@ -104,7 +104,7 @@ const BasicSidebar: React.FC = () => {
                         </Link>
                     </CNavItem>
                     <CNavItem>
-                        <Link to={`/unidadMedida`} className="nav-link">
+                        <Link to={`/unidadMedida/${sucursalId}`} className="nav-link">
                             <CIcon customClassName="nav-icon" icon={cilSpeedometer} />
                             Unidad de Medida
                         </Link>
