@@ -90,12 +90,6 @@ const BasicSidebar: React.FC = () => {
                                 Lista de Empleados
                             </Link>
                         </CNavItem>
-                        <CNavItem>
-                            <Link to={`/roles/${sucursalId}`} className="nav-link">
-                                <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
-                                Roles
-                            </Link>
-                        </CNavItem>
                     </CNavGroup>
                     <CNavItem>
                         <Link to={`/insumos/${sucursalId}`} className="nav-link">
