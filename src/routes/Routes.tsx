@@ -1,23 +1,27 @@
+// src/routes/Routes.tsx
 import React, { useEffect, useState } from 'react';
-import { Route, Routes, Navigate } from 'react-router-dom';
+import { Route, Routes as RouterRoutes, Navigate } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
+import useAuthToken from '../hooks/useAuthToken';
+import LoginPage from '../components/screens/Login/Login';
+import PrivateRoute from './PrivateRoute';
 import BaseNavbar from '../components/ui/common/Navbar/BaseNavbar';
 import Inicio from '../components/screens/Inicio/Inicio';
+import EmpresaComponent from '../components/screens/Empresa/EmpresaComponent';
 import SidebarLayout from '../components/ui/common/SideBarLayout/SideBarLayout';
+import './routes.css'
 import SucursalComponent from '../components/screens/Sucursal/SucursalComponent';
 import Insumo from '../components/screens/Insumo/Insumo';
-import Producto from '../components/screens/Producto/Producto';
+import TableUnidadMedida from '../components/ui/Tables/TableUnidadMedida/TableUnidadMedida';
 import Categoria from '../components/screens/Categoria/Categoria';
 import UnidadMedida from '../components/screens/UnidadMedida/UnidadMedida';
 import Promocion from '../components/screens/Promocion/Promocion';
 import Empleado from '../components/screens/Empleado/Empleado';
 import CallbackPage from '../components/auth/CallbackPage';
-import { useAuth0 } from '@auth0/auth0-react';
-import Login from '../components/screens/Login/Login';
-import EmpresaComponent from '../components/screens/Empresa/EmpresaComponent';
-import { AuthenticationGuard } from '../components/auth/AuthenticationGuard';
-import useAuthToken from '../hooks/useAuthToken';
 
-const Rutas: React.FC = () => {
+import Producto from '../components/screens/Producto/Producto';
+
+const Routes: React.FC = () => {
   const { isAuthenticated, isLoading, user } = useAuth0();
   const getToken = useAuthToken();
   const [token, setToken] = useState<string | null>(null);
@@ -51,33 +55,33 @@ const Rutas: React.FC = () => {
           <BaseNavbar />
         </div>
       )}
-      <Routes>
+      <RouterRoutes>
         <Route path="/callback" element={<CallbackPage />} />
         {!isAuthenticated ? (
           <>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<LoginPage />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>
         ) : (
           <>
             <Route path="/" element={<Navigate to="/empresa" />} />
-            <Route path="/empresa" element={<EmpresaComponent />} />
-            <Route path="/empresa/:empresaId" element={<SucursalComponent />} />
+            <Route path="/empresa" element={<PrivateRoute component={EmpresaComponent} roles={['admin']} />} />
+            <Route path="/empresa/:empresaId" element={<PrivateRoute component={SucursalComponent} roles={['admin']} />} />
             <Route path="/" element={<SidebarLayout />}>
-              <Route path="/dashboard/:sucursalId" element={<AuthenticationGuard component={Inicio} />} />
-              <Route path="/insumos/:sucursalId" element={<AuthenticationGuard component={Insumo} />} />
-              <Route path="/productos/:sucursalId" element={<AuthenticationGuard component={Producto} />} />
-              <Route path="/unidadMedida/:sucursalId" element={<AuthenticationGuard component={UnidadMedida} />} />
-              <Route path="/categorias/:sucursalId" element={<AuthenticationGuard component={Categoria} />} />
-              <Route path="/promociones/:sucursalId" element={<AuthenticationGuard component={Promocion} />} />
-              <Route path="/empleados/:sucursalId" element={<AuthenticationGuard component={Empleado} />} />
+              <Route path="/dashboard/:sucursalId" element={<PrivateRoute component={Inicio} roles={['admin']} />} />
+              <Route path="/insumos/:sucursalId" element={<PrivateRoute component={Insumo} roles={['admin', 'empleado']} />} />
+              <Route path="/productos/:sucursalId" element={<PrivateRoute component={Producto} roles={['admin', 'cocinero']} />} />
+              <Route path="/unidadMedida/:sucursalId" element={<PrivateRoute component={UnidadMedida} roles={['admin', 'empleado']} />} />
+              <Route path="/categorias/:sucursalId" element={<PrivateRoute component={Categoria} roles={['admin', 'empleado']} />} />
+              <Route path="/promociones/:sucursalId" element={<PrivateRoute component={Promocion} roles={['admin', 'empleado']} />} />
+              <Route path="/empleados/:sucursalId" element={<PrivateRoute component={Empleado} roles={['admin']} />} />
             </Route>
             <Route path="*" element={<Navigate to="/empresa" />} />
           </>
         )}
-      </Routes>
+      </RouterRoutes>
     </>
   );
-};
+}
 
-export default Rutas;
+export default Routes;
