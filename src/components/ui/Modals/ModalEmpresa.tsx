@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import * as Yup from 'yup';
 import GenericModal from './GenericModal';
 import TextFieldValue from '../TextFieldValue/TextFieldValue';
@@ -10,6 +10,7 @@ import { Delete, PhotoCamera } from '@mui/icons-material';
 import { Button, Card, CardActions, CardMedia, IconButton, Typography } from '@mui/material';
 import Swal, { SweetAlertIcon } from 'sweetalert2';
 import ImagenService from '../../../services/ImagenService';
+import useAuthToken from '../../../hooks/useAuthToken';
 
 interface ModalEmpresaProps {
   modalName: string;
@@ -34,6 +35,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
   const [empresaImages, setEmpresaImages] = useState<any[]>([]);
   const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
+  const getToken = useAuthToken();
 
   const validationSchema = Yup.object().shape({
     nombre: Yup.string().required('Campo requerido'),
@@ -43,7 +45,6 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       .matches(/^\d{11}$/, 'CUIL inválido. Debe tener 11 dígitos.')
       .required('Campo requerido'),
   });
-
 
   const showModal = (title: string , text: string, icon: SweetAlertIcon) => {
     Swal.fire({
@@ -55,32 +56,26 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       },
     });
   };
-  
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (files) {
-      // Verificar si la cantidad total de imágenes (las actuales más las nuevas) supera el límite de 3
       if (empresaImages.length + files.length > 3) {
         showModal("Error", "No puedes subir más de 3 imágenes", "warning");
         event.target.value = '';
         return;
       }
-  
-      // Si no supera el límite, actualizar la lista de archivos seleccionados
       setSelectedFiles(files);
-      // Calcular la cantidad total de imágenes después de agregar las nuevas
       const totalImages = empresaImages.length + files.length;
-      // Habilitar el botón de submit si hay al menos una imagen seleccionada
       setDisableSubmit(totalImages === 0);
     }
   };
-  
 
   const uploadImages = async (id: number) => {
     if (!selectedFiles) {
-      return showModal("No hay imágenes seleccionadas", "Selecciona al menos una imagen", "warning");;
+      return showModal("No hay imágenes seleccionadas", "Selecciona al menos una imagen", "warning");
     }
+
     const formData = new FormData();
     Array.from(selectedFiles).forEach((file) => {
       formData.append("uploads", file);
@@ -97,15 +92,12 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       allowOutsideClick: false,
       didOpen: () => {
         Swal.showLoading();
-        const modal = Swal.getPopup();
-        if (modal) {
-          modal.classList.add('my-swal');
-        }
       },
     });
 
     try {
-      const response = await imagenService.uploadImages(url, formData); 
+      const token = await getToken();
+      const response = await imagenService.uploadImages(url, formData, token);
 
       if (!response.ok) {
         throw new Error('Error al subir las imágenes');
@@ -122,16 +114,16 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
   const handleDeleteImg = async (url: string, uuid: string) => {
     const urlParts = url.split("/");
     const publicId = urlParts[urlParts.length - 1];
-  
+
     const formData = new FormData();
     formData.append("publicId", publicId);
     formData.append("id", uuid);
-  
+
     if (empresaImages.length === 1) {
       showModal("Error", "No puedes eliminar la última imagen de la empresa", "warning");
       return;
     }
-  
+
     Swal.fire({
       title: "Eliminando imagen...",
       text: "Espere mientras se elimina la imagen.",
@@ -143,23 +135,25 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
         Swal.showLoading();
       },
     });
-  
+
     try {
+      const token = await getToken();
       const response = await fetch(`${URL}/empresa/deleteImg`, {
         method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         body: formData,
       });
-  
+
       Swal.close();
-  
+
       if (response.ok) {
         showModal("Éxito", "Imagen eliminada correctamente", "success");
-        // Filtra la imagen eliminada de la lista
         const updatedImages = empresaImages.filter((img) => img.uuid !== uuid);
         setEmpresaImages(updatedImages);
-        // Vuelve a cargar las imágenes actualizadas
         getEmpresas();
-        onClose(); // Close the modal
+        onClose();
       } else {
         showModal("Error", "Algo falló al eliminar la imagen, inténtalo de nuevo.", "error");
       }
@@ -169,9 +163,6 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
       console.error("Error:", error);
     }
   };
-  
-
-
 
   const handleSubmit = async (values: EmpresaPost) => {
     if (!isEditMode && (!selectedFiles || selectedFiles.length === 0)) {
@@ -202,11 +193,13 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     let id: number | null = null;
 
     try {
+      const token = await getToken();
+
       if (isEditMode && empresaAEditar) {
-        await empresaService.put(`${URL}/empresa`, empresaAEditar.id, values);
+        await empresaService.putSec(`${URL}/empresa`, empresaAEditar.id, values, token);
         id = empresaAEditar.id;
       } else {
-        const response = await empresaService.post(`${URL}/empresa`, values) as IEmpresa;
+        const response = await empresaService.postSec(`${URL}/empresa`, values, token) as IEmpresa;
         id = response.id;
       }
 
@@ -216,7 +209,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
         }
 
         if (rollback) {
-          await empresaService.delete(`${URL}/empresa`, id);
+          await empresaService.deleteSec(`${URL}/empresa`, id, token);
         } else {
           getEmpresas();
         }
@@ -226,36 +219,16 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     } catch (error) {
       rollback = true;
       if (id !== null) {
-        await empresaService.delete(`${URL}/empresa`, id);
+        const token = await getToken();
+        await empresaService.deleteSec(`${URL}/empresa`, id, token);
       }
-      showModal("Error", "Ocurrió un error, por favor intenta nuevamente.", "error");
-      console.error('Error al enviar los datos:', error);
+      showModal("Error", "Algo falló al crear la empresa, contacta al desarrollador.", "error");
+      console.error("Error:", error);
     }
+
+    setSelectedFiles(null);
+    onClose();
   };
-
-  useEffect(() => {
-    if (isEditMode && empresaAEditar) {
-      if (empresaAEditar.imagenes) {
-        setEmpresaImages(empresaAEditar.imagenes);
-      }
-    }
-  }, [isEditMode, empresaAEditar]);
-
-  useEffect(() => {
-    if (isEditMode) {
-      setDisableSubmit(false);
-    } else {
-      setDisableSubmit(true);
-    }
-  }, [isEditMode]);
-
-  useEffect(() => {
-    return () => {
-      setSelectedFiles(null);
-    };
-  }, []);
-
-
 
   const formInitialValues = isEditMode && empresaAEditar ? empresaAEditar : initialValues;
 
@@ -271,7 +244,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
     >
       <TextFieldValue label="Nombre" name="nombre" type="text" placeholder="Nombre" />
       <TextFieldValue label="Razón Social" name="razonSocial" type="text" placeholder="Razón Social" disabled={isEditMode} />
-      <TextFieldValue label="CUIL" name="cuil" type="text" placeholder="Ejemplo: 12345678901" />
+      <TextFieldValue label="CUIL" name="cuil" type="text" placeholder="Ejemplo: 12345678901"  disabled={isEditMode} />
       <Button
         variant="contained"
         component="label"
@@ -292,11 +265,11 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
           multiple
         />
       </Button>
-      {isEditMode && empresaImages.length > 0 && (
+      {isEditMode && empresaAEditar && empresaAEditar?.imagenes.length > 0 && (
         <div>
           <Typography variant='h5' sx={{ mb: 1 }}>Imágenes de la Empresa</Typography>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-            {empresaImages.map((image) => (
+            {empresaAEditar?.imagenes.map((image) => (
               <Card key={image.id} style={{ position: 'relative', width: '100px', height: '100px' }}>
                 <CardMedia
                   component="img"
@@ -304,7 +277,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
                   style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                 />
                 <CardActions style={{ position: 'absolute', top: 0, right: 0 }}>
-                  <IconButton style={{ color: 'red' }} onClick={() => handleDeleteImg(image.url, image.id)}>
+                  <IconButton style={{ color: 'red' }} onClick={() => handleDeleteImg(image.url, image.id.toString())}>
                     <Delete />
                   </IconButton>
                 </CardActions>

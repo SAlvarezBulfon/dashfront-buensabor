@@ -7,14 +7,9 @@ import EmpleadoService from '../../../services/EmpleadoService';
 import Swal from 'sweetalert2';
 import EmpleadoPost from '../../../types/post/EmpleadoPost';
 import IEmpleado from '../../../types/Empleado';
-import { Rol } from '../../../types/enums/Rol';
+import useAuthToken from '../../../hooks/useAuthToken';
 
-// Definir un objeto para mapear los nombres de los roles
-const roleNames: { [key: string]: string } = {
-    [Rol.CAJERO]: 'CAJERO',
-    [Rol.COCINERO]: 'COCINERO',
-    [Rol.EMPLEADO]: 'EMPLEADO',
-};
+const roleNames: string[] = ['CAJERO', 'COCINERO', 'EMPLEADO'];
 
 interface ModalEmpleadoProps {
     modalName: string;
@@ -35,8 +30,9 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
 }) => {
     const empleadoService = new EmpleadoService();
     const URL = import.meta.env.VITE_API_URL;
+    const getToken = useAuthToken();
 
-    const [tipoEmpleado, setTipoEmpleado] = useState<Rol>(initialValues.tipoEmpleado || Rol.EMPLEADO);
+    const [tipoEmpleado, setTipoEmpleado] = useState<string>(initialValues.tipoEmpleado || 'EMPLEADO');
 
     const validationSchema = Yup.object().shape({
         nombre: Yup.string().required('Campo requerido'),
@@ -54,10 +50,10 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
         try {
             const response = await fetch(`${URL}/empleado/findByEmail?email=${encodeURIComponent(email)}`);
             const data = await response.json();
-            return !!data; // Devuelve true si se encuentra un empleado con ese email, false si no se encuentra nada
+            return !!data;
         } catch (error) {
             console.error('Error al comprobar la existencia del email:', error);
-            return false; // Devuelve false en caso de error
+            return false;
         }
     };
 
@@ -65,7 +61,6 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
         let id: number | null = null;
 
         try {
-            // Verificar si el email ya existe en la base de datos
             const emailExists = await checkEmailExistence(values.email);
 
             if (emailExists && !isEditMode) {
@@ -91,12 +86,12 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
             };
 
             let response;
-
+            const token = await getToken();
             if (isEditMode && empleadoAEditar) {
-                await empleadoService.put(`${URL}/empleado`, empleadoAEditar.id, empleadoPost);
+                await empleadoService.putSec(`${URL}/empleado`, empleadoAEditar.id, empleadoPost, token);
                 id = empleadoAEditar.id;
             } else {
-                response = await empleadoService.post(`${URL}/empleado`, empleadoPost) as IEmpleado;
+                response = await empleadoService.postSec(`${URL}/empleado`, empleadoPost, token) as IEmpleado;
                 id = response.id;
             }
 
@@ -109,7 +104,7 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
                         container: 'my-swal',
                     },
                 });
-                getEmpleados(); // Actualiza los empleados después de guardar
+                getEmpleados();
             } else {
                 throw new Error('El ID del empleado es nulo');
             }
@@ -163,15 +158,15 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
                                 labelId="tipoEmpleadoLabel"
                                 id="tipoEmpleado"
                                 value={tipoEmpleado}
-                                onChange={(e) => setTipoEmpleado(e.target.value as Rol)}
+                                onChange={(e) => setTipoEmpleado(e.target.value as string)}
                                 displayEmpty
                             >
                                 <MenuItem disabled value="">
                                     Seleccione un tipo de empleado
                                 </MenuItem>
-                                {Object.keys(roleNames).map((key) => (
-                                    <MenuItem key={key} value={key}>
-                                        {roleNames[key]}
+                                {roleNames.map((name) => (
+                                    <MenuItem key={name} value={name}>
+                                        {name}
                                     </MenuItem>
                                 ))}
                             </Select>
@@ -184,3 +179,5 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
 };
 
 export default ModalEmpleado;
+
+

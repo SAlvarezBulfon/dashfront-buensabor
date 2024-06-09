@@ -12,8 +12,10 @@ import IProducto from "../../../types/IProducto";
 import { toggleModal } from "../../../redux/slices/ModalReducer";
 import SearchBar from "../../ui/common/SearchBar/SearchBar";
 import TableComponent from "../../ui/Tables/Table/TableComponent";
+import useAuthToken from "../../../hooks/useAuthToken";
 
 const Producto = () => {
+  const getToken = useAuthToken();
   const url = import.meta.env.VITE_API_URL;
   const dispatch = useAppDispatch();
   const productoService = new ProductoService();
@@ -46,10 +48,11 @@ const Producto = () => {
 
   const onDeleteProducto = async (producto: IProducto) => {
     try {
+      const token = await getToken();
       await onDelete(
         producto,
         async (productoToDelete: IProducto) => {
-          await productoService.delete(url + "/ArticuloManufacturado", productoToDelete.id);
+          await productoService.deleteSec(url + "/ArticuloManufacturado", productoToDelete.id, token);
         },
         fetchProductos,
         () => { },

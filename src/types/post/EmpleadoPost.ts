@@ -1,5 +1,3 @@
-import { Rol } from "../enums/Rol";
-
 
 export default interface EmpleadoPost{
     nombre: string,
@@ -7,6 +5,6 @@ export default interface EmpleadoPost{
     telefono: string,
     email: string,
     fechaNacimiento: string,
-    tipoEmpleado: Rol,
+    tipoEmpleado: string,
     idSucursal: number
 }

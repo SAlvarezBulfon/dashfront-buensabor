@@ -1,11 +1,12 @@
 import { AppState, Auth0Provider } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
+import React from "react";
 
 type Props = {
   children: JSX.Element;
 };
 
-export const Auth0ProviderWithNavigate = ({ children }: Props) => {
+export const Auth0ProviderWithNavigate: React.FC<Props> = ({ children }) => {
   const navigate = useNavigate();
 
   const domain = import.meta.env.VITE_AUTH0_DOMAIN;
@@ -17,7 +18,8 @@ export const Auth0ProviderWithNavigate = ({ children }: Props) => {
     navigate(appState?.returnTo || window.location.pathname);
   };
 
-  if (!(domain && clientId && redirectUri)) {
+  if (!domain || !clientId || !redirectUri) {
+    console.error("Missing Auth0 configuration");
     return null;
   }
 

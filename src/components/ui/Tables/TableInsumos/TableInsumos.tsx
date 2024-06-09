@@ -14,10 +14,12 @@ import ModalInsumo from "../../Modals/ModalInsumo";
 import { toggleModal } from "../../../../redux/slices/ModalReducer";
 import { InsumoPost } from "../../../../types/post/InsumoPost";
 import EmptyState from "../../Cards/EmptyState/EmptyState";
+import useAuthToken from "../../../../hooks/useAuthToken";
+
 
 
 const TableInsumo = () => {
-
+    const getToken = useAuthToken();
     const dispatch = useAppDispatch();
     const globalArticulosInsumos = useAppSelector((state) => state.insumo.data);
     const isModalOpen = useAppSelector((state) => state.modal.modalInsumo);
@@ -75,11 +77,12 @@ const TableInsumo = () => {
     };
 
     const handleDelete = async (insumo: IInsumo) => {
+        const token = await getToken();
         try {
             await onDelete(
                 insumo,
                 async (insumoToDelete: IInsumo) => {
-                    await insumoService.delete(url + '/ArticuloInsumo', insumoToDelete.id);
+                    await insumoService.deleteSec(url + '/ArticuloInsumo', insumoToDelete.id, token);
                 },
                 fetchArticulosInsumos,
                 () => { },

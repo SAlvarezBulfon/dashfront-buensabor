@@ -11,6 +11,7 @@ import SucursalService from '../../../services/SucursalService';
 import EmpresaService from '../../../services/EmpresaService';
 import ISucursal from '../../../types/ISucursal';
 import ICategoria from '../../../types/ICategoria';
+import useAuthToken from '../../../hooks/useAuthToken';
 
 interface ModalCategoriaProps {
     modalName: string;
@@ -30,6 +31,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     idSucursal
 }) => {
     const categoriaService = new CategoriaService();
+    const getToken = useAuthToken();
     const URL = import.meta.env.VITE_API_URL;
     const [sucursales, setSucursales] = useState<ISucursal[]>([]);
     const [selectedSucursales, setSelectedSucursales] = useState<number[]>([]);
@@ -49,10 +51,11 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     }, [initialValues]);
 
     const fetchSucursales = async () => {
+        const token = await getToken();
         try {
             const sucursal = await sucursalService.get(`${url}/sucursal`, idSucursal) as ISucursal;
             const empresaid = sucursal.empresa.id;
-            const empresa = await empresaService.get(`${url}/empresa/sucursales`, empresaid);
+            const empresa = await empresaService.getById(`${url}/empresa/sucursales`, empresaid, token);
             const sucursales = empresa.sucursales;
             setSucursales(sucursales);
         } catch (error) {
@@ -65,6 +68,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
     }, [idSucursal]);
 
     const handleSubmit = async (values: CategoriaPost) => {
+        const token = await getToken();
         try {
             if (selectedSucursales.length > 0) {
                 const categoriaPost: CategoriaPost = {
@@ -78,10 +82,10 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                 let categoriaId;
 
                 if (isEditMode && categoriaAEditar) {
-                    response = await categoriaService.put(`${URL}/categoria`, categoriaAEditar.id, categoriaPost);
+                    response = await categoriaService.putSec(`${URL}/categoria`, categoriaAEditar.id, categoriaPost, token);
                     categoriaId = categoriaAEditar.id;
                 } else {
-                    response = await categoriaService.post(`${URL}/categoria`, categoriaPost) as ICategoria;
+                    response = await categoriaService.postSec(`${URL}/categoria`, categoriaPost, token) as ICategoria;
                     categoriaId = response.id;
                 }
 
@@ -96,9 +100,10 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                                 subCategorias: [] 
                             };
                             const subResponse = await fetch(`${URL}/categoria/addSubCategoria/${parentId}`, {
-                                method: 'POST',
+                                method: 'PUT',
                                 headers: {
-                                    'Content-Type': 'application/json'
+                                    'Content-Type': 'application/json',
+                                    Authorization: `Bearer ${token}`,
                                 },
                                 body: JSON.stringify(subCategoriaPost)
                             });

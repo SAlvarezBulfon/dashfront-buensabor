@@ -57,7 +57,7 @@ const EmpresaComponent: React.FC = () => {
     };
 
     useEffect(() => {
-        fetchEmpresas();
+            fetchEmpresas();
     }, [dispatch]);
 
 

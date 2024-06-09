@@ -18,6 +18,7 @@ import { IInsumo } from '../../../types/IInsumo';
 import TableComponent from '../Tables/Table/TableComponent';
 import ImagenService from '../../../services/ImagenService';
 import { Delete, PhotoCamera } from '@mui/icons-material';
+import useAuthToken from '../../../hooks/useAuthToken';
 
 interface ModalProductoProps {
     modalName: string;
@@ -43,6 +44,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     const categoriaService = new CategoriaService();
     const imagenService = new ImagenService();
     const URL = import.meta.env.VITE_API_URL;
+    const getToken = useAuthToken();
 
     const [unidadMedidaOptions, setUnidadMedidaOptions] = useState<{ id: number; denominacion: string }[]>([]);
     const [insumos, setInsumos] = useState<any[]>([]);
@@ -119,7 +121,8 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
         });
 
         try {
-            const response = await imagenService.uploadImages(url, formData);
+            const token = await getToken();
+            const response = await imagenService.uploadImages(url, formData, token);
 
             if (!response.ok) {
                 throw new Error('Error al subir las imágenes');
@@ -159,9 +162,13 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
         });
 
         try {
+            const token = await getToken();
             const response = await fetch(`${URL}/ArticuloManufacturado/deleteImg`, {
                 method: "POST",
                 body: formData,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
             });
 
             Swal.close();
@@ -249,9 +256,10 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
 
     const onDeleteProductoDetalle = async (productoDetalle: IProductoDetalle) => {
         try {
+            const token = await getToken();
             if (isEditMode && productoAEditar) {
                 // Si está en modo de edición, usamos el servicio para eliminar el detalle del producto de la base de datos
-                await productoDetalleService.delete(`${URL}/ArticuloManufacturadoDetalle`, productoDetalle.id);
+                await productoDetalleService.deleteSec(`${URL}/ArticuloManufacturadoDetalle`, productoDetalle.id, token);
             }
             //actualizamos el estado eliminando el detalle
             const updatedIngredients = dataIngredients.filter((ingredient) => ingredient.id !== productoDetalle.id);
@@ -279,6 +287,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     };
 
     const handleNewIngredient = async () => {
+        const token = await getToken();
         if (selectedInsumoId !== null && cantidadInsumo > 0) {
             try {
                 const newDetalle = {
@@ -286,7 +295,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                     idArticuloInsumo: selectedInsumoId,
                 };
 
-                const createdDetalle = await productoDetalleService.post(`${URL}/ArticuloManufacturadoDetalle`, newDetalle);
+                const createdDetalle = await productoDetalleService.postSec(`${URL}/ArticuloManufacturadoDetalle`, newDetalle, token);
 
                 setDataIngredients([...dataIngredients, createdDetalle]);
 
@@ -329,6 +338,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     ];
 
     const handleSubmit = async (values: IProducto) => {
+        const token = await getToken();
         try {
             const productoPost = {
                 denominacion: values.denominacion,
@@ -359,10 +369,10 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                         };
                     }),
                 };
-                await productoService.put(`${URL}/ArticuloManufacturado`, productoAEditar.id, productoPut);
+                await productoService.putSec(`${URL}/ArticuloManufacturado`, productoAEditar.id, productoPut, token);
                 id = productoAEditar.id;
             } else {
-                response = await productoService.post(`${URL}/ArticuloManufacturado`, productoPost) as IProducto;
+                response = await productoService.postSec(`${URL}/ArticuloManufacturado`, productoPost, token) as IProducto;
                 id = response.id;
             }
 
@@ -397,7 +407,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             if (!isEditMode) {
                 try {
                     await Promise.all(dataIngredients.map(async (detalle) => {
-                        await productoDetalleService.delete(`${URL}/ArticuloManufacturadoDetalle`, detalle.id);
+                        await productoDetalleService.deleteSec(`${URL}/ArticuloManufacturadoDetalle`, detalle.id, token);
                     }));
                 } catch (rollbackError) {
                     console.error('Error al realizar el rollback:', rollbackError);

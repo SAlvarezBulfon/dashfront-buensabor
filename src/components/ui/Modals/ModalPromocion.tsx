@@ -20,6 +20,7 @@ import Column from '../../../types/Column';
 import TableComponent from '../Tables/Table/TableComponent';
 import ArticuloSeleccionado from '../Cards/ArticulosSeleccionados/ArticulosSeleccionados';
 import IPromocionDetalle from '../../../types/IPromocionDetalle';
+import useAuthToken from '../../../hooks/useAuthToken';
 
 
 interface ModalPromocionProps {
@@ -57,6 +58,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
     const [promocionImages, setPromocionImages] = useState<any[]>([]);
     const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
     const [dataArticles, setDataArticles] = useState<any[]>([]);
+    const getToken = useAuthToken();
 
 
 
@@ -85,9 +87,10 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
 
     const handleRemoveDetalle = async (promocionDetalle: IPromocionDetalle) => {
         try {
+            const token = await getToken();
             if (isEditMode && promocionAEditar) {
                 // Si está en modo de edición, usamos el servicio para eliminar el detalle de promoción de la base de datos
-                await promocionDetalleService.delete(`${URL}/promocionDetalle`, promocionDetalle.id);
+                await promocionDetalleService.deleteSec(`${URL}/promocionDetalle`, promocionDetalle.id, token);
             }
             // Actualizamos el estado eliminando el detalle
             const updatedDetalles = dataArticles.filter((detalle) => detalle.id !== promocionDetalle.id);
@@ -117,6 +120,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
 
 
     const handleNewArticle = async (idArticulo: number | null, cantidad: number) => {
+        const token = await getToken();
         // Verifica si se han seleccionado un artículo y una cantidad válida
         if (idArticulo !== null && cantidad > 0) {
             try {
@@ -125,8 +129,8 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                     cantidad: cantidad,
                     idArticulo: idArticulo,
                 };
-                const createdDetalle = await promocionDetalleService.post(`${URL}/promocionDetalle`, newArticleDetail);
-                console.log(createdDetalle);
+                console.log(newArticleDetail);
+                const createdDetalle = await promocionDetalleService.postSec(`${URL}/promocionDetalle`, newArticleDetail, token);
                 const updatedDetalles = [...dataArticles, createdDetalle];
                 setDataArticles(updatedDetalles);
 
@@ -211,6 +215,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
 
 
     const uploadImages = async (id: number) => {
+        const token = await getToken();
         if (!selectedFiles) {
             return showModal("No hay imágenes seleccionadas", "Selecciona al menos una imagen", "warning");;
         }
@@ -238,7 +243,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
         });
 
         try {
-            const response = await imagenService.uploadImages(url, formData);
+            const response = await imagenService.uploadImages(url, formData, token);
 
             if (!response.ok) {
                 throw new Error('Error al subir las imágenes');
@@ -253,6 +258,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
     };
 
     const handleDeleteImg = async (url: string, uuid: string) => {
+        const token = await getToken();
         const urlParts = url.split("/");
         const publicId = urlParts[urlParts.length - 1];
 
@@ -281,6 +287,9 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
             const response = await fetch(`${URL}/promocion/deleteImg`, {
                 method: "POST",
                 body: formData,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
             });
 
             Swal.close();
@@ -305,10 +314,11 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
 
 
     const fetchSucursales = async () => {
+        const token = await getToken();
         try {
             const sucursal = await sucursalService.get(`${URL}/sucursal`, idSucursal) as ISucursal;
             const empresaid = sucursal.empresa.id;
-            const empresa = await empresaService.get(`${URL}/empresa/sucursales`, empresaid);
+            const empresa = await empresaService.getById(`${URL}/empresa/sucursales`, empresaid, token);
             const sucursales = empresa.sucursales;
             setSucursales(sucursales);
         } catch (error) {

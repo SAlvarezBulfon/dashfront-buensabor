@@ -27,6 +27,7 @@ const Categoria: React.FC = () => {
     const [filter, setFilter] = useState<string>('all');
 
     const fetchCategoria = async () => {
+
         try {
             setIsLoading(true);
             if (sucursalId !== undefined) {

@@ -14,6 +14,7 @@ import { TipoPromocion } from '../../../types/enums/TipoPromocion';
 import ModalPromocion from '../../ui/Modals/ModalPromocion';
 import IPromocion from '../../../types/IPromocion';
 import PromocionPost from '../../../types/post/PromocionPost';
+import useAuthToken from '../../../hooks/useAuthToken';
 
 const Promocion: React.FC = () => {
     const url = import.meta.env.VITE_API_URL;
@@ -25,12 +26,13 @@ const Promocion: React.FC = () => {
     const [filteredData, setFilteredData] = useState<any[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-
+    const getToken = useAuthToken();
     const fetchPromociones = async () => {
         try {
             setIsLoading(true);
+            const token = await getToken();
             if (sucursalId !== undefined) {
-                const promociones = await sucursalService.get(`${url}/sucursal/getPromociones`, parseInt(sucursalId)) as any;
+                const promociones = await sucursalService.getById(`${url}/sucursal/getPromociones`, parseInt(sucursalId), token) as any;
                 dispatch(setPromociones(promociones));
                 setFilteredData(promociones);
             }

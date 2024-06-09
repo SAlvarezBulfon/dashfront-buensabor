@@ -8,6 +8,7 @@ import EmptyState from '../../Cards/EmptyState/EmptyState';
 import swal from 'sweetalert2';
 import Column from '../../../../types/Column';
 import ModalUnidadMedida from '../../Modals/ModalUnidadDeMedida';
+import useAuthToken from '../../../../hooks/useAuthToken';
 
 const TableUnidadMedida: React.FC = () => {
   const [units, setUnits] = useState<IUnidadMedida[]>([]);
@@ -18,6 +19,7 @@ const TableUnidadMedida: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const url = import.meta.env.VITE_API_URL;
   const unidadMedidaService = new UnidadMedidaService();
+  const getToken = useAuthToken();
 
   useEffect(() => {
     fetchUnits();
@@ -44,8 +46,9 @@ const TableUnidadMedida: React.FC = () => {
 
   const handleAddOrUpdate = async (unit: IUnidadMedida) => {
     try {
+      const token = await getToken();
       if (editId !== null) {
-        await unidadMedidaService.put(url + '/UnidadMedida', editId, unit);
+        await unidadMedidaService.putSec(url + '/UnidadMedida', editId, unit,token);
         const updatedUnits = units.map((u) => (u.id === editId ? unit : u));
         setUnits(updatedUnits);
         swal.fire({
@@ -56,7 +59,7 @@ const TableUnidadMedida: React.FC = () => {
         });
       } else {
         unit.id = Date.now();
-        await unidadMedidaService.post(url + '/UnidadMedida', unit);
+        await unidadMedidaService.postSec(url + '/UnidadMedida', unit, token);
         setUnits([...units, unit]);
         swal.fire({
           icon: 'success',
@@ -78,11 +81,12 @@ const TableUnidadMedida: React.FC = () => {
   };
 
   const handleDelete = async (unit: IUnidadMedida) => {
+    const token = await getToken();
     try {
       await onDelete(
         unit,
         async (unitToDelete: IUnidadMedida) => {
-          await unidadMedidaService.delete(url + '/UnidadMedida', unitToDelete.id);
+          await unidadMedidaService.deleteSec(url + '/UnidadMedida', unitToDelete.id, token);
         },
         fetchUnits,
         () => {},

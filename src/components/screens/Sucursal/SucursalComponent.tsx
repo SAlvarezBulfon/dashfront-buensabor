@@ -16,6 +16,7 @@ import ISucursal from "../../../types/ISucursal";
 import EmptyState from "../../ui/Cards/EmptyState/EmptyState";
 import CardSucursal from "../../ui/Cards/CardSucursal/CardSucursal";
 import NoResults from "../../ui/Cards/NoResults/NoResults";
+import useAuthToken from "../../../hooks/useAuthToken";
 
 
 type SucursalWithId = ISucursal & { id: number }; // Definir un tipo que tenga la propiedad id
@@ -24,6 +25,7 @@ const SucursalesEmpresa = () => {
     const { empresaId } = useParams<{ empresaId: string }>();
     const [nombreEmpresa, setNombreEmpresa] = useState<string>('');
     const [empresa, setEmpresa] = useState<IEmpresa>();
+    const getToken = useAuthToken();
     const dispatch = useAppDispatch();
     const empresaService = new EmpresaService();
     const sucursalService = new SucursalService();
@@ -40,7 +42,8 @@ const SucursalesEmpresa = () => {
         try {
             setIsLoading(true);
             if (empresaId !== undefined) {
-                const empresa = await empresaService.get(`${url}/empresa/sucursales`, parseInt(empresaId)) as IEmpresa;
+                const token = await getToken();
+                const empresa = await empresaService.getById(`${url}/empresa/sucursales`, parseInt(empresaId), token) as IEmpresa;
                 dispatch(setSucursal(empresa.sucursales));
                 setFilteredData(empresa.sucursales);
                 setNombreEmpresa(empresa.nombre);

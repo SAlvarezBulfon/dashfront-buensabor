@@ -13,11 +13,11 @@ import Column from '../../../types/Column';
 import { toggleModal } from '../../../redux/slices/ModalReducer';
 import IEmpleado from '../../../types/Empleado';
 import EmpleadoPost from '../../../types/post/EmpleadoPost';
-import { Rol } from '../../../types/enums/Rol';
 import SearchBar from '../../ui/common/SearchBar/SearchBar';
 import EmptyState from '../../ui/Cards/EmptyState/EmptyState';
 import TableComponent from '../../ui/Tables/Table/Table';
 import ModalEmpleado from '../../ui/Modals/ModalEmpleado';
+import useAuthToken from '../../../hooks/useAuthToken';
 
 const Empleado = () => {
     const dispatch = useAppDispatch();
@@ -29,6 +29,7 @@ const Empleado = () => {
     const [selectedEmpleado, setSelectedEmpleado] = useState<IEmpleado | EmpleadoPost>();
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const getToken = useAuthToken();
 
     const { sucursalId } = useParams<{ sucursalId: string }>();
 
@@ -54,7 +55,7 @@ const Empleado = () => {
         telefono: "",
         email: "",
         fechaNacimiento: "",
-        tipoEmpleado: Rol.ADMIN,
+        tipoEmpleado: "",
         idSucursal: parseInt(sucursalId || '0'),
     };
 
@@ -78,10 +79,11 @@ const Empleado = () => {
 
     const handleDelete = async (empleado: IEmpleado) => {
         try {
+            const token = await getToken();
             await onDelete(
                 empleado,
                 async (empleadoToDelete: IEmpleado) => {
-                    await empleadoService.delete(`${url}/empleado`, empleadoToDelete.id);
+                    await empleadoService.deleteSec(`${url}/empleado`, empleadoToDelete.id, token);
                 },
                 fetchEmpleados,
                 () => { },
@@ -99,10 +101,10 @@ const Empleado = () => {
         { id: "apellido", label: "Apellido", renderCell: (rowData) => <>{rowData.apellido}</> },
         { id: "telefono", label: "Teléfono", renderCell: (rowData) => <>{rowData.telefono}</> },
         { id: "email", label: "Email", renderCell: (rowData) => <>{rowData.email}</> },
-        { 
-            id: "fechaNacimiento", 
-            label: "Fecha de Nacimiento", 
-            renderCell: (rowData) => <>{new Date(rowData.fechaNacimiento).toLocaleDateString('es-ES', { timeZone: 'UTC' })}</> 
+        {
+            id: "fechaNacimiento",
+            label: "Fecha de Nacimiento",
+            renderCell: (rowData) => <>{new Date(rowData.fechaNacimiento).toLocaleDateString('es-ES', { timeZone: 'UTC' })}</>
         },
         { id: "tipoEmpleado", label: "Rol", renderCell: (rowData) => <>{rowData.tipoEmpleado}</> },
     ];
@@ -141,7 +143,7 @@ const Empleado = () => {
                         <CircularProgress sx={{ color: '#fb6376' }} />
                     </Box>
                 ) : filteredData.length === 0 ? (
-                    <Box sx={{mt: 3}}>
+                    <Box sx={{ mt: 3 }}>
                         <EmptyState
                             title="No hay empleados cargados"
                             description="Agrega nuevos empleados utilizando el formulario."

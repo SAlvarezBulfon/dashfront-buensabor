@@ -12,6 +12,7 @@ import ImagenService from '../../../services/ImagenService';
 import { Delete, PhotoCamera } from '@mui/icons-material';
 import IImagen from '../../../types/IImagen';
 import { IInsumo } from '../../../types/IInsumo';
+import useAuthToken from '../../../hooks/useAuthToken';
 
 interface ModalInsumoProps {
     modalName: string;
@@ -44,6 +45,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
     const [insumoImages, setinsumoImages] = useState<any[]>([]);
     const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
+    const getToken = useAuthToken();
 
     const fetchUnidadesMedida = async () => {
         try {
@@ -138,7 +140,8 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
         });
 
         try {
-            const response = await imagenService.uploadImages(url, formData);
+            const token = await getToken();
+            const response = await imagenService.uploadImages(url, formData, token);
 
             if (!response.ok) {
                 throw new Error('Error al subir las imágenes');
@@ -178,9 +181,13 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
         });
 
         try {
+            const token = await getToken();
             const response = await fetch(`${URL}/ArticuloInsumo/deleteImg`, {
                 method: "POST",
                 body: formData,
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                  },
             });
 
             Swal.close();
@@ -206,6 +213,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
 
 
     const handleSubmit = async (values: InsumoPost) => {
+        const token = await getToken();
         if (!isEditMode && (!selectedFiles || selectedFiles.length === 0)) {
           Swal.fire({
             title: "Error",
@@ -249,10 +257,10 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
             let response;
     
             if (isEditMode && insumoAEditar) {
-                await insumoService.put(`${URL}/ArticuloInsumo`, insumoAEditar.id, insumoPost);
+                await insumoService.putSec(`${URL}/ArticuloInsumo`, insumoAEditar.id, insumoPost,token);
                 id = insumoAEditar.id;
             } else {
-                response = await insumoService.post(`${URL}/ArticuloInsumo`, insumoPost) as IInsumo;
+                response = await insumoService.postSec(`${URL}/ArticuloInsumo`, insumoPost, token) as IInsumo;
                 id = response.id;
             }
     

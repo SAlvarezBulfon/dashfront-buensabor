@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route, Routes, Navigate } from 'react-router-dom';
 import BaseNavbar from '../components/ui/common/Navbar/BaseNavbar';
 import Inicio from '../components/screens/Inicio/Inicio';
@@ -15,20 +15,34 @@ import { useAuth0 } from '@auth0/auth0-react';
 import Login from '../components/screens/Login/Login';
 import EmpresaComponent from '../components/screens/Empresa/EmpresaComponent';
 import { AuthenticationGuard } from '../components/auth/AuthenticationGuard';
+import useAuthToken from '../hooks/useAuthToken';
 
 const Rutas: React.FC = () => {
-  const { isAuthenticated, isLoading, getAccessTokenSilently } = useAuth0();
+  const { isAuthenticated, isLoading, user } = useAuth0();
+  const getToken = useAuthToken();
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      try {
+        const authToken = await getToken();
+        setToken(authToken);
+      } catch (error) {
+        console.error('Error al obtener el token:', error);
+      }
+    };
+
+    if (isAuthenticated) {
+      fetchToken();
+    }
+  }, [getToken, isAuthenticated]);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  // Console log del token cuando el usuario está autenticado
-  if (isAuthenticated) {
-    getAccessTokenSilently()
-      .then((token) => console.log('Token:', token))
-      .catch((error) => console.error('Error al obtener el token:', error));
-  }
+  console.log('User:', user);
+  console.log('Token:', token);
 
   return (
     <>

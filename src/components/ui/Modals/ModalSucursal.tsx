@@ -16,6 +16,7 @@ import ISucursal from '../../../types/ISucursal';
 import { CheckCircleOutline, HighlightOff } from '@mui/icons-material';
 import EmpresaService from '../../../services/EmpresaService';
 import IEmpresa from '../../../types/IEmpresa';
+import useAuthToken from '../../../hooks/useAuthToken';
 
 interface ModalSucursalProps {
   modalName: string;
@@ -43,6 +44,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   const provinciaService = new ProvinciaService();
   const localidadService = new LocalidadService();
   const empresaService = new EmpresaService();
+  const getToken = useAuthToken();
 
   const [empresa, setEmpresa] = useState<IEmpresa>()
   const [paises, setPaises] = useState<any[]>([]);
@@ -56,10 +58,12 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
   const [provinciaNombre, setProvinciaNombre] = useState<string>('');
   const [localidadNombre, setLocalidadNombre] = useState<string>('');
   const [, setTooltipMessage] = useState<string>(''); // Mensaje para el tooltip
+  
 
   const fetchEmpresa = async () => {
     try {
-      const empre = await empresaService.get(`${URL}/empresa`, idEmpresa) as IEmpresa;
+      const token = await getToken();
+      const empre = await empresaService.getById(`${URL}/empresa`, idEmpresa, token) as IEmpresa;
       setEmpresa(empre);
     } catch (error) {
       console.error('Error al obtener la empresa:', error);
@@ -192,6 +196,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
 
   const handleSubmit = async (values: SucursalPost | Sucursal) => {
     try {
+      const token = await getToken();
       // Crear el objeto de domicilio
       const domicilio = {
         calle: values.domicilio.calle,
@@ -214,7 +219,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
           idEmpresa: idEmpresa,
         };
         console.log('Data a enviar en modo edición:', sucursalData);
-        await sucursalService.put(`${URL}/sucursal`, id, sucursalData);
+        await sucursalService.putSec(`${URL}/sucursal`, id, sucursalData, token);
         window.location.reload();
       } else {
         // Si no estamos en modo de edición, es un objeto SucursalPost y agregamos el id de la empresa
@@ -225,7 +230,7 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
           idEmpresa: idEmpresa,
         };
         console.log('Data a enviar en modo creación:', sucursalData);
-        await sucursalService.post(`${URL}/sucursal`, sucursalData);
+        await sucursalService.postSec(`${URL}/sucursal`, sucursalData, token);
         window.location.reload(); // Recargar la página después de eliminar la sucursal
       }
 
