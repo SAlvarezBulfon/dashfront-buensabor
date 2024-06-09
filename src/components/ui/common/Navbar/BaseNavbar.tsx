@@ -12,8 +12,10 @@ import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined';
 import Divider from '@mui/material/Divider';
 import LoginOutlinedIcon from '@mui/icons-material/LoginOutlined';
 import { Link } from 'react-router-dom';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export default function PrimarySearchAppBar() {
+  const {logout } = useAuth0();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
@@ -25,6 +27,11 @@ export default function PrimarySearchAppBar() {
   
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const handleLogout = () => {
+    logout({logoutParams: { returnTo: window.location.origin }});
+    handleMenuClose();
   };
 
   const menuId = 'primary-search-account-menu';
@@ -47,10 +54,9 @@ export default function PrimarySearchAppBar() {
       <MenuItem onClick={handleMenuClose}><div><Person2OutlinedIcon sx={{mr: 1}}/></div>Perfil</MenuItem>
       <MenuItem onClick={handleMenuClose}><div><SettingsOutlinedIcon sx={{mr: 1}} /></div>Ajustes</MenuItem>
       <Divider/>
-      <MenuItem onClick={handleMenuClose}><div><LoginOutlinedIcon sx={{mr: 1}} /></div>Cerrar Sesión</MenuItem>
+      <MenuItem onClick={handleLogout}><div><LoginOutlinedIcon sx={{mr: 1}} /></div>Cerrar Sesión</MenuItem>
     </Menu>
   );
-
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{bgcolor: '#fb6376'}}>
