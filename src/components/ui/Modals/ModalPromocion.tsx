@@ -120,7 +120,6 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
 
 
     const handleNewArticle = async (idArticulo: number | null, cantidad: number) => {
-        const token = await getToken();
         // Verifica si se han seleccionado un artículo y una cantidad válida
         if (idArticulo !== null && cantidad > 0) {
             try {
@@ -130,8 +129,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                     idArticulo: idArticulo,
                 };
                 console.log(newArticleDetail);
-                const createdDetalle = await promocionDetalleService.postSec(`${URL}/promocionDetalle`, newArticleDetail, token);
-                const updatedDetalles = [...dataArticles, createdDetalle];
+                const updatedDetalles = [...dataArticles, newArticleDetail];
                 setDataArticles(updatedDetalles);
 
                 // Puedes agregar más lógica aquí para restablecer otros valores relacionados con el artículo si es necesario
@@ -156,7 +154,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
             label: "",
             renderCell: (element) => (
                 <Typography variant="body1">
-                    {element.insumo ? element.insumo.denominacion : element.manufacturado.denominacion}
+                    {element.idArticulo}
                 </Typography>
             )
         },
@@ -340,18 +338,14 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
     const handleSubmit = async (values: PromocionPost) => {
         let rollback = false; // Variable para controlar el rollback
         let id: number | null = null;
-    
+        const token = await getToken();
         try {
             // Validaciones previas al envío de datos
             if (!isEditMode && (!selectedFiles || selectedFiles.length === 0)) {
                 showModal("Error", "Debes subir al menos una imagen", "warning");
                 return;
             }
-    
-            if (promocionAEditar.imagenes.length > 3) {
-                showModal("Error", "No puedes subir más de 3 imágenes", "warning");
-                return;
-            }
+
     
             if (!isEditMode && selectedSucursales.length === 0) {
                 showModal("Error", "Debe seleccionar al menos una sucursal.", "warning");
@@ -372,10 +366,12 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                 detalles: dataArticles.map((detalle) => {
                     return {
                         cantidad: detalle.cantidad,
-                        idArticulo: detalle.insumo ? detalle.insumo.id : detalle.manufacturado.id,
+                        idArticulo: detalle.idArticulo,
                     };
                 }),
             };
+
+            console.log(promocionPost)
 
     
             let response;
@@ -383,10 +379,10 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
             // Envío de datos (POST o PUT)
             if (isEditMode && promocionAEditar) {
                 console.log(promocionAEditar.id)
-                response = await promocionService.put(`${URL}/promocion`, promocionAEditar.id, promocionPost);
+                response = await promocionService.putSec(`${URL}/promocion`, promocionAEditar.id, promocionPost, token);
                 id = promocionAEditar.id;
             } else {
-                response = await promocionService.post(`${URL}/promocion`, promocionPost) as IPromocion;
+                response = await promocionService.postSec(`${URL}/promocion`, promocionPost, token) as IPromocion;
                 id = response.id;
             }
     
