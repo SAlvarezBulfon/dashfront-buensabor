@@ -51,9 +51,9 @@ const RutaPrivada: React.FC<RutaPrivadaProps> = ({ component: Component, roles }
     }
 
     const userData = JSON.parse(userDataString);
-    const rolesA = userData["https://my-app.example.com/roles"];
+    const rol = userData["https://my-app.example.com/roles"][0];
 
-    if (roles && !roles.some(role => rolesA.includes(role))) {
+    if (roles && !roles.includes(rol)) {
         return <Navigate to={`/dashboard/${idSucursal}`} replace />;
     }
     

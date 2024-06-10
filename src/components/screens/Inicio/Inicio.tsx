@@ -4,6 +4,8 @@ import BaseBar from "../../ui/Charts/BaseBar";
 import BasePie from "../../ui/Charts/BasePie";
 import InicioCard from "../../ui/Cards/InicioCard/InicioCard";
 import { useParams } from "react-router-dom";
+import 'react-datepicker/dist/react-datepicker.css';
+import ReportesCard  from "../../ui/Cards/Reportes/ReportesCard";
 
 
 // Contenido para las tarjetas de inicio
@@ -36,36 +38,42 @@ const Inicio: React.FC = () => {
     const { sucursalId } = useParams<{ sucursalId: string }>();
     const id = sucursalId || '';
     return (
-        <Box component="main" sx={{ flexGrow: 1, pt: 10}}>
+        <Box component="main" sx={{ flexGrow: 1, pt: 10 }}>
             <Container>
                 <Typography component="h1" variant="h5" color="initial" >Bienvenido</Typography>
-                        
-                <Grid container spacing={3} sx={{ py: 2, alignContent: 'center' , justifyContent: 'center' }}>
+
+
+                <Grid container spacing={3} sx={{ py: 2, alignContent: 'center', justifyContent: 'center' }}>
                     <Grid item xs={12} md={6}>
-                        <ChartCard title="Gráfico de Barras">
+                        <ChartCard title="Ingresos Mensuales">
                             <BaseBar />
                         </ChartCard>
                     </Grid>
                     <Grid item xs={12} md={6}>
-                        <ChartCard title="Gráfico de Pastel">
+                        <ChartCard title="Ranking">
                             <BasePie />
                         </ChartCard>
                     </Grid>
                 </Grid>
-                <Grid container spacing={3} sx={{ alignContent: 'center' , justifyContent: 'center'}}>
+
+                <Grid>
+                    <ReportesCard/>
+                </Grid>
+                
+                <Grid container spacing={3} sx={{ alignContent: 'center', justifyContent: 'center' }}>
                     <Grid item xs={12} md={4}>
                         <Box sx={cardStyle}>
-                            <InicioCard content={productosContent}  sucursalId={id} />
+                            <InicioCard content={productosContent} sucursalId={id} />
                         </Box>
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Box sx={cardStyle}>
-                            <InicioCard content={empresasContent}  sucursalId={id} />
+                            <InicioCard content={empresasContent} sucursalId={id} />
                         </Box>
                     </Grid>
                     <Grid item xs={12} md={4}>
                         <Box sx={cardStyle}>
-                            <InicioCard content={promocionesContent}  sucursalId={id}/>
+                            <InicioCard content={promocionesContent} sucursalId={id} />
                         </Box>
                     </Grid>
                 </Grid>
