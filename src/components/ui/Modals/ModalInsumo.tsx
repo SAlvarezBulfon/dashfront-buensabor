@@ -13,13 +13,17 @@ import { Delete, PhotoCamera } from '@mui/icons-material';
 import IImagen from '../../../types/IImagen';
 import { IInsumo } from '../../../types/IInsumo';
 import useAuthToken from '../../../hooks/useAuthToken';
+import SucursalService from '../../../services/SucursalService';
+import ISucursal from '../../../types/ISucursal';
+import EmpresaService from '../../../services/EmpresaService';
 
 interface ModalInsumoProps {
     modalName: string;
     initialValues: any;
     isEditMode: boolean;
-    getInsumos: Function;
+    getInsumos: () => void;
     insumoAEditar?: any;
+    idSucursal: number;
     onClose: () => void;
 }
 
@@ -29,14 +33,18 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     isEditMode,
     getInsumos,
     insumoAEditar,
-    onClose,
+    idSucursal,
+    onClose 
 }) => {
     const insumoService = new InsumoService();
     const unidadMedidaService = new UnidadMedidaService();
     const URL = import.meta.env.VITE_API_URL;
     const categoriaService = new CategoriaService();
     const imagenService = new ImagenService();
-
+    const sucursalService = new SucursalService();
+    const empresaService = new EmpresaService();
+    const getToken = useAuthToken();
+    
     const [unidadMedidaOptions, setUnidadMedidaOptions] = useState<{ id: number; denominacion: string }[]>([]);
     const [unidadMedida, setUnidadMedida] = useState<number>(initialValues.idUnidadMedida || 0);
     const [categoria, setCategoria] = useState<number>(initialValues.idCategoria || 0);
@@ -45,7 +53,9 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
     const [insumoImages, setinsumoImages] = useState<any[]>([]);
     const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
-    const getToken = useAuthToken();
+    const [sucursales, setSucursales] = useState<ISucursal[]>([]);
+    const [selectedSucursales, setSelectedSucursales] = useState<number[]>([]);
+
 
     const fetchUnidadesMedida = async () => {
         try {
@@ -63,6 +73,17 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
             setCategoriaOptions(categorias.filter(categoria => categoria.esInsumo));
         } catch (error) {
             console.error('Error al obtener las categorías:', error);
+        }
+    };
+    const fetchSucursales = async () => {
+        const token = await getToken();
+        try {
+            const sucursal = await sucursalService.get(`${URL}/sucursal`, idSucursal) as ISucursal;
+            const empresaid = sucursal.empresa.id;
+            const empresa = await empresaService.getById(`${URL}/empresa/sucursales`, empresaid, token);
+            setSucursales(empresa.sucursales);
+        } catch (error) {
+            console.error("Error al obtener las sucursales:", error);
         }
     };
 
@@ -154,6 +175,9 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
         }
         setSelectedFiles(null);
     };
+    useEffect(() => {
+        fetchSucursales();
+    }, [idSucursal]);
 
     const handleDeleteImg = async (url: string, uuid: string) => {
         const urlParts = url.split("/");
@@ -214,6 +238,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
 
     const handleSubmit = async (values: InsumoPost) => {
         const token = await getToken();
+        let id: number | null = null;
         if (!isEditMode && (!selectedFiles || selectedFiles.length === 0)) {
           Swal.fire({
             title: "Error",
@@ -238,10 +263,11 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
           return;
         }
     
-        let id: number | null = null;
+      
     
         try {
-            const insumoPost = {
+        
+            const insumoPost: InsumoPost = {
                 denominacion: values.denominacion,
                 precioVenta: values.precioVenta,
                 precioCompra: values.precioCompra,
@@ -252,10 +278,11 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
                 idUnidadMedida: unidadMedida,
                 esParaElaborar: esParaElaborar,
                 idCategoria: categoria,
+                idSucursales: selectedSucursales,
             };
     
             let response;
-    
+            
             if (isEditMode && insumoAEditar) {
                 await insumoService.putSec(`${URL}/ArticuloInsumo`, insumoAEditar.id, insumoPost,token);
                 id = insumoAEditar.id;
@@ -281,6 +308,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
             } else {
                 throw new Error('El ID del insumo es nulo');
             }
+      
         } catch (error) {
             console.error('Error al enviar los datos:', error);
             Swal.fire({
@@ -293,6 +321,14 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
             });
         }
     };
+    const handleToggleSucursal = (sucursalId: number)  => {
+        if (selectedSucursales.includes(sucursalId)) {
+            setSelectedSucursales(selectedSucursales.filter(id => id !== sucursalId));
+        } else {
+            setSelectedSucursales([...selectedSucursales, sucursalId]);
+        }
+    };
+   
 
     useEffect(() => {
         fetchCategorias();
@@ -416,6 +452,21 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
                     }
                     label="Es para elaborar"
                 />
+                   <>
+                        <p>Selecciona las sucursales:</p>
+                        {sucursales.map((sucursal: ISucursal) => (
+                            <FormControlLabel
+                                key={sucursal.id}
+                                control={
+                                    <Checkbox
+                                        checked={selectedSucursales.includes(sucursal.id)}
+                                        onChange={() => handleToggleSucursal(sucursal.id)}
+                                    />
+                                }
+                                label={sucursal.nombre}
+                            />
+                        ))}
+                    </>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                     <Button
                         variant="contained"

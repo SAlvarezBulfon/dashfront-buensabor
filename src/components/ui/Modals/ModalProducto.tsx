@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as Yup from 'yup';
-import { Box, MenuItem, Select, FormControl, TextField, Button, Typography, Grid, Card, CardMedia, CardActions, IconButton } from '@mui/material';
+import { Box, MenuItem, Select, FormControl, TextField, Button, Typography, Grid, Card, CardMedia, CardActions, IconButton, FormControlLabel, Checkbox } from '@mui/material';
 import GenericModal from './GenericModal';
 import TextFieldValue from '../TextFieldValue/TextFieldValue';
 import ProductoService from '../../../services/ProductoService';
@@ -19,6 +19,9 @@ import TableComponent from '../Tables/Table/TableComponent';
 import ImagenService from '../../../services/ImagenService';
 import { Delete, PhotoCamera } from '@mui/icons-material';
 import useAuthToken from '../../../hooks/useAuthToken';
+import ISucursal from '../../../types/ISucursal';
+import EmpresaService from '../../../services/EmpresaService';
+import SucursalService from '../../../services/SucursalService';
 
 interface ModalProductoProps {
     modalName: string;
@@ -27,6 +30,7 @@ interface ModalProductoProps {
     getProductos: Function;
     productoAEditar?: IProducto;
     onClose: () => void;
+    idSucursal: number;
 }
 
 const ModalProducto: React.FC<ModalProductoProps> = ({
@@ -36,6 +40,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     getProductos,
     productoAEditar,
     onClose,
+    idSucursal,
 }) => {
     const productoService = new ProductoService();
     const productoDetalleService = new ProductoDetalleService();
@@ -44,6 +49,8 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     const categoriaService = new CategoriaService();
     const imagenService = new ImagenService();
     const URL = import.meta.env.VITE_API_URL;
+    const sucursalService = new SucursalService();
+    const empresaService = new EmpresaService();
     const getToken = useAuthToken();
 
     const [unidadMedidaOptions, setUnidadMedidaOptions] = useState<{ id: number; denominacion: string }[]>([]);
@@ -60,6 +67,8 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     const [articuloImages, setArticuloImages] = useState<any[]>([]);
     const [selectedFiles, setSelectedFiles] = useState<FileList | null>(null);
     const [disableSubmit, setDisableSubmit] = useState<boolean>(true);
+    const [sucursales, setSucursales] = useState<ISucursal[]>([]);
+    const [selectedSucursales, setSelectedSucursales] = useState<number[]>([]);
 
     const showModal = (title: string, text: string, icon: SweetAlertIcon) => {
         Swal.fire({
@@ -246,6 +255,17 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
         }
     };
 
+    const fetchSucursales = async () => {
+        const token = await getToken();
+        try {
+            const sucursal = await sucursalService.get(`${URL}/sucursal`, idSucursal) as ISucursal;
+            const empresaid = sucursal.empresa.id;
+            const empresa = await empresaService.getById(`${URL}/empresa/sucursales`, empresaid, token);
+            setSucursales(empresa.sucursales);
+        } catch (error) {
+            console.error("Error al obtener las sucursales:", error);
+        }
+    };
     const validationSchema = Yup.object().shape({
         denominacion: Yup.string().required('Campo requerido'),
         descripcion: Yup.string().required('Campo requerido'),
@@ -259,7 +279,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             const token = await getToken();
             if (isEditMode && productoAEditar) {
                 // Si está en modo de edición, usamos el servicio para eliminar el detalle del producto de la base de datos
-                await productoDetalleService.deleteSec(`${URL}/ArticuloManufacturadoDetalle`, productoDetalle.id, token);
+                await productoDetalleService.deleteSec(`${URL}/ArticuloManufacturadoDetalle/bySucursalId/{idSucursal}`, productoDetalle.id, token);
             }
             //actualizamos el estado eliminando el detalle
             const updatedIngredients = dataIngredients.filter((ingredient) => ingredient.id !== productoDetalle.id);
@@ -354,6 +374,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                         idArticuloInsumo: detalle.articuloInsumo.id,
                     };
                 }),
+                idSucursales: selectedSucursales,
             };
 
             let response;
@@ -415,6 +436,16 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             }
         }
     };
+
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const id = parseInt(event.target.value);
+        setSelectedSucursales((prevSelected) =>
+            event.target.checked ? [...prevSelected, id] : prevSelected.filter((sucursalId) => sucursalId !== id)
+        );
+    };
+    useEffect(() => {
+        fetchSucursales();
+    }, [idSucursal]);
 
     useEffect(() => {
         fetchCategoria();
@@ -517,6 +548,22 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             </Grid>
 
             <TextFieldValue label="Preparación" name="preparacion" type="textarea" placeholder="Preparación" />
+            <Grid item xs={12}>
+                    <Typography variant="subtitle1">Seleccionar sucursales:</Typography>
+                    {sucursales.map((sucursal) => (
+                        <FormControlLabel
+                            key={sucursal.id}
+                            control={
+                                <Checkbox
+                                    value={sucursal.id}
+                                    checked={selectedSucursales.includes(sucursal.id)}
+                                    onChange={handleCheckboxChange}
+                                />
+                            }
+                            label={sucursal.nombre}
+                        />
+                    ))}
+                </Grid>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
                 <Button
                     variant="contained"

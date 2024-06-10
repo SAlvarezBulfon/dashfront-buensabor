@@ -11,5 +11,6 @@ export interface InsumoPost  {
     stockMinimo: number,
     esParaElaborar: boolean,
     imagenes: IImagen[],
-    idCategoria: number
+    idCategoria: number,
+    idSucursales: number[],
   }

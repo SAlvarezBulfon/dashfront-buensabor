@@ -15,6 +15,8 @@ import { toggleModal } from "../../../../redux/slices/ModalReducer";
 import { InsumoPost } from "../../../../types/post/InsumoPost";
 import EmptyState from "../../Cards/EmptyState/EmptyState";
 import useAuthToken from "../../../../hooks/useAuthToken";
+import { useParams } from "react-router-dom";
+import SucursalService from "../../../../services/SucursalService";
 
 
 
@@ -24,6 +26,7 @@ const TableInsumo = () => {
     const globalArticulosInsumos = useAppSelector((state) => state.insumo.data);
     const isModalOpen = useAppSelector((state) => state.modal.modalInsumo);
     const url = import.meta.env.VITE_API_URL;
+    const { sucursalId } = useParams<{ sucursalId: string }>();
     const insumoService = new InsumoService();
     const [filteredData, setFilteredData] = useState<Row[]>([]);
     const [selectedArticle, setSelectedArticle] = useState<IInsumo | InsumoPost>();
@@ -32,32 +35,36 @@ const TableInsumo = () => {
 
     const fetchArticulosInsumos = async () => {
         try {
-            const articulosInsumos = await insumoService.getAll(url + '/ArticuloInsumo');
+            if (sucursalId !== undefined) {
+            const articulosInsumos = await insumoService.get(`${url}/ArticuloInsumo/bySucursalId`, parseInt(sucursalId)) as any;
             dispatch(setInsumo(articulosInsumos));
             setFilteredData(articulosInsumos);
+            }
         } catch (error) {
             console.error("Error al obtener los artículos de insumo:", error);
         } finally {
-            setIsLoading(false); // Indicamos que la carga de datos ha terminado
+            setIsLoading(false); 
         }
     };
 
     useEffect(() => {
         fetchArticulosInsumos();
-    }, [dispatch]);
+    }, [dispatch, url, sucursalId]);
 
-    const initialValue: InsumoPost = {
-        denominacion: "",
-        precioVenta: 0,
-        idUnidadMedida: 0,
-        precioCompra: 0,
-        stockActual: 0,
-        stockMaximo: 0,
-        stockMinimo: 0,
-        esParaElaborar: false,
-        imagenes: [],
-        idCategoria: 0
-    };
+   
+const initialValue: InsumoPost = {
+    denominacion: "",
+    precioVenta: 0,
+    idUnidadMedida: 0,
+    precioCompra: 0,
+    stockActual: 0,
+    stockMaximo: 0,
+    stockMinimo: 0,
+    esParaElaborar: false,
+    imagenes: [],
+    idCategoria: 0,
+    idSucursales: [0]
+};
 
     const onSearch = (query: string) => {
         handleSearch(query, globalArticulosInsumos, 'denominacion', setFilteredData);
@@ -171,14 +178,16 @@ const TableInsumo = () => {
 
                 )}
             </Container>
-            {isModalOpen && selectedArticle &&
+            {sucursalId &&
                 <ModalInsumo
                     modalName="modalInsumo"
                     initialValues={selectedArticle || initialValue}
                     isEditMode={isEditing}
                     getInsumos={fetchArticulosInsumos}
                     insumoAEditar={selectedArticle}
+                    idSucursal={parseInt(sucursalId)}
                     onClose={() => dispatch(toggleModal({ modalName: "modalInsumo" }))}
+                    
                 />
             }
         </Box>
