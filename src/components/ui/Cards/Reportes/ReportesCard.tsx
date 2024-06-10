@@ -8,22 +8,12 @@ import { Link } from 'react-router-dom';
 const ReportesCard = () => {
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+    const url = import.meta.env.VITE_API_URL;
 
     const handleReportRequest = async () => {
         if (!startDate || !endDate) {
             console.error('Por favor selecciona una fecha de inicio y una fecha de fin.');
             return;
-        }
-
-        const formattedStartDate = startDate.toISOString().split('T')[0];
-        const formattedEndDate = endDate.toISOString().split('T')[0];
-        const url = `http://localhost:8080/reporte/excel?fechaDesde=${formattedStartDate}&fechaHasta=${formattedEndDate}`;
-        try {
-            // Realizar la petición con las fechas seleccionadas
-            console.log('URL de la petición:', url);
-            // Aquí puedes usar Axios u otra librería para realizar la petición
-        } catch (error) {
-            console.error('Error al realizar la petición:', error);
         }
     };
 
@@ -55,7 +45,7 @@ const ReportesCard = () => {
                             placeholderText="Fecha Fin"
                         />
                         {(startDate && endDate) ?
-                            <Link to={`http://localhost:8080/estadisticas/excel?fechaDesde=${startDate.toISOString().split('T')[0]}&fechaHasta=${endDate.toISOString().split('T')[0]}`}>
+                            <Link to={`${url}/estadisticas/excel?fechaDesde=${startDate.toISOString().split('T')[0]}&fechaHasta=${endDate.toISOString().split('T')[0]}`}>
                                 <Button onClick={handleReportRequest}>Generar Excel</Button>
                             </Link> : null}
                     </div>
