@@ -55,7 +55,7 @@ const Empleado = () => {
         telefono: "",
         email: "",
         fechaNacimiento: "",
-        tipoEmpleado: "",
+        rol: "",
         idSucursal: parseInt(sucursalId || '0'),
     };
 
@@ -106,7 +106,7 @@ const Empleado = () => {
             label: "Fecha de Nacimiento",
             renderCell: (rowData) => <>{new Date(rowData.fechaNacimiento).toLocaleDateString('es-ES', { timeZone: 'UTC' })}</>
         },
-        { id: "tipoEmpleado", label: "Rol", renderCell: (rowData) => <>{rowData.tipoEmpleado}</> },
+        { id: "rol", label: "Rol", renderCell: (rowData) => <>{rowData.rol}</> },
     ];
 
     return (

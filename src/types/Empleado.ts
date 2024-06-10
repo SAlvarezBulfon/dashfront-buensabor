@@ -8,6 +8,6 @@ export default interface IEmpleado extends DataModel<IEmpleado>{
     telefono: string,
     email: string,
     fechaNacimiento: string,
-    tipoEmpleado: Rol,
+    rol: Rol,
     sucursal: ISucursal
 }

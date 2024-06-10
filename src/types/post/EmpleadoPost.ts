@@ -5,6 +5,6 @@ export default interface EmpleadoPost{
     telefono: string,
     email: string,
     fechaNacimiento: string,
-    tipoEmpleado: string,
+    rol: string,
     idSucursal: number
 }

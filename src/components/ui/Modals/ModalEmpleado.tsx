@@ -32,7 +32,7 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
     const URL = import.meta.env.VITE_API_URL;
     const getToken = useAuthToken();
 
-    const [tipoEmpleado, setTipoEmpleado] = useState<string>(initialValues.tipoEmpleado || 'EMPLEADO');
+    const [rol, setRol] = useState<string>(initialValues.rol || 'EMPLEADO');
 
     const validationSchema = Yup.object().shape({
         nombre: Yup.string().required('Campo requerido'),
@@ -81,7 +81,7 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
                 telefono: values.telefono,
                 email: values.email,
                 fechaNacimiento: values.fechaNacimiento,
-                tipoEmpleado: tipoEmpleado,
+                rol: rol,
                 idSucursal: idSucursal,
             };
 
@@ -155,10 +155,10 @@ const ModalEmpleado: React.FC<ModalEmpleadoProps> = ({
                         <FormControl fullWidth>
                             <label className='label'>Tipo de Empleado</label>
                             <Select
-                                labelId="tipoEmpleadoLabel"
-                                id="tipoEmpleado"
-                                value={tipoEmpleado}
-                                onChange={(e) => setTipoEmpleado(e.target.value as string)}
+                                labelId="rolLabel"
+                                id="rol"
+                                value={rol}
+                                onChange={(e) => setRol(e.target.value as string)}
                                 displayEmpty
                             >
                                 <MenuItem disabled value="">
