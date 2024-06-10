@@ -39,7 +39,11 @@ const LoginPage = () => {
               bgcolor: "#d73754",
             },
           }}
-          onClick={() => loginWithRedirect()}
+          onClick={() => loginWithRedirect({
+            appState: {
+              returnTo: window.location.pathname,
+            },
+          })}
         >
           Iniciar sesión
         </Button>
