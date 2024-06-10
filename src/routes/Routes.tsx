@@ -14,7 +14,6 @@ import CallbackPage from '../components/auth/CallbackPage';
 import { useAuth0 } from '@auth0/auth0-react';
 import Login from '../components/screens/Login/Login';
 import EmpresaComponent from '../components/screens/Empresa/EmpresaComponent';
-import { AuthenticationGuard } from '../components/auth/AuthenticationGuard';
 import useAuthToken from '../hooks/useAuthToken';
 import RutaPrivada from '../components/RutaPrivada/RutaPrivada';
 
@@ -22,7 +21,6 @@ const Rutas: React.FC = () => {
   const { isAuthenticated, isLoading, user } = useAuth0();
   const getToken = useAuthToken();
   const [token, setToken] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchToken = async () => {

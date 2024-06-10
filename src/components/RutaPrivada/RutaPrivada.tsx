@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { Navigate } from 'react-router-dom';
-import EmpleadoPost from '../../types/post/EmpleadoPost';
 import IEmpleado from '../../types/Empleado';
 
 interface RutaPrivadaProps {
@@ -8,7 +7,7 @@ interface RutaPrivadaProps {
     roles?: string[];
 }
 const RutaPrivada: React.FC<RutaPrivadaProps> = ({ component: Component, roles }) => {
-    const [empleado, setEmpleado] = useState<IEmpleado | null>(null);
+    const [, setEmpleado] = useState<IEmpleado | null>(null);
     const [idSucursal, setIdSucursal] = useState<number | null>(null);
     const [loading, setLoading] = useState(true);
     const URL = import.meta.env.VITE_API_URL;
