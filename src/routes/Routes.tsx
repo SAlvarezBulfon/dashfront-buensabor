@@ -22,6 +22,7 @@ const Rutas: React.FC = () => {
   const { isAuthenticated, isLoading, user } = useAuth0();
   const getToken = useAuthToken();
   const [token, setToken] = useState<string | null>(null);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchToken = async () => {
@@ -66,9 +67,9 @@ const Rutas: React.FC = () => {
             <Route path="/empresa" element={<RutaPrivada component={EmpresaComponent} roles={["ADMIN"]}/> } />
             <Route path="/empresa/:empresaId" element={<RutaPrivada component={SucursalComponent} roles={["ADMIN"]}/> } />
             <Route path="/" element={<SidebarLayout />}>
-              <Route path="/dashboard/:sucursalId" element={<RutaPrivada component={Inicio} roles={[]} />} />
+              <Route path="/dashboard/:sucursalId" element={<RutaPrivada component={Inicio} roles={["ADMIN", "COCINERO", "EMPLEADO"]} />} />
               <Route path="/insumos/:sucursalId" element={<RutaPrivada component={Insumo} roles={["EMPLEADO","ADMIN"]}/>} />
-              <Route path="/productos/:sucursalId" element={<RutaPrivada component={Producto} roles={["ADMIN", "COCINERO"]} />} />
+              <Route path="/productos/:sucursalId" element={<RutaPrivada component={Producto} roles={["ADMIN", "COCINERO", "EMPLEADO"]} />} />
               <Route path="/unidadMedida/:sucursalId" element={<RutaPrivada component={UnidadMedida} roles={["ADMIN","EMPLEADO"]} />} />
               <Route path="/categorias/:sucursalId" element={<RutaPrivada component={Categoria} roles={["ADMIN", "EMPLEADO"]}/>} />
               <Route path="/promociones/:sucursalId" element={<RutaPrivada component={Promocion} roles={["ADMIN", "EMPLEADO"]}/>} />
