@@ -25,6 +25,7 @@ const Producto = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [productoEditar, setProductoEditar] = useState<IProducto>();
   const [isLoading, setIsLoading] = useState(true);
+  const [rol,setRole] = useState<string>("");
 
   const fetchProductos = async () => {
     try {
@@ -45,6 +46,16 @@ const Producto = () => {
   useEffect(() => {
     fetchProductos();
   }, [dispatch]);
+
+  useEffect(() => { // Mover la lógica para obtener el rol al useEffect
+    const userDataString = localStorage.getItem('usuario');
+    if (userDataString) {
+        const userData = JSON.parse(userDataString);
+        const rol = userData["https://my-app.example.com/roles"];
+        console.log("rol",rol[0]);
+        setRole(rol[0]);
+    }
+}, []);
 
   const onDeleteProducto = async (producto: IProducto) => {
     try {
@@ -122,6 +133,7 @@ const Producto = () => {
           <Typography variant="h4" gutterBottom>
             Productos
           </Typography>
+          {["ADMIN", "COCINERO"].includes(rol) && (
           <Button
             onClick={handleAddProducto}
             variant="contained"
@@ -136,7 +148,7 @@ const Producto = () => {
             }}
           >
             Producto
-          </Button>
+          </Button>)}
         </Box>
         <Box sx={{ mt: 2 }}>
           <SearchBar onSearch={onSearch} />
