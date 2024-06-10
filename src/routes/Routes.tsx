@@ -16,6 +16,7 @@ import Login from '../components/screens/Login/Login';
 import EmpresaComponent from '../components/screens/Empresa/EmpresaComponent';
 import { AuthenticationGuard } from '../components/auth/AuthenticationGuard';
 import useAuthToken from '../hooks/useAuthToken';
+import RutaPrivada from '../components/RutaPrivada/RutaPrivada';
 
 const Rutas: React.FC = () => {
   const { isAuthenticated, isLoading, user } = useAuth0();
@@ -41,6 +42,7 @@ const Rutas: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  localStorage.setItem('usuario', JSON.stringify(user));
   console.log('User:', user);
   console.log('Token:', token);
 
@@ -61,16 +63,16 @@ const Rutas: React.FC = () => {
         ) : (
           <>
             <Route path="/" element={<Navigate to="/empresa" />} />
-            <Route path="/empresa" element={<EmpresaComponent />} />
-            <Route path="/empresa/:empresaId" element={<SucursalComponent />} />
+            <Route path="/empresa" element={<RutaPrivada component={EmpresaComponent} roles={["ADMIN"]}/> } />
+            <Route path="/empresa/:empresaId" element={<RutaPrivada component={SucursalComponent} roles={["ADMIN"]}/> } />
             <Route path="/" element={<SidebarLayout />}>
-              <Route path="/dashboard/:sucursalId" element={<AuthenticationGuard component={Inicio} />} />
-              <Route path="/insumos/:sucursalId" element={<AuthenticationGuard component={Insumo} />} />
-              <Route path="/productos/:sucursalId" element={<AuthenticationGuard component={Producto} />} />
-              <Route path="/unidadMedida/:sucursalId" element={<AuthenticationGuard component={UnidadMedida} />} />
-              <Route path="/categorias/:sucursalId" element={<AuthenticationGuard component={Categoria} />} />
-              <Route path="/promociones/:sucursalId" element={<AuthenticationGuard component={Promocion} />} />
-              <Route path="/empleados/:sucursalId" element={<AuthenticationGuard component={Empleado} />} />
+              <Route path="/dashboard/:sucursalId" element={<RutaPrivada component={Inicio} roles={[]} />} />
+              <Route path="/insumos/:sucursalId" element={<RutaPrivada component={Insumo} roles={["EMPLEADO","ADMIN"]}/>} />
+              <Route path="/productos/:sucursalId" element={<RutaPrivada component={Producto} roles={["ADMIN", "COCINERO"]} />} />
+              <Route path="/unidadMedida/:sucursalId" element={<RutaPrivada component={UnidadMedida} roles={["ADMIN","EMPLEADO"]} />} />
+              <Route path="/categorias/:sucursalId" element={<RutaPrivada component={Categoria} roles={["ADMIN", "EMPLEADO"]}/>} />
+              <Route path="/promociones/:sucursalId" element={<RutaPrivada component={Promocion} roles={["ADMIN", "EMPLEADO"]}/>} />
+              <Route path="/empleados/:sucursalId" element={<RutaPrivada component={Empleado} roles={["ADMIN"]}/>} />
             </Route>
             <Route path="*" element={<Navigate to="/empresa" />} />
           </>
