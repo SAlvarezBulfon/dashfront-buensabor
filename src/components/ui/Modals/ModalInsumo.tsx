@@ -21,6 +21,7 @@ interface ModalInsumoProps {
     getInsumos: Function;
     insumoAEditar?: any;
     onClose: () => void;
+    idSucursal: number;
 }
 
 const ModalInsumo: React.FC<ModalInsumoProps> = ({
@@ -30,6 +31,7 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
     getInsumos,
     insumoAEditar,
     onClose,
+    idSucursal
 }) => {
     const insumoService = new InsumoService();
     const unidadMedidaService = new UnidadMedidaService();
@@ -252,10 +254,11 @@ const ModalInsumo: React.FC<ModalInsumoProps> = ({
                 idUnidadMedida: unidadMedida,
                 esParaElaborar: esParaElaborar,
                 idCategoria: categoria,
+                idSucursal: idSucursal,
             };
     
             let response;
-    
+            console.log(insumoPost)
             if (isEditMode && insumoAEditar) {
                 await insumoService.putSec(`${URL}/ArticuloInsumo`, insumoAEditar.id, insumoPost,token);
                 id = insumoAEditar.id;

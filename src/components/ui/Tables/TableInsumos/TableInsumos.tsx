@@ -15,6 +15,7 @@ import { toggleModal } from "../../../../redux/slices/ModalReducer";
 import { InsumoPost } from "../../../../types/post/InsumoPost";
 import EmptyState from "../../Cards/EmptyState/EmptyState";
 import useAuthToken from "../../../../hooks/useAuthToken";
+import { useParams } from "react-router-dom";
 
 
 
@@ -29,6 +30,7 @@ const TableInsumo = () => {
     const [selectedArticle, setSelectedArticle] = useState<IInsumo | InsumoPost>();
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const { sucursalId } = useParams<{ sucursalId: string }>();
 
     const fetchArticulosInsumos = async () => {
         try {
@@ -171,8 +173,9 @@ const TableInsumo = () => {
 
                 )}
             </Container>
-            {isModalOpen && selectedArticle &&
+            {isModalOpen && selectedArticle && sucursalId &&
                 <ModalInsumo
+                idSucursal={parseInt(sucursalId)}
                     modalName="modalInsumo"
                     initialValues={selectedArticle || initialValue}
                     isEditMode={isEditing}

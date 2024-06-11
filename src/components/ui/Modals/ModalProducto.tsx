@@ -27,6 +27,7 @@ interface ModalProductoProps {
     getProductos: Function;
     productoAEditar?: IProducto;
     onClose: () => void;
+    idSucursal: number;
 }
 
 const ModalProducto: React.FC<ModalProductoProps> = ({
@@ -36,6 +37,8 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     getProductos,
     productoAEditar,
     onClose,
+    idSucursal,
+    
 }) => {
     const productoService = new ProductoService();
     const productoDetalleService = new ProductoDetalleService();
@@ -348,6 +351,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                 preparacion: values.preparacion,
                 idUnidadMedida: unidadMedidaProducto,
                 idCategoria: categoriaProducto,
+                idSucursal: idSucursal,
                 articuloManufacturadoDetalles: dataIngredients.map((detalle) => {
                     return {
                         cantidad: detalle.cantidad,

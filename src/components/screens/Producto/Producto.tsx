@@ -13,6 +13,7 @@ import { toggleModal } from "../../../redux/slices/ModalReducer";
 import SearchBar from "../../ui/common/SearchBar/SearchBar";
 import TableComponent from "../../ui/Tables/Table/TableComponent";
 import useAuthToken from "../../../hooks/useAuthToken";
+import { useParams } from "react-router-dom";
 
 const Producto = () => {
   const getToken = useAuthToken();
@@ -20,7 +21,7 @@ const Producto = () => {
   const dispatch = useAppDispatch();
   const productoService = new ProductoService();
   const globalProductos = useAppSelector((state) => state.producto.data);
-
+  const { sucursalId } = useParams<{ sucursalId: string }>();
   const [filteredData, setFilteredData] = useState<Row[]>([]);
   const [isEditing, setIsEditing] = useState(false);
   const [productoEditar, setProductoEditar] = useState<IProducto>();
@@ -164,7 +165,9 @@ const Producto = () => {
           </Box>
 
         )}
-        <ModalProducto
+        {sucursalId && (
+          <ModalProducto
+          idSucursal={parseInt(sucursalId)}
           modalName="modalProducto"
           initialValues={{
             id: 0,
@@ -181,6 +184,8 @@ const Producto = () => {
           onClose={() => dispatch(toggleModal({ modalName: "modalProducto" }))}
 
         />
+        )}
+      
       </Container>
     </Box>
   );
