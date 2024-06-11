@@ -75,7 +75,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
         });
     };
 
-
+/*
     const fetchInsumoDetails = async (id: number) => {
         try {
             const articulo = await insumoService.get(`${URL}/ArticuloInsumo`, id) as IInsumo;
@@ -85,7 +85,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             return null;
         }
     }
-
+*/
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
