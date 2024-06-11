@@ -38,7 +38,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     productoAEditar,
     onClose,
     idSucursal,
-    
+
 }) => {
     const productoService = new ProductoService();
     const productoDetalleService = new ProductoDetalleService();
@@ -182,7 +182,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                 body: formData,
                 headers: {
                     Authorization: `Bearer ${token}`,
-                  },
+                },
             });
 
             Swal.close();
@@ -274,7 +274,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                 // Si está en modo de edición, usa el servicio para eliminar el detalle del producto en la base de datos
                 const token = await getToken();
                 await productoDetalleService.deleteSec(`${URL}/ArticuloManufacturadoDetalle`, productoDetalle.id, token);
-    
+
                 Swal.fire({
                     title: '¡Éxito!',
                     text: 'Ingrediente eliminado correctamente',
@@ -284,7 +284,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                     },
                 });
             }
-    
+
             // Actualiza el estado eliminando el detalle
             const updatedIngredients = dataIngredients.filter((ingredient) => ingredient.id !== productoDetalle.id);
             setDataIngredients(updatedIngredients);
@@ -300,59 +300,59 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             });
         }
     };
-    
 
-    const handleNewIngredient = async () => {
-        if (selectedInsumoId !== null && cantidadInsumo > 0) {
-            try {
-                const insumoDetails = await fetchInsumoDetails(selectedInsumoId);
-                const newDetalle = {
-                    cantidad: cantidadInsumo,
-                    idArticuloInsumo: selectedInsumoId,
-                    insumoDenominacion: insumoDetails?.denominacion,
-                    unidadMedida: insumoDetails?.unidadMedida?.denominacion,
-                }; 
-    
-                setDataIngredients([...dataIngredients, newDetalle]);
-    
-                setSelectedInsumoId(null);
-                setCantidadInsumo(0);
-                setUnidadMedidaInsumo('N/A');
-            } catch (error) {
-                console.error('Error al crear el detalle:', error);
-                Swal.fire({
-                    title: 'Error',
-                    text: 'Ha ocurrido un error al crear el detalle',
-                    icon: 'error',
-                    customClass: {
-                        container: 'my-swal',
-                    },
-                });
-            }
+
+const handleNewIngredient = async () => {
+    if (selectedInsumoId !== null && cantidadInsumo > 0) {
+        try {
+            const selectedInsumo = insumos.find(insumo => insumo.id === selectedInsumoId);
+
+            const newDetalle = {
+                cantidad: cantidadInsumo,
+                idArticuloInsumo: selectedInsumoId,
+                articuloInsumo: selectedInsumo  // Añade el objeto completo para acceder a su denominación
+            };
+
+            setDataIngredients([...dataIngredients, newDetalle]);
+
+            setSelectedInsumoId(null);
+            setCantidadInsumo(0);
+            setUnidadMedidaInsumo('N/A');
+        } catch (error) {
+            console.error('Error al crear el detalle:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'Ha ocurrido un error al crear el detalle',
+                icon: 'error',
+                customClass: {
+                    container: 'my-swal',
+                },
+            });
         }
-    };
-    
+    }
+};
+
     const columns: Column[] = [
         {
             id: "ingrediente",
-            label: "Ingrediente",
+            label: "",
             renderCell: (element) => (
                 <Typography variant="h6" fontWeight="bold">
-                    {element?.insumoDenominacion || 'N/A'}
+                    { isEditMode ?  element.articuloInsumo.denominacion : element?.idArticuloInsumo}
                 </Typography>
             )
         },
         {
             id: "cantidadYUnidadMedida",
-            label: "",
+            label: "Cantidad: ",
             renderCell: (element) => (
                 <>
-                    {element?.cantidad || 'N/A'} {element?.unidadMedida || ''}
+                    {element?.cantidad || 'N/A'} 
                 </>
             )
         }
     ];
-    
+
 
     const handleSubmit = async (values: IProducto) => {
         const token = await getToken();
@@ -369,7 +369,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                 articuloManufacturadoDetalles: dataIngredients.map((detalle) => {
                     return {
                         cantidad: detalle.cantidad,
-                        idArticuloInsumo: detalle.idArticuloInsumo,
+                        idArticuloInsumo: isEditMode ? detalle.articuloInsumo.id : detalle.idArticuloInsumo
                     };
                 }),
             };
@@ -377,17 +377,7 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             let id: number | null = null;
 
             if (isEditMode && productoAEditar) {
-                const productoPut = {
-                    ...productoPost,
-                    detalles: dataIngredients.map((detalle) => {
-                        return {
-                            cantidad: detalle.cantidad,
-                            idArticuloInsumo: detalle.idArticuloInsumo,
-                        };
-                    }),
-                };
-               
-                await productoService.putSec(`${URL}/ArticuloManufacturado`, productoAEditar.id, productoPut, token);
+                await productoService.putSec(`${URL}/ArticuloManufacturado`, productoAEditar.id, productoPost, token);
                 id = productoAEditar.id;
             } else {
                 response = await productoService.postSec(`${URL}/ArticuloManufacturado`, productoPost, token) as IProducto;
