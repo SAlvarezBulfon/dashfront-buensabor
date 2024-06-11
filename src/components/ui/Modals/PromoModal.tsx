@@ -56,8 +56,9 @@ const PromoModal: React.FC<PromocionModalProps> = ({ open, onClose, promocion })
                             {promocion && promocion.detalles.map((detalle: any, index: number) => (
                                 <ListItem key={index}>
                                     <ListItemText
-                                        primary={`Cantidad: ${detalle.cantidad}`}
-                                        secondary={`Artículo: ${detalle.insumo ? detalle.insumo.denominacion : detalle.manufacturado.denominacion}`}
+                                   primary ={`Artículo: ${detalle.insumo ? detalle.insumo.denominacion : detalle.manufacturado.denominacion}`}
+                                   secondary ={`Cantidad: ${detalle.cantidad}`}
+                                        
                                     />
                                 </ListItem>
                             ))}
@@ -67,6 +68,7 @@ const PromoModal: React.FC<PromocionModalProps> = ({ open, onClose, promocion })
                 <Button 
                     onClick={onClose} 
                     sx={{ mt: 2, bgcolor: '#e91e63', color: '#fff', '&:hover': { bgcolor: '#d81b60' } }}
+                   
                 >
                     Cerrar
                 </Button>
