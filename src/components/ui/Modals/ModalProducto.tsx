@@ -76,6 +76,17 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
     };
 
 
+    const fetchInsumoDetails = async (id: number) => {
+        try {
+            const articulo = await insumoService.get(`${URL}/ArticuloInsumo`, id) as IInsumo;
+            return articulo;
+        } catch (error) {
+            console.error('Error al obtener los detalles del insumo:', error);
+            return null;
+        }
+    }
+
+
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const files = event.target.files;
         if (files) {
@@ -259,23 +270,24 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
 
     const onDeleteProductoDetalle = async (productoDetalle: IProductoDetalle) => {
         try {
-            const token = await getToken();
             if (isEditMode && productoAEditar) {
-                // Si está en modo de edición, usamos el servicio para eliminar el detalle del producto de la base de datos
+                // Si está en modo de edición, usa el servicio para eliminar el detalle del producto en la base de datos
+                const token = await getToken();
                 await productoDetalleService.deleteSec(`${URL}/ArticuloManufacturadoDetalle`, productoDetalle.id, token);
+    
+                Swal.fire({
+                    title: '¡Éxito!',
+                    text: 'Ingrediente eliminado correctamente',
+                    icon: 'success',
+                    customClass: {
+                        container: 'my-swal',
+                    },
+                });
             }
-            //actualizamos el estado eliminando el detalle
+    
+            // Actualiza el estado eliminando el detalle
             const updatedIngredients = dataIngredients.filter((ingredient) => ingredient.id !== productoDetalle.id);
             setDataIngredients(updatedIngredients);
-
-            Swal.fire({
-                title: '¡Éxito!',
-                text: 'Ingrediente eliminado correctamente',
-                icon: 'success',
-                customClass: {
-                    container: 'my-swal',
-                },
-            });
         } catch (error) {
             console.error('Error al eliminar el ingrediente:', error);
             Swal.fire({
@@ -288,20 +300,21 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             });
         }
     };
+    
 
     const handleNewIngredient = async () => {
-        const token = await getToken();
         if (selectedInsumoId !== null && cantidadInsumo > 0) {
             try {
+                const insumoDetails = await fetchInsumoDetails(selectedInsumoId);
                 const newDetalle = {
                     cantidad: cantidadInsumo,
                     idArticuloInsumo: selectedInsumoId,
-                };
-
-                const createdDetalle = await productoDetalleService.postSec(`${URL}/ArticuloManufacturadoDetalle`, newDetalle, token);
-
-                setDataIngredients([...dataIngredients, createdDetalle]);
-
+                    insumoDenominacion: insumoDetails?.denominacion,
+                    unidadMedida: insumoDetails?.unidadMedida?.denominacion,
+                }; 
+    
+                setDataIngredients([...dataIngredients, newDetalle]);
+    
                 setSelectedInsumoId(null);
                 setCantidadInsumo(0);
                 setUnidadMedidaInsumo('N/A');
@@ -318,14 +331,14 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             }
         }
     };
-
+    
     const columns: Column[] = [
         {
             id: "ingrediente",
-            label: "",
+            label: "Ingrediente",
             renderCell: (element) => (
                 <Typography variant="h6" fontWeight="bold">
-                    {element?.articuloInsumo?.denominacion || 'N/A'}
+                    {element?.insumoDenominacion || 'N/A'}
                 </Typography>
             )
         },
@@ -334,11 +347,12 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
             label: "",
             renderCell: (element) => (
                 <>
-                    {element?.cantidad || 'N/A'} {element?.articuloInsumo?.unidadMedida?.denominacion || 'N/A'}
+                    {element?.cantidad || 'N/A'} {element?.unidadMedida || ''}
                 </>
             )
         }
     ];
+    
 
     const handleSubmit = async (values: IProducto) => {
         const token = await getToken();
@@ -351,15 +365,14 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                 preparacion: values.preparacion,
                 idUnidadMedida: unidadMedidaProducto,
                 idCategoria: categoriaProducto,
-                idSucursal: idSucursal,
+                idsucursal: idSucursal,
                 articuloManufacturadoDetalles: dataIngredients.map((detalle) => {
                     return {
                         cantidad: detalle.cantidad,
-                        idArticuloInsumo: detalle.articuloInsumo.id,
+                        idArticuloInsumo: detalle.idArticuloInsumo,
                     };
                 }),
             };
-
             let response;
             let id: number | null = null;
 
@@ -369,10 +382,11 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                     detalles: dataIngredients.map((detalle) => {
                         return {
                             cantidad: detalle.cantidad,
-                            idArticuloInsumo: detalle.articuloInsumo.id,
+                            idArticuloInsumo: detalle.idArticuloInsumo,
                         };
                     }),
                 };
+               
                 await productoService.putSec(`${URL}/ArticuloManufacturado`, productoAEditar.id, productoPut, token);
                 id = productoAEditar.id;
             } else {
@@ -407,16 +421,6 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                     container: 'my-swal',
                 },
             });
-
-            if (!isEditMode) {
-                try {
-                    await Promise.all(dataIngredients.map(async (detalle) => {
-                        await productoDetalleService.deleteSec(`${URL}/ArticuloManufacturadoDetalle`, detalle.id, token);
-                    }));
-                } catch (rollbackError) {
-                    console.error('Error al realizar el rollback:', rollbackError);
-                }
-            }
         }
     };
 
@@ -479,7 +483,6 @@ const ModalProducto: React.FC<ModalProductoProps> = ({
                                 value={unidadMedidaProducto}
                                 onChange={(e) => setUnidadMedidaProducto(e.target.value as number)}
                                 displayEmpty
-                                disabled={isEditMode}
                             >
                                 <MenuItem disabled value="">
                                     Seleccione una unidad de medida
