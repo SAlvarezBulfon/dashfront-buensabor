@@ -362,11 +362,15 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                 descripcionDescuento: values.descripcionDescuento,
                 precioPromocional: values.precioPromocional,
                 tipoPromocion: values.tipoPromocion,
-                idSucursales: selectedSucursales,
+                idSucursales: isEditMode ? promocionAEditar.sucursales.map((sucursal: ISucursal) => sucursal.id) : selectedSucursales,
+
                 detalles: dataArticles.map((detalle) => {
                     return {
                         cantidad: detalle.cantidad,
-                        idArticulo: detalle.idArticulo,
+                        idArticulo: isEditMode ?
+                        (detalle.insumo !== null ? detalle.insumo.id :
+                            (detalle.manufacturado !== null ? detalle.manufacturado.id : null))
+                        : detalle.idArticulo,
                     };
                 }),
             };
