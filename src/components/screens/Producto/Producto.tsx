@@ -30,7 +30,7 @@ const Producto = () => {
 
   const fetchProductos = async () => {
     try {
-      const productos = await productoService.getAll(url + "/ArticuloManufacturado");
+      const productos = await productoService.getAll(url + `/ArticuloManufacturado/bySucursalId/${sucursalId}`);
       dispatch(setProducto(productos));
       setFilteredData(productos);
     } catch (error) {

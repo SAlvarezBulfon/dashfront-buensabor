@@ -34,7 +34,7 @@ const TableInsumo = () => {
 
     const fetchArticulosInsumos = async () => {
         try {
-            const articulosInsumos = await insumoService.getAll(url + '/ArticuloInsumo');
+            const articulosInsumos = await insumoService.getAll(url + `/ArticuloInsumo/bySucursalId/${sucursalId}`);
             dispatch(setInsumo(articulosInsumos));
             setFilteredData(articulosInsumos);
         } catch (error) {

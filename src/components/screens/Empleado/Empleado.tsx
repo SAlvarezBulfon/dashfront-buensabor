@@ -35,7 +35,7 @@ const Empleado = () => {
 
     const fetchEmpleados = async () => {
         try {
-            const empleados = await empleadoService.getAll(`${url}/empleado`);
+            const empleados = await empleadoService.getAll(`${url}/empleado/bySucursalId/${sucursalId}`);
             dispatch(setEmpleado(empleados));
             setFilteredData(empleados);
         } catch (error) {
