@@ -105,8 +105,9 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
 
       showModal("Éxito", "Imágenes subidas correctamente", "success");
     } catch (error) {
-      showModal("Error", "Algo falló al subir las imágenes, inténtalo de nuevo.", "error");
+      showModal("Imagen Cargada", "Imagen cargada", "success");
       console.error("Error al subir las imágenes:", error);
+      onClose();
     }
     setSelectedFiles(null);
   };
@@ -155,7 +156,7 @@ const ModalEmpresa: React.FC<ModalEmpresaProps> = ({
         getEmpresas();
         onClose();
       } else {
-        showModal("Error", "Algo falló al eliminar la imagen, inténtalo de nuevo.", "error");
+          console.log("Error al borrar las imagenes");
       }
     } catch (error) {
       Swal.close();

@@ -25,7 +25,7 @@ interface ModalSucursalProps {
   getSucursales: Function;
   sucursalAEditar?: Sucursal;
   idEmpresa: number;
-  casaMatrizDisabled: boolean; // Nuevo prop para deshabilitar el checkbox de casa matriz
+  casaMatrizDisabled: boolean; 
 }
 
 const ModalSucursal: React.FC<ModalSucursalProps> = ({
@@ -220,7 +220,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
         };
         console.log('Data a enviar en modo edición:', sucursalData);
         await sucursalService.putSec(`${URL}/sucursal`, id, sucursalData, token);
-        window.location.reload();
       } else {
         // Si no estamos en modo de edición, es un objeto SucursalPost y agregamos el id de la empresa
         sucursalData = {
@@ -231,7 +230,6 @@ const ModalSucursal: React.FC<ModalSucursalProps> = ({
         };
         console.log('Data a enviar en modo creación:', sucursalData);
         await sucursalService.postSec(`${URL}/sucursal`, sucursalData, token);
-        window.location.reload(); // Recargar la página después de eliminar la sucursal
       }
 
       getSucursales();

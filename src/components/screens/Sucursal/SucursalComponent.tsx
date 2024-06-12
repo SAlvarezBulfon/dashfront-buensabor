@@ -76,7 +76,7 @@ const SucursalesEmpresa = () => {
                 },
                 fetchSucursal,
                 () => {
-                    window.location.reload();
+                    navigate(0); 
                 },
                 (error: any) => {
                     console.error("Error al eliminar sucursal:", error);
