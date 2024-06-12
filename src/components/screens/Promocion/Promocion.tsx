@@ -28,6 +28,7 @@ const Promocion: React.FC = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const getToken = useAuthToken();
+    const [openPromoModal, setOpenPromoModal] = useState(false);
     const fetchPromociones = async () => {
         try {
             setIsLoading(true);
@@ -80,8 +81,10 @@ const Promocion: React.FC = () => {
     };
 
     const handleViewDetails = (promocion: any) => {
+        
         setSelectedPromocion(promocion);
         dispatch(toggleModal({ modalName: "modalPromoDetail" }));
+        setOpenPromoModal(true);
     };
 
     const renderPromociones = (promociones: IPromocion[]) => {
@@ -150,13 +153,13 @@ const Promocion: React.FC = () => {
                     onClose={() => dispatch(toggleModal({ modalName: "modalPromocion" }))}
                 />
             }
-         {selectedPromocion &&
-    <PromocionModal
-        open={true}
-        onClose={() => setSelectedPromocion(null)}
-        promocion={selectedPromocion}
-    />
-}
+          {selectedPromocion && openPromoModal &&
+                <PromocionModal
+                    open={true}
+                    onClose={() => setOpenPromoModal(false)}
+                    promocion={selectedPromocion}
+                />
+            }
 
         </Box>
     );
