@@ -75,8 +75,6 @@ const RutaPrivada: React.FC<RutaPrivadaProps> = ({ component: Component, roles }
         return <Navigate to={`/dashboard/${idSucursal}`} replace />;
     }else if(!idSucursal){
         showModal("Error", "El usuario no pertenece a una sucursal, consulte al administrador.", "error");
-    }else if(roles){
-        showModal("Error", "El usuario no tiene ningun rol, consulte al administrador.", "error");
     }
     
 
