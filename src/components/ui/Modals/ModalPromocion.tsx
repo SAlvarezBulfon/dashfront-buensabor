@@ -19,7 +19,6 @@ import PromocionDetalleService from '../../../services/PromocionDetalleService';
 import Column from '../../../types/Column';
 import TableComponent from '../Tables/Table/TableComponent';
 import ArticuloSeleccionado from '../Cards/ArticulosSeleccionados/ArticulosSeleccionados';
-import IPromocionDetalle from '../../../types/IPromocionDetalle';
 import useAuthToken from '../../../hooks/useAuthToken';
 
 
@@ -83,39 +82,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
             },
         });
     };
-    //Detalles
 
-    const handleRemoveDetalle = async (promocionDetalle: IPromocionDetalle) => {
-        try {
-            const token = await getToken();
-            if (isEditMode && promocionAEditar) {
-                // Si está en modo de edición, usamos el servicio para eliminar el detalle de promoción de la base de datos
-                await promocionDetalleService.deleteSec(`${URL}/promocionDetalle`, promocionDetalle.id, token);
-            }
-            // Actualizamos el estado eliminando el detalle
-            const updatedDetalles = dataArticles.filter((detalle) => detalle.id !== promocionDetalle.id);
-            setDataArticles(updatedDetalles);
-
-            Swal.fire({
-                title: '¡Éxito!',
-                text: 'Detalle eliminado correctamente',
-                icon: 'success',
-                customClass: {
-                    container: 'my-swal',
-                },
-            });
-        } catch (error) {
-            console.error('Error al eliminar el detalle de promoción:', error);
-            Swal.fire({
-                title: 'Error',
-                text: 'Ha ocurrido un error al eliminar el detalle de promoción',
-                icon: 'error',
-                customClass: {
-                    container: 'my-swal',
-                },
-            });
-        }
-    };
 
 
 
@@ -287,7 +254,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                 body: formData,
                 headers: {
                     Authorization: `Bearer ${token}`,
-                  },
+                },
             });
 
             Swal.close();
@@ -346,12 +313,12 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                 return;
             }
 
-    
+
             if (!isEditMode && selectedSucursales.length === 0) {
                 showModal("Error", "Debe seleccionar al menos una sucursal.", "warning");
                 return;
             }
-    
+
             // Construcción del objeto a enviar
             const promocionPost: PromocionPost = {
                 denominacion: values.denominacion,
@@ -368,18 +335,18 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                     return {
                         cantidad: detalle.cantidad,
                         idArticulo: isEditMode ?
-                        (detalle.insumo !== null ? detalle.insumo.id :
-                            (detalle.manufacturado !== null ? detalle.manufacturado.id : null))
-                        : detalle.idArticulo,
+                            (detalle.insumo !== null ? detalle.insumo.id :
+                                (detalle.manufacturado !== null ? detalle.manufacturado.id : null))
+                            : detalle.idArticulo,
                     };
                 }),
             };
 
             console.log(promocionPost)
 
-    
+
             let response;
-    
+
             // Envío de datos (POST o PUT)
             if (isEditMode && promocionAEditar) {
                 console.log(promocionAEditar.id)
@@ -389,7 +356,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
                 response = await promocionService.postSec(`${URL}/promocion`, promocionPost, token) as IPromocion;
                 id = response.id;
             }
-    
+
             // Verificación de éxito en el envío de datos
             if (id !== null) {
                 if (selectedFiles && selectedFiles.length > 0) {
@@ -409,7 +376,7 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
             console.error('Error al enviar los datos:', error);
         }
     };
-    
+
 
 
 
@@ -542,19 +509,20 @@ const ModalPromocion: React.FC<ModalPromocionProps> = ({
 
 
             </div>
-
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2vh', marginTop: 2 }}>
-                <Grid container spacing={2}>
-                    <Grid item xs={12}>
-                        <ArticuloSeleccionado onAgregarArticulo={handleNewArticle} />
+            {!isEditMode && (<>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2vh', marginTop: 2 }}>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12}>
+                            <ArticuloSeleccionado onAgregarArticulo={handleNewArticle} />
+                        </Grid>
                     </Grid>
-                </Grid>
-            </Box>
-            <TableComponent
-                data={dataArticles}
-                columns={columns}
-                onDelete={handleRemoveDetalle}
-            />
+                </Box>
+
+                <TableComponent
+                    data={dataArticles}
+                    columns={columns}
+                />
+            </>)}
 
         </GenericModal>
     );
