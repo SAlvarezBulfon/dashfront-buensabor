@@ -3,14 +3,18 @@
 ## Usuario
 
  
- * juanperez@gmail.com
- * @abc1234
- * EMPLEADO
+ * correo: juanperez@gmail.com
+ * contraseña: @abc1234
+ * rol: EMPLEADO
 
- * peterparker@gmail.com
- * @abc1234
- * COCINERO
+ * correo: peterparker@gmail.com
+ * contraseña: @abc1234
+ * rol: COCINERO
 
- * admin@admin.com
- * @abc1234
- * COCINERO
+ * correo:admin@admin.com
+ * contraseña: @abc1234
+ * rol: ADMIN
+
+ * correo: alberto@buensabor.com
+ * contraseña: @abc1324
+ * rol: cocinero
