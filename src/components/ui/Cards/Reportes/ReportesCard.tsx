@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 const ReportesCard = () => {
     const [startDate, setStartDate] = useState<Date | null>(null);
     const [endDate, setEndDate] = useState<Date | null>(null);
+    const [hasPedidos, setHasPedidos] = useState(false);
     const url = import.meta.env.VITE_API_URL;
 
     const handleReportRequest = async () => {
@@ -15,11 +16,28 @@ const ReportesCard = () => {
             console.error('Por favor selecciona una fecha de inicio y una fecha de fin.');
             return;
         }
+
+        try {
+            const response = await fetch(
+                `${url}/pedido/countPorFecha?fechaDesde=${startDate.toISOString().split('T')[0]}&fechaHasta=${endDate.toISOString().split('T')[0]}`
+            );
+            const count = await response.json();
+            console.log(count);
+            
+            if (count > 0) {
+                setHasPedidos(true);
+            } else {
+                setHasPedidos(false);
+                alert('No hay pedidos en el rango de fechas seleccionado.');
+            }
+        } catch (error) {
+            console.error('Error al obtener el conteo de pedidos:', error);
+        }
     };
 
     return (
         <>
-            <Card >
+            <Card>
                 <CardContent>
                     <Typography gutterBottom variant="h5" component="div">
                         Generar Reportes
@@ -45,14 +63,17 @@ const ReportesCard = () => {
                             placeholderText="Fecha Fin"
                         />
                         {(startDate && endDate) ?
-                            <Link to={`${url}/estadisticas/excel?fechaDesde=${startDate.toISOString().split('T')[0]}&fechaHasta=${endDate.toISOString().split('T')[0]}`}>
-                                <Button onClick={handleReportRequest}>Generar Excel</Button>
-                            </Link> : null}
+                            <Button onClick={handleReportRequest}>Verificar Pedidos</Button>
+                            : null}
+                        {hasPedidos && 
+                            <Link to={`${url}/estadisticas/excel?fechaDesde=${startDate?.toISOString().split('T')[0]}&fechaHasta=${endDate?.toISOString().split('T')[0]}`}>
+                                <Button>Generar Excel</Button>
+                            </Link>}
                     </div>
                 </CardContent>
             </Card>
         </>
-    )
+    );
 }
 
 export default ReportesCard;

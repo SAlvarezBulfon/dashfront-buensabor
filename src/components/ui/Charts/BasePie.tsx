@@ -19,6 +19,8 @@ const BasePie = () => {
                 label: item.denominacion
             }));
             setChartData(formattedData);
+            console.log(chartData, "chartdata");
+            
         } catch (error) {
             console.error("Error al cargar los datos del gráfico:", error);
         }
@@ -59,6 +61,7 @@ const BasePie = () => {
                 <Button onClick={handleFetchData}>Crear</Button>
             </Box>
             <Box>
+                {(chartData.length == 0) ? <span> No hay informacion para mostrar un grafico</span> :
                 <PieChart
                     colors={['#5D2A42', '#FB6376', '#FCB1A6']}
                     series={[
@@ -68,7 +71,7 @@ const BasePie = () => {
                     ]}
                     width={400}
                     height={200}
-                />
+                />}
             </Box>
         </>
     );

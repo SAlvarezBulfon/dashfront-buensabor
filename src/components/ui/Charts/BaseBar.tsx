@@ -55,22 +55,23 @@ const BaseBar = () => {
                 <Button onClick={handleFetchData}>Crear</Button>
             </Box>
             <Box textAlign="center">
-                <BarChart
-                    xAxis={[
-                        {
-                            id: 'meses',
-                            data: chartData.map(item => item.mes),
-                            scaleType: 'band',
-                        },
-                    ]}
-                    series={[
-                        {
-                            data: chartData.map(item => item.ingresos),
-                        },
-                    ]}
-                    width={420}
-                    height={300}
-                />
+                {(chartData.length == 0) ? <span> No hay informacion para mostrar un grafico</span> :
+                    <BarChart
+                        xAxis={[
+                            {
+                                id: 'meses',
+                                data: chartData.map(item => item.mes),
+                                scaleType: 'band',
+                            },
+                        ]}
+                        series={[
+                            {
+                                data: chartData.map(item => item.ingresos),
+                            },
+                        ]}
+                        width={420}
+                        height={300}
+                    />}
             </Box>
         </>
     );
