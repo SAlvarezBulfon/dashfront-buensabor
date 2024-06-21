@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { cilBarChart, cilCart, cilFastfood, cilPeople, cilDollar, cilSpeedometer } from "@coreui/icons";
+import {cilArrowLeft, cilBarChart, cilCart, cilFastfood, cilPeople, cilDollar, cilSpeedometer } from "@coreui/icons";
 import CIcon from "@coreui/icons-react";
 import { CNavGroup, CNavItem, CNavTitle, CSidebar, CSidebarNav } from "@coreui/react";
 import '@coreui/coreui/dist/css/coreui.min.css';
@@ -46,88 +46,96 @@ const BasicSidebar: React.FC = () => {
 
     return (
         <div>
-            <CSidebar className="border-end d-flex flex-column" style={{ height: '100vh' }}>
-                <CSidebarNav>
-                    <CNavTitle>
-                        {empresaNombre} - {sucursalNombre}
-                    </CNavTitle>
-                    {["ADMIN", "COCINERO", "EMPLEADO"].includes(rol) && (
-                        <CNavItem>
-                            <Link to={`/dashboard/${sucursalId}`} className="nav-link" >
-                                <CIcon customClassName="nav-icon" icon={cilBarChart} />
-                                Estadísticas
-                            </Link>
-                        </CNavItem>
-                    )}
-                    {["ADMIN", "COCINERO", "EMPLEADO"].includes(rol) && (
-                        <CNavGroup
-                            toggler={
-                                <>
-                                    <CIcon customClassName="nav-icon" icon={cilFastfood} />
-                                    Productos
-                                </>
-                            }
-                        >
-                            <CNavItem>
-                                <Link to={`/productos/${sucursalId}`} className="nav-link" >
-                                    <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
-                                    Lista de Productos
-                                </Link>
-                            </CNavItem>
-                            {["ADMIN", "EMPLEADO"].includes(rol) && (
-                                <CNavItem>
-                                    <Link to={`/categorias/${sucursalId}`} className="nav-link">
-                                        <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
-                                        Categorías
-                                    </Link>
-                                </CNavItem>
-                            )}
-                        </CNavGroup>
-                    )}
-                    {["ADMIN", "EMPLEADO"].includes(rol) && (
-                        <CNavItem>
-                            <Link to={`/promociones/${sucursalId}`} className="nav-link">
-                                <CIcon customClassName="nav-icon" icon={cilDollar} />
-                                Promociones
-                            </Link>
-                        </CNavItem>
-                    )}
-                    {["ADMIN"].includes(rol) && (
-                        <CNavGroup
-                            toggler={
-                                <>
-                                    <CIcon customClassName="nav-icon" icon={cilPeople} />
-                                    Empleados
-                                </>
-                            }
-                        >
-                            <CNavItem>
-                                <Link to={`/empleados/${sucursalId}`} className="nav-link" >
-                                    <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
-                                    Lista de Empleados
-                                </Link>
-                            </CNavItem>
-                        </CNavGroup>
-                    )}
-                    {["ADMIN", "EMPLEADO"].includes(rol) && (
-                        <CNavItem>
-                            <Link to={`/insumos/${sucursalId}`} className="nav-link">
-                                <CIcon customClassName="nav-icon" icon={cilCart} />
-                                Insumos
-                            </Link>
-                        </CNavItem>
-                    )}
-                    {["ADMIN", "EMPLEADO"].includes(rol) && (
-                        <CNavItem>
-                            <Link to={`/unidadMedida/${sucursalId}`} className="nav-link">
-                                <CIcon customClassName="nav-icon" icon={cilSpeedometer} />
-                                Unidad de Medida
-                            </Link>
-                        </CNavItem>
-                    )}
-                </CSidebarNav>
-            </CSidebar>
-        </div>
+      <CSidebar className="border-end d-flex flex-column" style={{ height: '100vh' }}>
+        <CSidebarNav>
+        {["ADMIN"].includes(rol) && (
+          <CNavItem>
+                <Link to={`/empresa`} className="nav-link">
+              <CIcon customClassName="nav-icon" icon={cilArrowLeft} />
+              Volver
+            </Link>
+          </CNavItem>
+          )}
+          <CNavTitle>
+            {empresaNombre} - {sucursalNombre}
+          </CNavTitle>
+          {["ADMIN", "COCINERO", "EMPLEADO"].includes(rol) && (
+            <CNavItem>
+              <Link to={`/dashboard/${sucursalId}`} className="nav-link">
+                <CIcon customClassName="nav-icon" icon={cilBarChart} />
+                Estadísticas
+              </Link>
+            </CNavItem>
+          )}
+          {["ADMIN", "COCINERO", "EMPLEADO"].includes(rol) && (
+            <CNavGroup
+              toggler={
+                <>
+                  <CIcon customClassName="nav-icon" icon={cilFastfood} />
+                  Productos
+                </>
+              }
+            >
+              <CNavItem>
+                <Link to={`/productos/${sucursalId}`} className="nav-link">
+                  <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
+                  Lista de Productos
+                </Link>
+              </CNavItem>
+              {["ADMIN", "EMPLEADO"].includes(rol) && (
+                <CNavItem>
+                  <Link to={`/categorias/${sucursalId}`} className="nav-link">
+                    <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
+                    Categorías
+                  </Link>
+                </CNavItem>
+              )}
+            </CNavGroup>
+          )}
+          {["ADMIN", "EMPLEADO"].includes(rol) && (
+            <CNavItem>
+              <Link to={`/promociones/${sucursalId}`} className="nav-link">
+                <CIcon customClassName="nav-icon" icon={cilDollar} />
+                Promociones
+              </Link>
+            </CNavItem>
+          )}
+          {["ADMIN"].includes(rol) && (
+            <CNavGroup
+              toggler={
+                <>
+                  <CIcon customClassName="nav-icon" icon={cilPeople} />
+                  Empleados
+                </>
+              }
+            >
+              <CNavItem>
+                <Link to={`/empleados/${sucursalId}`} className="nav-link">
+                  <span className="nav-icon"><span className="nav-icon-bullet"></span></span>
+                  Lista de Empleados
+                </Link>
+              </CNavItem>
+            </CNavGroup>
+          )}
+          {["ADMIN", "EMPLEADO"].includes(rol) && (
+            <CNavItem>
+              <Link to={`/insumos/${sucursalId}`} className="nav-link">
+                <CIcon customClassName="nav-icon" icon={cilCart} />
+                Insumos
+              </Link>
+            </CNavItem>
+          )}
+          {["ADMIN", "EMPLEADO"].includes(rol) && (
+            <CNavItem>
+              <Link to={`/unidadMedida/${sucursalId}`} className="nav-link">
+                <CIcon customClassName="nav-icon" icon={cilSpeedometer} />
+                Unidad de Medida
+              </Link>
+            </CNavItem>
+          )}
+        </CSidebarNav>
+      </CSidebar>
+    </div>
     );
 }
 

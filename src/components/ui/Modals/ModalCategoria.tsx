@@ -214,7 +214,7 @@ const ModalCategoria: React.FC<ModalCategoriaProps> = ({
                 <Stack direction="row" alignItems="center" spacing={1}>
                     <TextFieldValue label="Denominación" name="denominacion" type="text" placeholder="Denominación" />
                     <IconButton size="small" onClick={() => addSubCategoria()}>
-                        <AddCircleOutlineIcon fontSize="small" />
+                        <AddCircleOutlineIcon fontSize="small" /> <> Subcategoria</>
                     </IconButton>
                 </Stack>
                 <>

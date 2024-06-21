@@ -15,22 +15,21 @@ import { Link } from 'react-router-dom';
 import { useAuth0 } from '@auth0/auth0-react';
 
 export default function PrimarySearchAppBar() {
-  const {logout } = useAuth0();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const { user, logout } = useAuth0();
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const isMenuOpen = Boolean(anchorEl);
 
   const handleProfileMenuOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    setAnchorEl(event.currentTarget as HTMLElement | null | any);
+    setAnchorEl(event.currentTarget);
   };
-  
   
   const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
   const handleLogout = () => {
-    logout({logoutParams: { returnTo: window.location.origin }});
+    logout({ logoutParams: { returnTo: window.location.origin } });
     handleMenuClose();
   };
 
@@ -51,15 +50,18 @@ export default function PrimarySearchAppBar() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
-      <MenuItem onClick={handleMenuClose}><div><Person2OutlinedIcon sx={{mr: 1}}/></div>Perfil</MenuItem>
-      <MenuItem onClick={handleMenuClose}><div><SettingsOutlinedIcon sx={{mr: 1}} /></div>Ajustes</MenuItem>
-      <Divider/>
-      <MenuItem onClick={handleLogout}><div><LoginOutlinedIcon sx={{mr: 1}} /></div>Cerrar Sesión</MenuItem>
+      <MenuItem onClick={handleLogout}>
+        <div><LoginOutlinedIcon sx={{ mr: 1 }} /></div>Cerrar Sesión
+      </MenuItem>
     </Menu>
   );
+
+  // Obtener el rol del usuario de los metadatos de Auth0
+  const userRole = user?.['https://my-app.example.com/roles']?.[0] || 'Usuario';
+
   return (
     <Box sx={{ flexGrow: 1 }}>
-      <AppBar position="static" sx={{bgcolor: '#fb6376'}}>
+      <AppBar position="static" sx={{ bgcolor: '#fb6376' }}>
         <Toolbar>
           <Typography
             variant="h6"
@@ -67,8 +69,7 @@ export default function PrimarySearchAppBar() {
             component="div"
             sx={{ justifyContent: 'center' }}
           >
-           <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>Administrador</Link>
-
+            <Link to="/" style={{ textDecoration: "none", color: "inherit" }}>{userRole}</Link>
           </Typography>
           <Box sx={{ flexGrow: 1 }} />
           <IconButton

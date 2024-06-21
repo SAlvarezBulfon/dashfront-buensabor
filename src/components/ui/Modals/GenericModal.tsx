@@ -15,7 +15,7 @@ interface ModalProps {
   onSubmit: (values: any) => void;
   children?: React.ReactNode;
   isEditMode: boolean;
-  disableSubmit?: boolean
+  disableSubmit?: boolean;
 }
 
 const GenericModal: React.FC<ModalProps> = ({ modalName, title, initialValues, validationSchema, onSubmit, children, isEditMode, disableSubmit }) => {
@@ -57,8 +57,8 @@ const GenericModal: React.FC<ModalProps> = ({ modalName, title, initialValues, v
         style={{ 
           backgroundColor: 'white', 
           padding: '20px', 
-          width: '90%', 
-          height: '80%', 
+          width: '50%', 
+          height: '60%', 
           borderRadius: '8px',
           overflow: 'auto'
         }}
